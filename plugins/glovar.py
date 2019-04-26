@@ -104,8 +104,11 @@ admin_ids: Dict[int, Set[int]] = {}
 #     -10012345678: {12345678}
 # }
 
-except_ids: Set[int] = set()
-# except_ids = {12345678}
+except_ids: Dict[str, Set[int]] = {}
+# except_ids = {
+#     "channels": {-10012345678},
+#     "users": {12345678}
+# }
 
 user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 # user_ids = {
