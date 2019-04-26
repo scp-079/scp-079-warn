@@ -160,10 +160,10 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
 
                 When action is update:
                     download - Download the data, then update
+                    preview - Update a message's preview
                     reload - Update the data from local machines
                     score - Update user's score
                     status - Update bot's status
-                    preview - Update a message's preview
 
 
         data (optional):
@@ -224,6 +224,11 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                 Update
                     download:
                         "filename"
+
+                    preview: {
+                        "text": "some text",
+                        "image": "file_id"
+                    }
 
                     reload:
                         "path"
