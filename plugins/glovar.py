@@ -197,6 +197,7 @@ try:
     # [bots]
     user_id = int(config["bots"].get("user_id", user_id))
     # [channels]
+    debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
@@ -213,6 +214,7 @@ except Exception as e:
 if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
         or user_id == 0
+        or debug_channel_id == 0
         or exchange_channel_id == 0
         or test_group_id == 0
         or default_group_link in {"", "[DATA EXPUNGED]"}
