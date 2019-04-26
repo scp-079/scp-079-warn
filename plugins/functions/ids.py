@@ -37,7 +37,7 @@ def init_group_id(gid: int) -> bool:
                     "manual": False
                 }
             }
-            save("modes")
+            save("configs")
 
         if glovar.admin_ids.get(gid) is None:
             glovar.admin_ids[gid] = set()
