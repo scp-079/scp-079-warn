@@ -22,7 +22,7 @@ import logging
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import code, general_link, get_text, thread, user_mention
+from ..functions.etc import code, general_link, receive_data, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, new_group
 from ..functions.group import leave_group
@@ -38,13 +38,15 @@ logger = logging.getLogger(__name__)
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def auto_report(client, message):
     try:
-        gid = message.chat.id
-        if glovar.modes[gid]["report"]["auto"]:
-            text = get_text(message)
-            if text:
-                if glovar.compiled["bad"].search(text):
-                    uid = message.from_user.id
-                    mid = message.message_id
+        data = receive_data(message)
+        if data and "WARN" in data["receivers"]:
+            if (data["sender"] == "NOSPAM"
+                    and data["action"] == "help" and data["type"] == "report"):
+                gid = data["data"]["group_id"]
+                init_group_id(gid)
+                if glovar.configs[gid]["report"]["auto"]:
+                    uid = data["data"]["user_id"]
+                    mid = data["data"]["message_id"]
                     text, markup = report_user(gid, uid, 0, mid)
                     thread(send_message, (client, gid, text, mid, markup))
     except Exception as e:

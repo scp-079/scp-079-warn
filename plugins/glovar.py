@@ -129,8 +129,8 @@ compiled: dict = {}
 for word_type in regex_names:
     compiled[word_type] = re.compile(fr"预留{names[f'{word_type}']}词组 {random_str(16)}", re.I | re.M | re.S)
 
-modes: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
-# modes = {
+configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
+# configs = {
 #     -10012345678: {
 #         "limit": 3,
 #         "locked": False,
@@ -143,7 +143,7 @@ modes: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "compiled", "except_ids", "modes", "user_ids"]
+file_list: List[str] = ["admin_ids", "compiled", "configs", "except_ids", "user_ids"]
 for file in file_list:
     try:
         try:

@@ -56,7 +56,7 @@ def backup_files(client: Client) -> bool:
 
 
 def update_admins(client: Client) -> bool:
-    group_list = list(glovar.modes)
+    group_list = list(glovar.configs)
     for gid in group_list:
         try:
             should_leave = False

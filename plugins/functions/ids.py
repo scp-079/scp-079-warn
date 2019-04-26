@@ -27,8 +27,8 @@ logger = logging.getLogger(__name__)
 
 def init_group_id(gid: int) -> bool:
     try:
-        if glovar.modes.get(gid) is None:
-            glovar.modes[gid] = {
+        if glovar.configs.get(gid) is None:
+            glovar.configs[gid] = {
                 "limit": 3,
                 "locked": False,
                 "mention": False,

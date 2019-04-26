@@ -68,14 +68,14 @@ def delay(secs: int, target: Callable, args: list) -> bool:
     return True
 
 
-def get_text(message: Message) -> Optional[str]:
+def get_text(message: Message, con: bool = True) -> Optional[str]:
     text = None
     if message.text:
         text = message.text
     elif message.caption:
         text = message.caption
 
-    if text:
+    if text and con:
         text = t2s(text)
 
     return text
@@ -94,7 +94,7 @@ def random_str(i: int) -> str:
 
 
 def receive_data(message: Message) -> dict:
-    text = get_text(message)
+    text = get_text(message, False)
     try:
         assert text is not None, f"Can't get text from message: {message}"
         data = loads(text)
@@ -197,11 +197,18 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                         "message_id": 123
                     }
 
-                Help ban / delete / report:
-                    {
-                        "group_id": -10012345678,
-                        "user_id": 12345678
-                    }
+                Help:
+                    ban / delete:
+                        {
+                            "group_id": -10012345678,
+                            "user_id": 12345678
+                        }
+
+                    report:
+                        {
+                            "group_id": -10012345678,
+                            "user_id": 12345678,
+                        }
 
                 Leave:
                     -10012345678
@@ -228,10 +235,10 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
 
                     preview: {
                         "group_id": -10012345678,
-                        "image": "file_id"
+                        "user_id": 12345678,
                         "message_id": 123,
                         "text": "some text",
-                        "user_id": 12345678,
+                        "image": "file_id"
                     }
 
                     reload:
