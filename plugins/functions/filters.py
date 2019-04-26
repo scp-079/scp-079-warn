@@ -48,6 +48,14 @@ def is_class_e(_, message: Message) -> bool:
     return False
 
 
+def is_exchange_channel(_, message: Message) -> bool:
+    cid = message.chat.id
+    if cid == glovar.exchange_channel_id:
+        return True
+
+    return False
+
+
 def is_new_group(_, message: Message) -> bool:
     new_users = message.new_chat_members
     for user in new_users:
@@ -73,6 +81,11 @@ class_c = Filters.create(
 class_e = Filters.create(
     name="Class E",
     func=is_class_e
+)
+
+exchange_channel = Filters.create(
+    name="Exchange Channel",
+    func=is_exchange_channel
 )
 
 new_group = Filters.create(

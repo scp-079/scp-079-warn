@@ -139,7 +139,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     pickle - Pickle file
 
                 When action is config:
-                    ask - Let SCP-079-MANAGE provide config options in SCP-079-CONFIG
+                    ask - Let CONFIG provide config options in CONFIG Group
                     update - Update some group's configurations
 
                 When action is declare:
@@ -147,8 +147,9 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     delete - The message has been deleted
 
                 When action is help:
-                    ban - Let SCP-079-USER ban a user globally
-                    delete - Let SCP-079-USER delete a user's all messages in some group
+                    ban - Let USER ban a user globally
+                    delete - Let USER delete a user's all messages in some group
+                    report - Let WARN alert admins
 
                 When action is leave:
                     group - Leave the group
@@ -196,7 +197,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                         "message_id": 123
                     }
 
-                Help ban / delete:
+                Help ban / delete / report:
                     {
                         "group_id": -10012345678,
                         "user_id": 12345678
@@ -226,8 +227,11 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                         "filename"
 
                     preview: {
-                        "text": "some text",
+                        "group_id": -10012345678,
                         "image": "file_id"
+                        "message_id": 123,
+                        "text": "some text",
+                        "user_id": 12345678,
                     }
 
                     reload:

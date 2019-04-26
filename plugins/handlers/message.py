@@ -24,7 +24,7 @@ from pyrogram import Client, Filters
 from .. import glovar
 from ..functions.etc import code, general_link, get_text, thread, user_mention
 from ..functions.file import save
-from ..functions.filters import class_c, class_e, new_group, test_group
+from ..functions.filters import exchange_channel, new_group
 from ..functions.group import leave_group
 from ..functions.ids import init_group_id
 from ..functions.telegram import get_admins, get_group_info, leave_chat, send_message
@@ -34,7 +34,7 @@ from ..functions.user import report_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~class_c & ~class_e & ~Filters.service
+@Client.on_message(Filters.incoming & Filters.channel & exchange_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def auto_report(client, message):
     try:
