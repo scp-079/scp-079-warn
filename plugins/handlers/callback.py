@@ -23,7 +23,7 @@ from json import loads
 from pyrogram import Client
 
 from .. import glovar
-from ..functions.etc import code, delay, thread
+from ..functions.etc import code, delay, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c
 from ..functions.ids import init_user_id
@@ -76,9 +76,13 @@ def answer(client, callback_query):
                             text, markup = ban_user(client, gid, uid, aid)
                         elif action_type == "warn":
                             text, markup = warn_user(client, gid, uid, aid)
-                        else:
+                        elif action_type == "spam":
                             text, markup = warn_user(client, gid, rid, aid)
                             text += f"\n原因：{code('滥用')}"
+                        else:
+                            text = (f"管理员：{user_mention(uid)}\n"
+                                    f"状态：{code('已取消')}")
+                            markup = None
 
                         if markup:
                             secs = 60

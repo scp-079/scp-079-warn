@@ -21,8 +21,8 @@ import logging
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import bold, thread, user_mention
-from ..functions.filters import class_c, test_group
+from ..functions.etc import bold, send_data, thread, user_mention
+from ..functions.filters import class_c, is_class_c, test_group
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user, warn_user
 
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 def admin(client, message):
     try:
         gid = message.chat.id
-        if glovar.modes[gid]["mention"]:
+        if glovar.configs[gid]["mention"]:
             mid = message.message_id
             uid = message.from_user.id
             if (uid
@@ -65,39 +65,56 @@ def admin(client, message):
         logger.warning(f"Admin error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & class_c
+@Client.on_message(Filters.incoming & Filters.group
                    & Filters.command(["ban"], glovar.prefix))
 def ban(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
-        uid, re_mid = get_class_d_id(message)
-        if uid:
-            aid = message.from_user.id
-            text, markup = ban_user(client, gid, uid, aid)
-            if markup:
-                secs = 60
-                text = get_reason(message, text)
-            else:
-                secs = 10
+        mids = [mid]
+        if is_class_c(None, message):
+            uid, re_mid = get_class_d_id(message)
+            if uid:
+                aid = message.from_user.id
+                text, markup = ban_user(client, gid, uid, aid)
+                if markup:
+                    secs = 60
+                    text = get_reason(message, text)
+                else:
+                    secs = 10
 
-            thread(send_report_message, (secs, client, gid, text, None, markup))
-            if re_mid:
-                mids = [re_mid, mid]
-            else:
-                mids = [mid]
+                thread(send_report_message, (secs, client, gid, text, None, markup))
+                if re_mid:
+                    mids = [re_mid, mid]
+                else:
+                    mids = [mid]
 
-            thread(delete_messages, (client, gid, mids))
+        thread(delete_messages, (client, gid, mids))
     except Exception as e:
         logger.warning(f"Ban error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & class_c
+@Client.on_message(Filters.incoming & Filters.group
                    & Filters.command(["config"], glovar.prefix))
 def config(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
+        if is_class_c(None, message):
+            command_list = list(filter(None, message.command))
+            if len(command_list) == 2 and command_list[1] == "warn":
+                data = send_data(
+                    sender="WARN",
+                    receivers=["CONFIG"],
+                    action="config",
+                    action_type="ask",
+                    data={
+                        "group_id": gid,
+                        "config": glovar.configs[gid]
+                    }
+                )
+                thread(send_message, (client, data, glovar.exchange_channel_id))
+
         mids = [mid]
         thread(delete_messages, (client, gid, mids))
     except Exception as e:
@@ -110,17 +127,21 @@ def forgive(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
-        aid = message.from_user.id
-        uid = get_class_d_id(message)
-        if uid:
-            text, result = forgive_user(client, gid, uid, aid)
-            if result:
-                secs = 60
-                text = get_reason(message, text)
-            else:
-                secs = 10
+        mids = [mid]
+        if is_class_c(None, message):
+            aid = message.from_user.id
+            uid = get_class_d_id(message)
+            if uid:
+                text, result = forgive_user(client, gid, uid, aid)
+                if result:
+                    secs = 60
+                    text = get_reason(message, text)
+                else:
+                    secs = 10
 
-            thread(send_report_message, (secs, client, gid, text, mid))
+                thread(send_report_message, (secs, client, gid, text, mid))
+
+        thread(delete_messages, (client, gid, mids))
     except Exception as e:
         logger.warning(f"Forgive error: {e}", exc_info=True)
 
@@ -131,6 +152,7 @@ def report(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
+        mids = [mid]
         rid = message.from_user.id
         init_user_id(rid)
         uid, re_mid = get_class_d_id(message)
@@ -141,33 +163,37 @@ def report(client, message):
                 and gid not in glovar.user_ids[uid]["ban"]):
             text, markup = report_user(gid, uid, rid, re_mid)
             thread(send_message, (client, gid, text, mid, markup))
+
+        thread(delete_messages, (client, gid, mids))
     except Exception as e:
         logger.warning(f"Report error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & class_c
+@Client.on_message(Filters.incoming & Filters.group
                    & Filters.command(["warn"], glovar.prefix))
 def warn(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
-        aid = message.from_user.id
-        uid, re_mid = get_class_d_id(message)
-        if uid:
-            text, markup = warn_user(client, gid, uid, aid)
-            if markup:
-                secs = 60
-                text = get_reason(message, text)
-            else:
-                secs = 10
+        mids = [mid]
+        if is_class_c(None, message):
+            aid = message.from_user.id
+            uid, re_mid = get_class_d_id(message)
+            if uid:
+                text, markup = warn_user(client, gid, uid, aid)
+                if markup:
+                    secs = 60
+                    text = get_reason(message, text)
+                else:
+                    secs = 10
 
-            thread(send_report_message, (secs, client, gid, text, mid, markup))
-            if re_mid:
-                mids = [re_mid, mid]
-            else:
-                mids = [mid]
+                thread(send_report_message, (secs, client, gid, text, mid, markup))
+                if re_mid:
+                    mids = [re_mid, mid]
+                else:
+                    mids = [mid]
 
-            thread(delete_messages, (client, gid, mids))
+        thread(delete_messages, (client, gid, mids))
     except Exception as e:
         logger.warning(f"Warn error: {e}", exc_info=True)
 
