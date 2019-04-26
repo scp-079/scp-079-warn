@@ -23,7 +23,7 @@ from json import loads
 from pyrogram import Client
 
 from .. import glovar
-from ..functions.etc import delay, thread
+from ..functions.etc import code, delay, thread
 from ..functions.files import save
 from ..functions.filters import class_c
 from ..functions.ids import init_user_id
@@ -43,9 +43,9 @@ def answer(client, callback_query):
         callback_data = loads(callback_query.data)
         action = callback_data["a"]
         action_type = callback_data["t"]
-        uid = callback_data["d"]
-        init_user_id(uid)
         if action == "undo":
+            uid = callback_data["d"]
+            init_user_id(uid)
             if gid not in glovar.user_ids[uid]["locked"]:
                 try:
                     glovar.user_ids[uid]["locked"].add(gid)
@@ -61,25 +61,42 @@ def answer(client, callback_query):
             else:
                 thread(answer_callback, (client, callback_query.id, "已被其他管理员处理"))
         elif action == "report":
-            if gid not in glovar.user_ids[uid]["locked"]:
-                try:
-                    if action_type == "ban":
-                        text, markup = ban_user(client, gid, uid, aid)
-                    else:
-                        text, markup = warn_user(client, gid, uid, aid)
+            report_key = callback_data["d"]
+            report_record = glovar.report_records.get(report_key)
+            if report_record:
+                rid = glovar.report_records[report_key]["r"]
+                uid = glovar.report_records[report_key]["u"]
+                init_user_id(rid)
+                init_user_id(uid)
+                if gid not in glovar.user_ids[uid]["locked"] and gid not in glovar.user_ids[rid]["locked"]:
+                    try:
+                        glovar.user_ids[rid]["locked"].add(gid)
+                        glovar.user_ids[uid]["locked"].add(gid)
+                        if action_type == "ban":
+                            text, markup = ban_user(client, gid, uid, aid)
+                        elif action_type == "warn":
+                            text, markup = warn_user(client, gid, uid, aid)
+                        else:
+                            text, markup = warn_user(client, gid, rid, aid)
+                            text += f"\n原因：{code('滥用')}"
 
-                    if markup:
-                        secs = 60
-                    else:
-                        secs = 10
+                        if markup:
+                            secs = 60
+                        else:
+                            secs = 10
 
-                    thread(edit_message_text, (client, gid, mid, text, markup))
-                    mids = [mid]
-                    delay(secs, delete_messages, [client, gid, mids])
-                finally:
-                    glovar.user_ids[uid]["locked"].discard(gid)
-                    save("user_ids")
+                        thread(edit_message_text, (client, gid, mid, text, markup))
+                        mids = [mid]
+                        delay(secs, delete_messages, [client, gid, mids])
+                    finally:
+                        glovar.user_ids[uid]["locked"].discard(gid)
+                        glovar.user_ids[rid]["locked"].discard(gid)
+                        save("user_ids")
+
+                    glovar.report_records.pop(report_key)
+                else:
+                    thread(answer_callback, (client, callback_query.id, "已被其他管理员处理"))
             else:
-                thread(answer_callback, (client, callback_query.id, "已被其他管理员处理"))
+                pass
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)

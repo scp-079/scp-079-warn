@@ -31,7 +31,7 @@ from ..functions.users import report_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~class_c & ~class_e
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~class_c & ~class_e & ~Filters.service
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def auto_report(client, message):
     try:
