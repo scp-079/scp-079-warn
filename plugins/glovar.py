@@ -133,6 +133,7 @@ modes: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # modes = {
 #     -10012345678: {
 #         "limit": 3,
+#         "locked": False,
 #         "mention": False,
 #         "report": {
 #             "auto": False,
@@ -171,11 +172,14 @@ prefix_str: str = "/!"
 user_id: int = 0
 
 # [channels]
+debug_channel_id: int = 0
 exchange_channel_id: int = 0
 test_group_id: int = 0
 
-# [encrypt]
-password: str = ""
+# [custom]
+default_group_link: str = ""
+project_link: str = ""
+project_name: str = ""
 
 try:
     config = RawConfigParser()
@@ -188,8 +192,10 @@ try:
     # [channels]
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
-    # [encrypt]
-    password = config["encrypt"].get("password", password)
+    # [custom]
+    default_group_link = config["custom"].get("default_group_link", default_group_link)
+    project_link = config["custom"].get("project_link", project_link)
+    project_name = config["custom"].get("project_name", project_name)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}", exc_info=True)
 
@@ -199,7 +205,9 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or user_id == 0
         or exchange_channel_id == 0
         or test_group_id == 0
-        or password in {"", "[DATA EXPUNGED]"}):
+        or default_group_link in {"", "[DATA EXPUNGED]"}
+        or project_link in {"", "[DATA EXPUNGED]"}
+        or project_name in {"", "[DATA EXPUNGED]"}):
     logger.critical("No proper settings")
     raise SystemExit('No proper settings')
 

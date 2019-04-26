@@ -22,9 +22,11 @@ import logging
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import get_text, thread
-from ..functions.filters import class_c, class_e, test_group
-from ..functions.telegram import send_message
+from ..functions.etc import code, general_link, get_text, thread
+from ..functions.files import save
+from ..functions.filters import class_c, class_e, new_group, test_group
+from ..functions.ids import init_group_id
+from ..functions.telegram import get_admin_ids, get_group_info, send_message
 from ..functions.users import report_user
 
 # Enable logging
@@ -44,5 +46,35 @@ def auto_report(client, message):
                     mid = message.message_id
                     text, markup = report_user(gid, uid, 0, mid)
                     thread(send_message, (client, gid, text, mid, markup))
+    except Exception as e:
+        logger.warning(f"Auto report error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members & new_group
+                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+def init_group(client, message):
+    try:
+        gid = message.chat.id
+        invited_by = message.from_user.id
+        group_name, group_link = get_group_info(client, message.chat)
+        if invited_by == glovar.user_id:
+            init_group_id(gid)
+            admin_list = get_admin_ids(client, gid)
+            if admin_list:
+                glovar.admin_ids[gid] = admin_list
+
+            save("admin_ids")
+            text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                    f"群组名称：{general_link(group_name, group_link)}\n"
+                    f"群组 ID：{code(gid)}\n"
+                    f"状态：{code(f'已加入群组')}")
+        else:
+            text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                    f"群组名称：{general_link(group_name, group_link)}\n"
+                    f"群组 ID：{code(gid)}\n"
+                    f"状态：{code('已退出群组')}\n"
+                    f"原因：{code('未授权使用')}")
+
+        thread(send_message, (client, gid, text))
     except Exception as e:
         logger.warning(f"Auto report error: {e}", exc_info=True)

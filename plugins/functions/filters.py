@@ -24,14 +24,6 @@ from .. import glovar
 from .ids import init_group_id
 
 
-def is_test_group(_, message: Message) -> bool:
-    cid = message.chat.id
-    if cid == glovar.test_group_id:
-        return True
-
-    return False
-
-
 def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
     if isinstance(update, CallbackQuery):
         message = update.message
@@ -56,6 +48,23 @@ def is_class_e(_, message: Message) -> bool:
     return False
 
 
+def is_new_group(_, message: Message) -> bool:
+    new_users = message.new_chat_members
+    for user in new_users:
+        if user.is_self:
+            return True
+
+    return False
+
+
+def is_test_group(_, message: Message) -> bool:
+    cid = message.chat.id
+    if cid == glovar.test_group_id:
+        return True
+
+    return False
+
+
 class_c = Filters.create(
     name="Class C",
     func=is_class_c
@@ -64,6 +73,11 @@ class_c = Filters.create(
 class_e = Filters.create(
     name="Class E",
     func=is_class_e
+)
+
+new_group = Filters.create(
+    name="New Group",
+    func=is_new_group
 )
 
 test_group = Filters.create(

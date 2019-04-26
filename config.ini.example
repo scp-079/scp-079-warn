@@ -22,4 +22,11 @@ prefix = /!
 user_id = [DATA EXPUNGED]
 
 [channels]
+debug_channel_id = [DATA EXPUNGED]
+exchange_channel_id = [DATA EXPUNGED]
 test_group_id = 0
+
+[custom]
+default_group_link = [DATA EXPUNGED]
+project_link = [DATA EXPUNGED]
+project_name = [DATA EXPUNGED]

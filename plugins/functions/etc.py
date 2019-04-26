@@ -81,6 +81,10 @@ def get_text(message: Message) -> Optional[str]:
     return text
 
 
+def general_link(text: Union[int, str], link: str) -> str:
+    return f"[{text}]({link})"
+
+
 def message_link(cid: int, mid: int) -> str:
     return f"[{mid}](https://t.me/c/{str(cid)[4:]}/{mid})"
 

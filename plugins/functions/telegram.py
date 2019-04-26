@@ -18,11 +18,12 @@
 
 import logging
 from time import sleep
-from typing import Iterable, List, Optional, Union
+from typing import Iterable, List, Optional, Set, Union
 
-from pyrogram import Client, InlineKeyboardMarkup, Message, ParseMode, User
-from pyrogram.errors import FloodWait
+from pyrogram import Chat, Client, InlineKeyboardMarkup, Message, ParseMode, User
+from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 
+from .. import glovar
 from .etc import delay
 
 logger = logging.getLogger(__name__)
@@ -81,6 +82,52 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
         logger.warning(f"Delete messages in {cid} error: {e}", exc_info=True)
 
     return result
+
+
+def get_admin_ids(client: Client, cid: int) -> Optional[Set[int]]:
+    result = None
+    try:
+        while not result:
+            try:
+                result = client.get_chat_members(chat_id=cid, filter="administrators")
+            except FloodWait as e:
+                sleep(e.x + 1)
+            except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                return None
+
+        admin_list = result.chat_members
+        result = {admin.user.id for admin in admin_list if not admin.user.is_bot}
+    except Exception as e:
+        logger.warning(f"Get admin ids in {cid} error: {e}")
+
+    return result
+
+
+def get_group_info(client: Client, chat: Union[int, Chat]) -> (str, str):
+    group_name = "Unknown Group"
+    group_link = glovar.default_group_link
+    try:
+        if isinstance(chat, int):
+            result = None
+            while not result:
+                try:
+                    result = client.get_chat(chat_id=chat)
+                except FloodWait as e:
+                    sleep(e.x + 1)
+                except Exception as e:
+                    logger.warning(f"Get chat {chat} error: {e}")
+
+            chat = result
+
+        if chat.title:
+            group_name = chat.title
+
+        if chat.username:
+            group_link = "https://t.me/" + chat.username
+    except Exception as e:
+        logger.info('Get group info error: %s', e)
+
+    return group_name, group_link
 
 
 def get_users(client: Client, uids: Iterable[int]) -> Optional[List[User]]:

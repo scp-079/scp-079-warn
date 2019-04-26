@@ -93,6 +93,18 @@ def ban(client, message):
 
 
 @Client.on_message(Filters.incoming & Filters.group & class_c
+                   & Filters.command(["config"], glovar.prefix))
+def config(client, message):
+    try:
+        gid = message.chat.id
+        mid = message.message_id
+        mids = [mid]
+        thread(delete_messages, (client, gid, mids))
+    except Exception as e:
+        logger.warning(f"Config error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & class_c
                    & Filters.command(["forgive"], glovar.prefix))
 def forgive(client, message):
     try:

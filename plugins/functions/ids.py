@@ -19,6 +19,7 @@
 import logging
 
 from .. import glovar
+from .files import save
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -29,15 +30,18 @@ def init_group_id(gid: int) -> bool:
         if glovar.modes.get(gid) is None:
             glovar.modes[gid] = {
                 "limit": 3,
+                "locked": False,
                 "mention": False,
                 "report": {
                     "auto": False,
                     "manual": False
                 }
             }
+            save("modes")
 
         if glovar.admin_ids.get(gid) is None:
             glovar.admin_ids[gid] = set()
+            save("admin_ids")
 
         return True
     except Exception as e:
@@ -56,6 +60,7 @@ def init_user_id(uid: int) -> bool:
                 "warn": {},
                 "waiting": set()
             }
+            save("user_ids")
 
         return True
     except Exception as e:
