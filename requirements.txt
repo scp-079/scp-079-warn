@@ -1,0 +1,14 @@
+APScheduler==3.6.0
+asn1crypto==0.24.0
+cffi==1.12.3
+cryptography==2.6.1
+OpenCC==0.2
+pyaes==1.6.1
+pyAesCrypt==0.4.2
+pycparser==2.19
+Pyrogram==0.12.0
+PySocks==1.6.8
+pytz==2019.1
+six==1.12.0
+TgCrypto==1.1.1
+tzlocal==1.5.1
