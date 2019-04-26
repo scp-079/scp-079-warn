@@ -83,7 +83,7 @@ report_records: Dict[str, Dict[str, int]] = {}
 #     }
 # }
 
-version: str = "0.0.4"
+version: str = "0.0.7"
 
 # Load data from pickle
 
