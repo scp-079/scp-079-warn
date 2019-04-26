@@ -22,7 +22,7 @@ from random import sample
 from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .etc import button_data, code, message_link, send_data, thread, user_mention
+from .etc import button_data, code, get_text, message_link, send_data, thread, user_mention
 from .files import save
 from .filters import is_class_c
 from .ids import init_user_id
@@ -161,6 +161,15 @@ def get_class_d_id(message: Message) -> (int, int):
         logger.warning(f"Get Class D ID error: {e}")
 
     return uid, mid
+
+
+def get_reason(message: Message, text: str) -> str:
+    command_list = list(filter(None, message.command))
+    reason = get_text(message)[len(command_list[0]) + 1:].strip()
+    if reason:
+        text += f"\n原因：{code(reason)}"
+
+    return text
 
 
 def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:

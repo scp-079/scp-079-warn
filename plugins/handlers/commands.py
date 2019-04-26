@@ -24,7 +24,7 @@ from .. import glovar
 from ..functions.etc import bold, thread, user_mention
 from ..functions.filters import class_c, test_group
 from ..functions.ids import init_user_id
-from ..functions.users import ban_user, forgive_user, get_admin_text, get_class_d_id, report_user, warn_user
+from ..functions.users import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user, warn_user
 
 from ..functions.telegram import delete_messages, send_message, send_report_message
 
@@ -77,17 +77,17 @@ def ban(client, message):
             text, markup = ban_user(client, gid, uid, aid)
             if markup:
                 secs = 60
+                text = get_reason(message, text)
             else:
                 secs = 10
 
             thread(send_report_message, (secs, client, gid, text, None, markup))
+            if re_mid:
+                mids = [re_mid, mid]
+            else:
+                mids = [mid]
 
-        if re_mid:
-            mids = [re_mid, mid]
-        else:
-            mids = [mid]
-
-        thread(delete_messages, (client, gid, mids))
+            thread(delete_messages, (client, gid, mids))
     except Exception as e:
         logger.warning(f"Ban error: {e}", exc_info=True)
 
@@ -104,6 +104,7 @@ def forgive(client, message):
             text, result = forgive_user(client, gid, uid, aid)
             if result:
                 secs = 60
+                text = get_reason(message, text)
             else:
                 secs = 10
 
@@ -149,17 +150,17 @@ def warn(client, message):
             text, markup = warn_user(client, gid, uid, aid)
             if markup:
                 secs = 60
+                text = get_reason(message, text)
             else:
                 secs = 10
 
             thread(send_report_message, (secs, client, gid, text, mid, markup))
+            if re_mid:
+                mids = [re_mid, mid]
+            else:
+                mids = [mid]
 
-        if re_mid:
-            mids = [re_mid, mid]
-        else:
-            mids = [mid]
-
-        thread(delete_messages, (client, gid, mids))
+            thread(delete_messages, (client, gid, mids))
     except Exception as e:
         logger.warning(f"Warn error: {e}", exc_info=True)
 
