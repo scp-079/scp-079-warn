@@ -118,7 +118,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
         action (str):
             The action that the data receivers need to take. It can be any of the followings:
                 add - Add id to some list
-                backup - Announce backup data
+                backup - Send backup data
                 config - Update bot config
                 declare - Declare a message
                 help - Let others bot do something
@@ -162,6 +162,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     download - Download the data, then update
                     reload - Update the data from local machines
                     score - Update user's score
+                    status - Update bot's status
                     preview - Update a message's preview
 
 
@@ -205,10 +206,17 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     -10012345678
 
                 Request:
-                    {
-                        "group_id": -10012345678,
-                        "reason": "user / permissions"
-                    }
+                    leave:
+                        {
+                            "group_id": -10012345678,
+                            "reason": "user / permissions"
+                        }
+
+                    join:
+                        {
+                            "group_id": -10012345678,
+                            "bots": List[str]
+                        }
 
                 Score:
                     3.2
@@ -225,6 +233,9 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                             "id": 12345678,
                             "score": 3.2
                         }
+
+                    status:
+                        "awake"
 
     Returns:
         A formatted string.

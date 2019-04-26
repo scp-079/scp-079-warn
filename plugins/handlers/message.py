@@ -78,6 +78,6 @@ def init_group(client, message):
                     f"原因：{code('未授权使用')}\n"
                     f"邀请人：{user_mention(invited_by)}")
 
-        thread(send_message, (client, gid, text))
+        thread(send_message, (client, glovar.debug_channel_id, text))
     except Exception as e:
         logger.warning(f"Auto report error: {e}", exc_info=True)
