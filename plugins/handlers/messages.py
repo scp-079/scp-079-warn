@@ -22,12 +22,12 @@ import logging
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import code, general_link, get_text, thread
-from ..functions.files import save
+from ..functions.etc import code, general_link, get_text, thread, user_mention
+from ..functions.file import save
 from ..functions.filters import class_c, class_e, new_group, test_group
 from ..functions.ids import init_group_id
-from ..functions.telegram import get_admin_ids, get_group_info, send_message
-from ..functions.users import report_user
+from ..functions.telegram import get_admin_ids, get_group_info, leave_chat, send_message
+from ..functions.user import report_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -69,11 +69,13 @@ def init_group(client, message):
                     f"群组 ID：{code(gid)}\n"
                     f"状态：{code(f'已加入群组')}")
         else:
+            thread(leave_chat, (client, gid))
             text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
                     f"群组名称：{general_link(group_name, group_link)}\n"
                     f"群组 ID：{code(gid)}\n"
                     f"状态：{code('已退出群组')}\n"
-                    f"原因：{code('未授权使用')}")
+                    f"原因：{code('未授权使用')}\n"
+                    f"邀请人：{user_mention(invited_by)}")
 
         thread(send_message, (client, gid, text))
     except Exception as e:

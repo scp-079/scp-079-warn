@@ -24,11 +24,11 @@ from pyrogram import Client
 
 from .. import glovar
 from ..functions.etc import code, delay, thread
-from ..functions.files import save
+from ..functions.file import save
 from ..functions.filters import class_c
 from ..functions.ids import init_user_id
 from ..functions.telegram import answer_callback, delete_messages, edit_message_text
-from ..functions.users import ban_user, unban_user, unwarn_user, warn_user
+from ..functions.user import ban_user, unban_user, unwarn_user, warn_user
 
 # Enable logging
 logger = logging.getLogger(__name__)

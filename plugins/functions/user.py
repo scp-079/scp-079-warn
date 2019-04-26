@@ -23,7 +23,7 @@ from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from .etc import button_data, code, get_text, message_link, random_str, send_data, thread, user_mention
-from .files import save
+from .file import save
 from .filters import is_class_c
 from .ids import init_user_id
 from .telegram import kick_chat_member, send_message, unban_chat_member

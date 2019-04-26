@@ -24,7 +24,7 @@ from .. import glovar
 from ..functions.etc import bold, thread, user_mention
 from ..functions.filters import class_c, test_group
 from ..functions.ids import init_user_id
-from ..functions.users import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user, warn_user
+from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user, warn_user
 
 from ..functions.telegram import delete_messages, send_message, send_report_message
 

@@ -158,6 +158,22 @@ def kick_chat_member(client: Client, cid: int, uid: int) -> Optional[Union[bool,
     return result
 
 
+def leave_chat(client: Client, cid: int) -> bool:
+    result = None
+    try:
+        while not result:
+            try:
+                result = client.leave_chat(chat_id=cid)
+            except FloodWait as e:
+                sleep(e.x + 1)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Leave chat {cid} error: {e}")
+
+    return False
+
+
 def send_document(client: Client, cid: int, file: str, text: str = None, mid: int = None,
                   markup: InlineKeyboardMarkup = None) -> Optional[Message]:
     result = None

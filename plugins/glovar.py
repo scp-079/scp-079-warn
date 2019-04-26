@@ -181,6 +181,9 @@ default_group_link: str = ""
 project_link: str = ""
 project_name: str = ""
 
+# [encrypt]
+password: str = ""
+
 try:
     config = RawConfigParser()
     config.read("config.ini")
@@ -196,6 +199,8 @@ try:
     default_group_link = config["custom"].get("default_group_link", default_group_link)
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
+    # [encrypt]
+    password = config["encrypt"].get("password", password)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}", exc_info=True)
 
@@ -207,7 +212,8 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or test_group_id == 0
         or default_group_link in {"", "[DATA EXPUNGED]"}
         or project_link in {"", "[DATA EXPUNGED]"}
-        or project_name in {"", "[DATA EXPUNGED]"}):
+        or project_name in {"", "[DATA EXPUNGED]"}
+        or password in {"", "[DATA EXPUNGED]"}):
     logger.critical("No proper settings")
     raise SystemExit('No proper settings')
 
