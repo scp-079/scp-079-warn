@@ -180,6 +180,7 @@ test_group_id: int = 0
 default_group_link: str = ""
 project_link: str = ""
 project_name: str = ""
+user_name: str = ""
 
 # [encrypt]
 password: str = ""
@@ -199,6 +200,7 @@ try:
     default_group_link = config["custom"].get("default_group_link", default_group_link)
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
+    user_name = config["custom"].get("user_name", user_name)
     # [encrypt]
     password = config["encrypt"].get("password", password)
 except Exception as e:
@@ -213,6 +215,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
+        or user_name in {"", "[DATA EXPUNGED]"}
         or password in {"", "[DATA EXPUNGED]"}):
     logger.critical("No proper settings")
     raise SystemExit('No proper settings')

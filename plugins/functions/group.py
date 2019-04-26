@@ -17,3 +17,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import logging
+
+from pyrogram import Client
+
+from .. import glovar
+from .etc import thread
+from .telegram import leave_chat
+
+# Enable logging
+logger = logging.getLogger(__name__)
+
+
+def leave_group(client: Client, gid: int) -> bool:
+    thread(leave_chat, (client, gid))
+    glovar.admin_ids.pop(gid, None)
+    glovar.modes.pop(gid, None)
+
+    return True

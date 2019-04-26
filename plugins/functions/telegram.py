@@ -18,9 +18,9 @@
 
 import logging
 from time import sleep
-from typing import Iterable, List, Optional, Set, Union
+from typing import Iterable, List, Optional, Union
 
-from pyrogram import Chat, Client, InlineKeyboardMarkup, Message, ParseMode, User
+from pyrogram import Chat, ChatMember, Client, InlineKeyboardMarkup, Message, ParseMode, User
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 
 from .. import glovar
@@ -84,7 +84,7 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
     return result
 
 
-def get_admin_ids(client: Client, cid: int) -> Optional[Set[int]]:
+def get_admins(client: Client, cid: int) -> Optional[List[ChatMember]]:
     result = None
     try:
         while not result:
@@ -95,10 +95,9 @@ def get_admin_ids(client: Client, cid: int) -> Optional[Set[int]]:
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return None
 
-        admin_list = result.chat_members
-        result = {admin.user.id for admin in admin_list if not admin.user.is_bot}
+        result = result.chat_members
     except Exception as e:
-        logger.warning(f"Get admin ids in {cid} error: {e}")
+        logger.warning(f"Get admin ids in {cid} error: {e}", exc_info=True)
 
     return result
 

@@ -25,7 +25,7 @@ from pyrogram import Client
 from .. import glovar
 from .etc import send_data, thread
 from .file import crypt_file
-from .telegram import send_document
+from .telegram import get_admins, send_document, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -55,5 +55,39 @@ def backup_files(client: Client) -> bool:
     return False
 
 
-def update_admin():
-    pass
+def update_admins(client: Client) -> bool:
+    group_list = list(glovar.modes)
+    for gid in group_list:
+        try:
+            should_leave = False
+            reason_text = ""
+            admin_members = get_admins(client, gid)
+            if admin_members:
+                glovar.admin_ids[gid] = {admin.user.id for admin in admin_members if not admin.user.is_bot}
+                if glovar.user_id not in glovar.admin_ids[gid]:
+                    should_leave = True
+                    reason_text = "user"
+
+                if not should_leave:
+                    for admin in admin_members:
+                        if admin.user.is_self:
+                            if not (admin.permissions.can_delete_messages and admin.permissions.can_restrict_members):
+                                should_leave = True
+                                reason_text = "permissions"
+
+                if should_leave:
+                    data = send_data(
+                        sender="WARN",
+                        receivers=["MANAGE"],
+                        action="request",
+                        action_type="leave",
+                        data={
+                            "group_id": gid,
+                            "reason": reason_text
+                        }
+                    )
+                    thread(send_message, (client, glovar.exchange_channel_id, data))
+        except Exception as e:
+            logger.warning(f"Update admin in {gid} error: {e}")
+
+    return True

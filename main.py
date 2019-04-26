@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timers import backup_files
+from plugins.functions.timers import backup_files, update_admins
 
 # Enable logging
 logging.basicConfig(
@@ -47,6 +47,7 @@ app.start()
 # Timer
 scheduler = BackgroundScheduler()
 scheduler.add_job(backup_files, "cron", [app], hour=0)
+scheduler.add_job(update_admins, "cron", [app], hour=23)
 scheduler.start()
 
 # Hold
