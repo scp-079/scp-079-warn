@@ -127,7 +127,7 @@ compiled: dict = {}
 #     "type": re.compile("pattern", re.I | re.M | re.S)
 # }
 for word_type in regex_names:
-    compiled[word_type] = re.compile(fr"预留{names[f'{word_type}']}词组 {random_str(16)}", re.I | re.M | re.S)
+    compiled[word_type] = re.compile(fr"预留{regex_names[f'{word_type}']}词组 {random_str(16)}", re.I | re.M | re.S)
 
 configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # configs = {
