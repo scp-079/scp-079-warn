@@ -116,6 +116,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                 add - Add id to some list
                 backup - Announce backup data
                 config - Update bot config
+                declare - Declare a message
                 help - Let others bot do something
                 leave - Let bots leave some group or channel
                 remove - Remove id in some list
@@ -136,6 +137,10 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     ask - Let SCP-079-MANAGE provide config options in SCP-079-CONFIG
                     update - Update some group's configurations
 
+                When action is declare:
+                    ban - The bot has banned the user who sent the message
+                    delete - The message has been deleted
+
                 When action is help:
                     ban - Let SCP-079-USER ban a user globally
                     delete - Let SCP-079-USER delete a user's all messages in some group
@@ -147,21 +152,23 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                 When action is update:
                     download - Download the data, then update
                     reload - Update the data from local machines
+                    score - Update user's score
+                    preview - Update a message's preview
 
 
         data (optional):
             Additional data required for operation.
-                Add/Remove:
-                    bad/except
+                Add / Remove:
+                    bad / except
                         {
                             "id":  12345678,
-                            "type": "user/channel"
+                            "type": "user / channel"
                         }
 
                     watch:
                         {
                             "id": 12345678,
-                            "type": "all/bad/delete"
+                            "type": "all / bad / delete"
                         }
 
                 Backup:
@@ -169,10 +176,17 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
 
                 Config:
                     {
-                        ""
+                        "mode": bool / int / List[Union[bool, int, str]] /
+                                Dict[str, Union[bool, int, List[Union[bool, int, str]]]]
                     }
 
-                Help ban/delete:
+                Declare:
+                    {
+                        "group_id": -10012345678,
+                        "message_id": 123
+                    }
+
+                Help ban / delete:
                     {
                         "group_id": -10012345678,
                         "user_id": 12345678

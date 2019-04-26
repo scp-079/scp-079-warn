@@ -18,11 +18,14 @@
 
 import logging
 import pickle
+import re
 from configparser import RawConfigParser
 from os import mkdir
 from os.path import exists
 from shutil import rmtree
 from typing import Dict, List, Set, Union
+
+from .functions.etc import random_str
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -43,6 +46,11 @@ declared_message_ids: Dict[int, Set[int]] = {}
 #     -10012345678: {123}
 # }
 
+message_ids: Dict[int, int] = {}
+# message_ids = {
+#     -10012345678: 123
+# }
+
 names: Dict[str, str] = {
     "auto": "自动举报",
     "both": "自动与手动",
@@ -51,7 +59,31 @@ names: Dict[str, str] = {
     "manual": "手动举报"
 }
 
-version: str = "0.0.1"
+regex_names: dict = {
+    "ad": "广告用语",
+    "ava": "头像分析",
+    "bad": "敏感检测",
+    "ban": "自动封禁",
+    "bio": "简介封禁",
+    "con": "联系方式",
+    "del": "自动删除",
+    "eme": "应急模式",
+    "nm": "名称封禁",
+    "wb": "追踪封禁",
+    "wd": "追踪删除",
+    "sti": "贴纸删除",
+    "test": "测试用例"
+}
+
+report_records: Dict[str, Dict[str, int]] = {}
+# report_records = {
+#     "random": {
+#         "r": 12345678,
+#         "u": 12345679
+#     }
+# }
+
+version: str = "0.0.4"
 
 # Load data from pickle
 
@@ -72,26 +104,8 @@ admin_ids: Dict[int, Set[int]] = {}
 #     -10012345678: {12345678}
 # }
 
-compiled: dict = {}
-# compiled = {
-#     "type": re.compile("pattern", re.I | re.M | re.S)
-# }
-
 except_ids: Set[int] = set()
 # except_ids = {12345678}
-
-message_ids: Dict[int, int] = {}
-# message_ids = {
-#     -10012345678: 123
-# }
-
-report_records: Dict[str, Dict[str, int]] = {}
-# report_records = {
-#     "random": {
-#         "r": 12345678,
-#         "u": 12345679
-#     }
-# }
 
 user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 # user_ids = {
@@ -106,7 +120,14 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 #     }
 # }
 
-# Init mode variables
+# Init data variables
+
+compiled: dict = {}
+# compiled = {
+#     "type": re.compile("pattern", re.I | re.M | re.S)
+# }
+for word_type in regex_names:
+    compiled[word_type] = re.compile(fr"预留{names[f'{word_type}']}词组 {random_str(16)}", re.I | re.M | re.S)
 
 modes: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # modes = {
@@ -121,7 +142,7 @@ modes: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "compiled", "except_ids", "message_ids", "modes", "user_ids"]
+file_list: List[str] = ["admin_ids", "compiled", "except_ids", "modes", "user_ids"]
 for file in file_list:
     try:
         try:
@@ -183,10 +204,6 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
     raise SystemExit('No proper settings')
 
 bot_ids: Set[int] = {user_id}
-
-if compiled == {}:
-    logger.critical("No regex data")
-    raise SystemExit('No regex data')
 
 # Start program
 copyright_text = (f"SCP-079-WARN v{version}, Copyright (C) 2019 SCP-079 <https://scp-079.org>\n"
