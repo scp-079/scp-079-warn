@@ -73,6 +73,7 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 # user_ids = {
 #     12345678: {
 #         "ban": {-10012345678},
+#         "locked": {-10012345678},
 #         "score": 1,
 #         "warn": {
 #             -10012345678: 0

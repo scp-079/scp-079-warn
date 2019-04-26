@@ -38,11 +38,12 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
     else:
         message = update
 
-    gid = message.chat.id
-    init_group_id(gid)
-    uid = message.from_user.id
-    if uid in glovar.admin_ids.get(gid, set()) or uid in glovar.bot_ids:
-        return True
+    if message.chat.id < 0:
+        gid = message.chat.id
+        init_group_id(gid)
+        uid = message.from_user.id
+        if uid in glovar.admin_ids.get(gid, set()) or uid in glovar.bot_ids:
+            return True
 
     return False
 

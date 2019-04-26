@@ -77,7 +77,7 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
                     f"结果：{code('未操作')}\n"
                     f"原因：{code('未在记录列表中')}\n"
                     f"管理员：{user_mention(aid)}")
-            result = False
+            return text, False
     else:
         glovar.user_ids[uid]["ban"].discard(gid)
         thread(unban_chat_member, (client, gid, uid))
@@ -182,7 +182,7 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:
 def warn_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeyboardMarkup):
     init_user_id(uid)
     if gid not in glovar.user_ids[uid]["ban"]:
-        if glovar.user_ids[uid]["warn"].get(gid, 0):
+        if not glovar.user_ids[uid]["warn"].get(gid, 0):
             glovar.user_ids[uid]["warn"][gid] = 1
         else:
             glovar.user_ids[uid]["warn"][gid] += 1
@@ -207,7 +207,6 @@ def warn_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeybo
             )
             ask_for_help(client, "delete", gid, uid)
         else:
-            glovar.user_ids[uid]["warn"][gid] = warn_count
             update_score(client, uid)
             text = (f"已警告用户：{user_mention(uid)}\n"
                     f"该用户警告统计：{code(f'warn_count/{limit}')}\n"
@@ -231,6 +230,53 @@ def warn_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeybo
         markup = None
 
     return text, markup
+
+
+def unban_user(client: Client, gid: int, uid: int, aid: int) -> str:
+    if gid in glovar.user_ids[uid]["ban"]:
+        thread(unban_chat_member, (client, gid, uid))
+        glovar.user_ids[uid]["ban"].discard(gid)
+        update_score(client, uid)
+        text = (f"已解禁用户：{user_mention(uid)}\n"
+                f"管理员：{user_mention(aid)}")
+    else:
+        text = (f"用户：{user_mention(uid)}\n"
+                f"结果：{code('未操作')}\n"
+                f"原因：{code('不在封禁列表中')}\n"
+                f"管理员：{user_mention(aid)}")
+
+    return text
+
+
+def unwarn_user(client: Client, gid: int, uid: int, aid: int) -> str:
+    if gid not in glovar.user_ids[uid]["ban"]:
+        if not glovar.user_ids[uid]["warn"].get(gid, 0):
+            text = (f"用户：{user_mention(uid)}\n"
+                    f"结果：{code('未操作')}\n"
+                    f"原因：{code('无警告记录')}\n"
+                    f"管理员：{user_mention(aid)}")
+        else:
+            glovar.user_ids[uid]["warn"][gid] -= 1
+            warn_count = glovar.user_ids[uid]["warn"][gid]
+            if warn_count == 0:
+                glovar.user_ids[uid]["warn"].pop(gid, 0)
+                update_score(client, gid)
+                text = (f"已撤销警告：{user_mention(uid)}\n"
+                        f"该用户警告统计：{code('无警告')}\n"
+                        f"管理员：{user_mention(aid)}")
+            else:
+                limit = glovar.modes[gid]["limit"]
+                update_score(client, uid)
+                text = (f"已撤销警告：{user_mention(uid)}\n"
+                        f"该用户警告统计：{code(f'warn_count/{limit}')}\n"
+                        f"管理员：{user_mention(aid)}")
+    else:
+        text = (f"用户：{user_mention(uid)}\n"
+                f"结果：{code('未操作')}\n"
+                f"原因：{code('已在封禁列表中')}\n"
+                f"管理员：{user_mention(aid)}")
+
+    return text
 
 
 def update_score(client: Client, uid: int) -> bool:

@@ -51,6 +51,7 @@ def init_user_id(uid: int) -> bool:
         if glovar.user_ids.get(uid) is None:
             glovar.user_ids[uid] = {
                 "ban": set(),
+                "locked": set(),
                 "score": 0,
                 "warn": {},
                 "waiting": set()
