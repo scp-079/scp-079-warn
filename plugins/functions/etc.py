@@ -18,6 +18,8 @@
 
 import logging
 from json import dumps, loads
+from random import choice
+from string import ascii_letters, digits
 from threading import Thread, Timer
 from typing import Callable, List, Optional, Union
 
@@ -81,6 +83,10 @@ def get_text(message: Message) -> Optional[str]:
 
 def message_link(cid: int, mid: int) -> str:
     return f"[{mid}](https://t.me/c/{str(cid)[4:]}/{mid})"
+
+
+def random_str(i: int) -> str:
+    return ''.join(choice(ascii_letters + digits) for _ in range(i))
 
 
 def receive_data(message: Message) -> dict:

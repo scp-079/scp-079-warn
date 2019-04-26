@@ -50,7 +50,7 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
                       markup: InlineKeyboardMarkup = None) -> Optional[Message]:
     result = None
     try:
-        if text.strip() != "":
+        if text.strip():
             while not result:
                 try:
                     result = client.edit_message_text(
@@ -137,7 +137,7 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
                  markup: InlineKeyboardMarkup = None) -> Optional[Message]:
     result = None
     try:
-        if text.strip() != "":
+        if text.strip():
             while not result:
                 try:
                     result = client.send_message(
@@ -160,7 +160,7 @@ def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int
                         markup: InlineKeyboardMarkup = None) -> Optional[Message]:
     result = None
     try:
-        if text.strip() != "":
+        if text.strip():
             while not result:
                 try:
                     result = client.send_message(

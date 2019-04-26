@@ -32,10 +32,17 @@ all_commands: List[str] = [
     "admin",
     "admins",
     "ban",
+    "config",
     "forgive",
     "report",
     "warn"
 ]
+
+declared_message_ids: Dict[int, Set[int]] = {}
+# declared_message_ids = {
+#     -10012345678: {123}
+# }
+
 names: Dict[str, str] = {
     "auto": "自动举报",
     "both": "自动与手动",
@@ -43,6 +50,7 @@ names: Dict[str, str] = {
     "report": "举报模式",
     "manual": "手动举报"
 }
+
 version: str = "0.0.1"
 
 # Load data from pickle
@@ -64,9 +72,25 @@ admin_ids: Dict[int, Set[int]] = {}
 #     -10012345678: {12345678}
 # }
 
+compiled: dict = {}
+# compiled = {
+#     "type": re.compile("pattern", re.I | re.M | re.S)
+# }
+
+except_ids: Set[int] = set()
+# except_ids = {12345678}
+
 message_ids: Dict[int, int] = {}
 # message_ids = {
 #     -10012345678: 123
+# }
+
+report_records: Dict[str, Dict[str, int]] = {}
+# report_records = {
+#     "random": {
+#         "r": 12345678,
+#         "u": 12345679
+#     }
 # }
 
 user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
@@ -97,7 +121,7 @@ modes: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "message_ids", "modes", "user_ids"]
+file_list: List[str] = ["admin_ids", "compiled", "except_ids", "message_ids", "modes", "user_ids"]
 for file in file_list:
     try:
         try:
@@ -159,6 +183,10 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
     raise SystemExit('No proper settings')
 
 bot_ids: Set[int] = {user_id}
+
+if compiled == {}:
+    logger.critical("No regex data")
+    raise SystemExit('No regex data')
 
 # Start program
 copyright_text = (f"SCP-079-WARN v{version}, Copyright (C) 2019 SCP-079 <https://scp-079.org>\n"

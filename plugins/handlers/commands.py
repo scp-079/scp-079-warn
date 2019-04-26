@@ -128,12 +128,7 @@ def report(client, message):
                 and gid not in glovar.user_ids[uid]["waiting"]
                 and gid not in glovar.user_ids[uid]["ban"]):
             text, markup = report_user(gid, uid, rid, re_mid)
-            if markup:
-                secs = 60
-            else:
-                secs = 10
-
-            thread(send_report_message, (secs, client, gid, text, mid, markup))
+            thread(send_message, (client, gid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Report error: {e}", exc_info=True)
 

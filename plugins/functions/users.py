@@ -22,7 +22,7 @@ from random import sample
 from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .etc import button_data, code, get_text, message_link, send_data, thread, user_mention
+from .etc import button_data, code, get_text, message_link, random_str, send_data, thread, user_mention
 from .files import save
 from .filters import is_class_c
 from .ids import init_user_id
@@ -93,16 +93,29 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
 
 def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardMarkup):
     glovar.user_ids[uid]["waiting"].add(gid)
-    glovar.user_ids[rid]["waiting"].add(rid)
+    report_key = random_str(8)
+    while glovar.report_records.get(report_key):
+        report_key = random_str(8)
+
+    glovar.report_records[report_key] = {
+        "r": rid,
+        "u": uid
+    }
+    if rid:
+        glovar.user_ids[rid]["waiting"].add(rid)
+        reporter_text = user_mention(rid)
+    else:
+        reporter_text = code("自动触发")
+
     save("user_ids")
     text = (f"被举报用户：{user_mention(uid)}\n"
             f"被举报消息：{message_link(gid, mid)}\n"
-            f"举报用户：{user_mention(rid)}\n"
+            f"举报人：{reporter_text}\n"
             f"呼叫管理：{get_admin_text(gid)}")
-    warn_data = button_data("report", "warn", uid)
-    ban_data = button_data("report", "ban", uid)
-    cancel_data = button_data("report", "cancel", uid)
-    warn_reporter_data = button_data("report", "warn", rid)
+    warn_data = button_data("report", "warn", report_key)
+    ban_data = button_data("report", "ban", report_key)
+    cancel_data = button_data("report", "cancel", report_key)
+    warn_reporter_data = button_data("report", "spam", report_key)
     markup = InlineKeyboardMarkup(
         [
             [

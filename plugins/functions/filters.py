@@ -48,9 +48,22 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
     return False
 
 
+def is_class_e(_, message: Message) -> bool:
+    uid = message.from_user.id
+    if uid in glovar.except_ids:
+        return True
+
+    return False
+
+
 class_c = Filters.create(
     name="Class C",
     func=is_class_c
+)
+
+class_e = Filters.create(
+    name="Class E",
+    func=is_class_e
 )
 
 test_group = Filters.create(
