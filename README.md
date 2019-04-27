@@ -6,23 +6,13 @@ This bot is used to warn or ban someone in group by admin commands.
 
 See [this article](https://scp-079.org/warn/).
 
-## Features
-
-- Easy to use
-- Can merge similar or mutually contained rules
-- Search patterns
-- Test patterns
-
 ## To Do List
 
-- [x] Complete phrase management for a single group
-- [x] Check the pattern before add
-- [x] Choose the right way to store data
+- [x] Warn or ban someone
+- [x] Forgive feature
+- [x] Support response the reply to report message
 - [x] Interfacing with the whole project database
-- [x] Search for patterns in more ways
-- [x] Test patterns in a group
-- [x] Simplified Chinese to Traditional Chinese
-- [x] Copy the same pattern to other groups
+- [x] Managed by SCP-079-CONFIG
 
 ## Requirements
 
