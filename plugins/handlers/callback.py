@@ -80,7 +80,8 @@ def answer(client, callback_query):
                             text, markup = warn_user(client, gid, rid, aid)
                             text += f"\n原因：{code('滥用')}"
                         else:
-                            text = (f"管理员：{user_mention(uid)}\n"
+                            text = (f"被举报用户：{user_mention(uid)}\n"
+                                    f"管理员：{user_mention(aid)}\n"
                                     f"状态：{code('已取消')}")
                             markup = None
 

@@ -188,7 +188,7 @@ def get_class_d_id(message: Message) -> (int, int):
             if not is_class_c(None, r_message):
                 uid = r_message.from_user.id
                 mid = r_message.message_id
-            elif r_message.reply_to_message.from_user.is_self:
+            elif r_message.from_user.is_self:
                 uid = int(r_message.text.partition("\n")[0].partition("：")[2])
     except Exception as e:
         logger.warning(f"Get class d id error: {e}", exc_info=True)
