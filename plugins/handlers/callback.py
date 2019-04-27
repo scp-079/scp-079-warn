@@ -106,5 +106,11 @@ def answer(client, callback_query):
                     glovar.report_records.pop(report_key)
                 else:
                     thread(answer_callback, (client, callback_query.id, "已被其他管理员处理"))
+            else:
+                text = (f"管理员：{user_mention(aid)}\n"
+                        f"状态：{code('已失效')}")
+                thread(edit_message_text, (client, gid, mid, text))
+                mids = [mid]
+                delay(10, delete_messages, [client, gid, mids])
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)
