@@ -168,7 +168,7 @@ def get_admin_text(gid: int) -> str:
         mention_style = ["A", "D", "M", "I", "N", "S"]
         mention_count = len(mention_style)
         if admin_count < mention_count:
-            admin_list += admin_list[0] * (mention_count - admin_count)
+            admin_list += [admin_list[0]] * (mention_count - admin_count)
 
         mention_list = sample(admin_list, mention_count)
         mention_text = ""
