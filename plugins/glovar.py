@@ -35,6 +35,7 @@ all_commands: List[str] = [
     "config",
     "forgive",
     "report",
+    "version",
     "warn"
 ]
 

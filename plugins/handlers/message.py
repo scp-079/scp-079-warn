@@ -34,8 +34,7 @@ from ..functions.user import report_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members & new_group
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members & new_group)
 def init_group(client, message):
     try:
         gid = message.chat.id
