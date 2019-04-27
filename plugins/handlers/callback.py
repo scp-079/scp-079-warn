@@ -101,7 +101,5 @@ def answer(client, callback_query):
                     glovar.report_records.pop(report_key)
                 else:
                     thread(answer_callback, (client, callback_query.id, "已被其他管理员处理"))
-            else:
-                pass
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)
