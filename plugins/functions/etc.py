@@ -230,6 +230,8 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     leave:
                         {
                             "group_id": -10012345678,
+                            "group_name": "Group Name",
+                            "group_link": "link to group",
                             "reason": "user / permissions"
                         }
 

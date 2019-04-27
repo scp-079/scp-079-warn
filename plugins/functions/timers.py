@@ -23,9 +23,9 @@ from time import sleep
 from pyrogram import Client
 
 from .. import glovar
-from .etc import send_data, thread
+from .etc import code, general_link, send_data, thread
 from .file import crypt_file, save
-from .telegram import get_admins, send_document, send_message
+from .telegram import get_admins, get_group_info, send_document, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -80,17 +80,30 @@ def update_admins(client: Client) -> bool:
                                 should_leave = False
 
                 if should_leave:
-                    data = send_data(
+                    group_name, group_link = get_group_info(client, gid)
+                    exchange_text = send_data(
                         sender="WARN",
                         receivers=["MANAGE"],
                         action="request",
                         action_type="leave",
                         data={
                             "group_id": gid,
+                            "group_name": group_name,
+                            "group_link": group_link,
                             "reason": reason_text
                         }
                     )
-                    thread(send_message, (client, glovar.exchange_channel_id, data))
+                    thread(send_message, (client, glovar.exchange_channel_id, exchange_text))
+                    if reason_text == "user":
+                        reason_text = f"缺失 {glovar.user_name}"
+                    elif reason_text == "permissions":
+                        reason_text = f"权限缺失"
+
+                    debug_text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                                  f"群组名称：{general_link(group_name, group_link)}\n"
+                                  f"群组 ID：{code(gid)}\n"
+                                  f"状态：{reason_text}")
+                    thread(send_message, (client, glovar.debug_channel_id, debug_text))
         except Exception as e:
             logger.warning(f"Update admin in {gid} error: {e}")
 
