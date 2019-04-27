@@ -261,7 +261,7 @@ def warn_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeybo
             else:
                 update_score(client, uid)
                 text = (f"已警告用户：{user_mention(uid)}\n"
-                        f"该用户警告统计：{code(f'warn_count/{limit}')}\n"
+                        f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n"
                         f"管理员：{user_mention(aid)}")
                 data = button_data("undo", "warn", uid)
                 markup = InlineKeyboardMarkup(
@@ -328,7 +328,7 @@ def unwarn_user(client: Client, gid: int, uid: int, aid: int) -> str:
                     limit = glovar.configs[gid]["limit"]
                     update_score(client, uid)
                     text = (f"已撤销警告：{user_mention(uid)}\n"
-                            f"该用户警告统计：{code(f'warn_count/{limit}')}\n"
+                            f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n"
                             f"管理员：{user_mention(aid)}")
         else:
             text = (f"用户：{user_mention(uid)}\n"
