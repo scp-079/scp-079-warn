@@ -52,22 +52,6 @@ names: Dict[str, str] = {
     "manual": "手动举报"
 }
 
-regex_names: dict = {
-    "ad": "广告用语",
-    "ava": "头像分析",
-    "bad": "敏感检测",
-    "ban": "自动封禁",
-    "bio": "简介封禁",
-    "con": "联系方式",
-    "del": "自动删除",
-    "eme": "应急模式",
-    "nm": "名称封禁",
-    "wb": "追踪封禁",
-    "wd": "追踪删除",
-    "sti": "贴纸删除",
-    "test": "测试用例"
-}
-
 report_records: Dict[str, Dict[str, int]] = {}
 # report_records = {
 #     "random": {
