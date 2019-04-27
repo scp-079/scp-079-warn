@@ -350,7 +350,7 @@ def update_score(client: Client, uid: int) -> bool:
         save("user_ids")
         data = send_data(
             sender="WARN",
-            receivers=["NOSPAM", "NOPORN"],
+            receivers=["NOSPAM"],
             action="update",
             action_type="score",
             data={

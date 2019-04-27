@@ -41,6 +41,7 @@ def answer(client, callback_query):
         aid = callback_query.from_user.id
         mid = callback_query.message.message_id
         callback_data = loads(callback_query.data)
+        logger.warning(callback_data)
         action = callback_data["a"]
         action_type = callback_data["t"]
         if action == "undo":
