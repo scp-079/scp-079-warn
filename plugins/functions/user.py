@@ -164,6 +164,9 @@ def get_admin_text(gid: int) -> str:
     mention_text = ""
     try:
         admin_list = list(glovar.admin_ids[gid])
+        if glovar.user_id in admin_list:
+            admin_list.remove(glovar.user_id)
+
         admin_count = len(admin_list)
         mention_style = ["A", "D", "M", "I", "N", "S"]
         mention_count = len(mention_style)
