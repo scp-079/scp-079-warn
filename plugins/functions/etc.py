@@ -136,7 +136,8 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
 
                 When action is config:
                     ask - Let CONFIG provide config options in CONFIG Channel
-                    update - Update some group's configurations
+                    commit - Update group's configurations
+                    reply - CONFIG reply the config link to bot
 
                 When action is declare:
                     ban - The bot has banned the user who sent the message
@@ -182,10 +183,25 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     "filename"
 
                 Config:
-                    {
-                        "mode": bool / int / List[Union[bool, int, str]] /
-                                Dict[str, Union[bool, int, List[Union[bool, int, str]]]]
-                    }
+                    ask:
+                        {
+                            "group_id": -10012345678,
+                            "group_name": "Group Name",
+                            "user_id": 12345678
+                            "config": dict
+                        }
+
+                    commit:
+                        {
+                            "group_id": -10012345678,
+                            "config": dict
+                        }
+
+                    reply:
+                        {
+                            "group_id": -10012345678,
+                            "message_id": 123
+                        }
 
                 Declare:
                     {
