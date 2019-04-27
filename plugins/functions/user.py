@@ -236,6 +236,7 @@ def warn_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeybo
         if gid not in glovar.user_ids[uid]["ban"]:
             if not glovar.user_ids[uid]["warn"].get(gid, 0):
                 glovar.user_ids[uid]["warn"][gid] = 1
+                update_score(client, uid)
             else:
                 glovar.user_ids[uid]["warn"][gid] += 1
 
@@ -259,7 +260,6 @@ def warn_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeybo
                 )
                 ask_for_help(client, "delete", gid, uid)
             else:
-                update_score(client, uid)
                 text = (f"已警告用户：{user_mention(uid)}\n"
                         f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n"
                         f"管理员：{user_mention(aid)}")
@@ -326,7 +326,6 @@ def unwarn_user(client: Client, gid: int, uid: int, aid: int) -> str:
                             f"管理员：{user_mention(aid)}")
                 else:
                     limit = glovar.configs[gid]["limit"]
-                    update_score(client, uid)
                     text = (f"已撤销警告：{user_mention(uid)}\n"
                             f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n"
                             f"管理员：{user_mention(aid)}")
