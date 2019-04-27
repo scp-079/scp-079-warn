@@ -18,14 +18,11 @@
 
 import logging
 import pickle
-import re
 from configparser import RawConfigParser
 from os import mkdir
 from os.path import exists
 from shutil import rmtree
 from typing import Dict, List, Set, Union
-
-from .functions.etc import random_str
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -40,16 +37,6 @@ all_commands: List[str] = [
     "report",
     "warn"
 ]
-
-bad_ids: Dict[str, Set[int]] = {
-    "channels": set(),
-    "users": set()
-}
-
-declared_message_ids: Dict[int, Set[int]] = {}
-# declared_message_ids = {
-#     -10012345678: {123}
-# }
 
 message_ids: Dict[int, int] = {}
 # message_ids = {
@@ -109,12 +96,6 @@ admin_ids: Dict[int, Set[int]] = {}
 #     -10012345678: {12345678}
 # }
 
-except_ids: Dict[str, Set[int]] = {}
-# except_ids = {
-#     "channels": {-10012345678},
-#     "users": {12345678}
-# }
-
 user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 # user_ids = {
 #     12345678: {
@@ -130,13 +111,6 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 
 # Init data variables
 
-compiled: dict = {}
-# compiled = {
-#     "type": re.compile("pattern", re.I | re.M | re.S)
-# }
-for word_type in regex_names:
-    compiled[word_type] = re.compile(fr"预留{regex_names[f'{word_type}']}词组 {random_str(16)}", re.I | re.M | re.S)
-
 configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # configs = {
 #     -10012345678: {
@@ -151,7 +125,7 @@ configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "compiled", "configs", "except_ids", "user_ids"]
+file_list: List[str] = ["admin_ids", "configs", "user_ids"]
 for file in file_list:
     try:
         try:

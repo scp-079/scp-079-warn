@@ -49,14 +49,6 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
     return False
 
 
-def is_class_e(_, message: Message) -> bool:
-    uid = message.from_user.id
-    if uid in glovar.except_ids:
-        return True
-
-    return False
-
-
 def is_exchange_channel(_, message: Message) -> bool:
     cid = message.chat.id
     if cid == glovar.exchange_channel_id:
@@ -85,11 +77,6 @@ def is_test_group(_, message: Message) -> bool:
 class_c = Filters.create(
     name="Class C",
     func=is_class_c
-)
-
-class_e = Filters.create(
-    name="Class E",
-    func=is_class_e
 )
 
 exchange_channel = Filters.create(

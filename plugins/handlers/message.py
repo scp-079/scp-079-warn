@@ -81,40 +81,8 @@ def process_data(client, message):
         # but this is to ensure that the permissions are clear,
         # so this is intentionally written like this
         if "WARN" in receivers:
-            if sender == "LANG":
-
-                if action == "add":
-                    if action_type == "bad":
-                        the_id = data["id"]
-                        the_type = data["type"]
-                        if the_type == "channel":
-                            glovar.bad_ids["channels"].add(the_id)
-                        elif the_type == "user":
-                            glovar.bad_ids["users"].add(the_id)
-
-            elif sender == "NOPORN":
-
-                if action == "add":
-                    if action_type == "bad":
-                        the_id = data["id"]
-                        the_type = data["type"]
-                        if the_type == "channel":
-                            glovar.bad_ids["channels"].add(the_id)
-                        elif the_type == "user":
-                            glovar.bad_ids["users"].add(the_id)
-
-            elif sender == "NOSPAM":
-
-                if action == "add":
-                    if action_type == "bad":
-                        the_id = data["id"]
-                        the_type = data["type"]
-                        if the_type == "channel":
-                            glovar.bad_ids["channels"].add(the_id)
-                        elif the_type == "user":
-                            glovar.bad_ids["users"].add(the_id)
-
-                elif action == "help":
+            if sender == "NOSPAM":
+                if action == "help":
                     if action_type == "report":
                         gid = data["group_id"]
                         init_group_id(gid)
@@ -123,37 +91,6 @@ def process_data(client, message):
                             mid = data["message_id"]
                             text, markup = report_user(gid, uid, 0, mid)
                             thread(send_message, (client, gid, text, mid, markup))
-
-            elif sender == "MANAGE":
-
-                if action == "add":
-                    if action_type == "except":
-                        the_id = data["id"]
-                        the_type = data["type"]
-                        if the_type == "channel":
-                            glovar.except_ids["channels"].add(the_id)
-                        elif the_type == "user":
-                            glovar.except_ids["users"].add(the_id)
-
-                        save("except_ids")
-
-                elif action == "remove":
-                    if action_type == "bad":
-                        the_id = data["id"]
-                        the_type = data["type"]
-                        if the_type == "channel":
-                            glovar.bad_ids["channels"].discard(the_id)
-                        elif the_type == "user":
-                            glovar.bad_ids["users"].discard(the_id)
-                    elif action_type == "except":
-                        the_id = data["id"]
-                        the_type = data["type"]
-                        if the_type == "channel":
-                            glovar.except_ids["channels"].discard(the_id)
-                        elif the_type == "user":
-                            glovar.except_ids["users"].discard(the_id)
-
-                        save("except_ids")
 
     except Exception as e:
         logger.warning(f"Auto report error: {e}", exc_info=True)
