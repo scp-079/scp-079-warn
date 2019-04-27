@@ -34,7 +34,7 @@ See [this article](https://scp-079.org/warn/).
 - plugins
     - functions
         - `etc.py` : Miscellaneous
-        - `files.py` : Save files
+        - `file.py` : Save files
         - `filters.py` : Some filters
         - `group.py` : Functions about group
         - `ids.py` : Modify id lists
