@@ -27,7 +27,7 @@ from ..functions.file import save
 from ..functions.filters import exchange_channel, new_group
 from ..functions.group import leave_group
 from ..functions.ids import init_group_id
-from ..functions.telegram import get_admins, get_group_info, leave_chat, send_message
+from ..functions.telegram import get_admins, get_group_info, leave_chat, send_message, send_report_message
 from ..functions.user import report_user
 
 # Enable logging
@@ -105,7 +105,7 @@ def process_data(client, message):
                                 ]
                             ]
                         )
-                        thread(send_message, (client, gid, text, None, markup))
+                        thread(send_report_message, (120, client, gid, text, None, markup))
 
             elif sender == "NOSPAM":
 
