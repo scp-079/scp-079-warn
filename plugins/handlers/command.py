@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
+from time import time
 
 from pyrogram import Client, Filters
 
@@ -26,7 +28,7 @@ from ..functions.filters import class_c, is_class_c, test_group
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user, warn_user
 
-from ..functions.telegram import delete_messages, send_message, send_report_message
+from ..functions.telegram import delete_messages, get_group_info, send_message, send_report_message
 
 
 # Enable logging
@@ -102,18 +104,25 @@ def config(client, message):
         mid = message.message_id
         if is_class_c(None, message):
             command_list = list(filter(None, message.command))
-            if len(command_list) == 2 and command_list[1] == "warn":
-                data = send_data(
-                    sender="WARN",
-                    receivers=["CONFIG"],
-                    action="config",
-                    action_type="ask",
-                    data={
-                        "group_id": gid,
-                        "config": glovar.configs[gid]
-                    }
-                )
-                thread(send_message, (client, data, glovar.exchange_channel_id))
+            if len(command_list) == 2 and re.search("^warn$", command_list[1], re.I):
+                now = int(time())
+                if now - glovar.configs[gid]["locked"] > 360:
+                    glovar.configs[gid]["locked"] = now
+                    group_name, group_link = get_group_info(client, message.chat)
+                    exchange_text = send_data(
+                        sender="WARN",
+                        receivers=["CONFIG"],
+                        action="config",
+                        action_type="ask",
+                        data={
+                            "group_id": gid,
+                            "group_name": group_name,
+                            "group_link": group_link,
+                            "user_id": message.from_user.id,
+                            "config": glovar.configs[gid]
+                        }
+                    )
+                    thread(send_message, (client, glovar.exchange_channel_id, exchange_text))
 
         mids = [mid]
         thread(delete_messages, (client, gid, mids))

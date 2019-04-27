@@ -75,7 +75,7 @@ report_records: Dict[str, Dict[str, int]] = {}
 #     }
 # }
 
-version: str = "0.0.7"
+version: str = "0.0.8"
 
 # Load data from pickle
 
@@ -114,8 +114,9 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # configs = {
 #     -10012345678: {
+#         "default": True
 #         "limit": 3,
-#         "locked": False,
+#         "locked": 0,
 #         "mention": False,
 #         "report": {
 #             "auto": False,
@@ -159,6 +160,7 @@ exchange_channel_id: int = 0
 test_group_id: int = 0
 
 # [custom]
+config_channel_username: str = ""
 default_group_link: str = ""
 project_link: str = ""
 project_name: str = ""
@@ -181,6 +183,7 @@ try:
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
+    config_channel_username = config["custom"].get("config_channel_username", config_channel_username)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
@@ -198,6 +201,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or debug_channel_id == 0
         or exchange_channel_id == 0
         or test_group_id == 0
+        or config_channel_username in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}

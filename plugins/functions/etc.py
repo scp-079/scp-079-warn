@@ -187,6 +187,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                         {
                             "group_id": -10012345678,
                             "group_name": "Group Name",
+                            "group_link": "link to group",
                             "user_id": 12345678
                             "config": dict
                         }
@@ -200,6 +201,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     reply:
                         {
                             "group_id": -10012345678,
+                            "user_id": 12345678,
                             "message_id": 123
                         }
 

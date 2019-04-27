@@ -29,8 +29,9 @@ def init_group_id(gid: int) -> bool:
     try:
         if glovar.configs.get(gid) is None:
             glovar.configs[gid] = {
+                "default": True,
                 "limit": 3,
-                "locked": False,
+                "locked": 0,
                 "mention": False,
                 "report": {
                     "auto": False,

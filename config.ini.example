@@ -27,6 +27,7 @@ exchange_channel_id = [DATA EXPUNGED]
 test_group_id = 0
 
 [custom]
+config_channel_username = [DATA EXPUNGED]
 default_group_link = [DATA EXPUNGED]
 project_link = [DATA EXPUNGED]
 project_name = [DATA EXPUNGED]

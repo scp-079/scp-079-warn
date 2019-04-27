@@ -19,7 +19,7 @@
 
 import logging
 
-from pyrogram import Client, Filters
+from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from ..functions.etc import code, general_link, receive_data, thread, user_mention
@@ -79,9 +79,37 @@ def process_data(client, message):
         # This will look awkward,
         # seems like it can be simplified,
         # but this is to ensure that the permissions are clear,
-        # so this is intentionally written like this
+        # so it is intentionally written like this
         if "WARN" in receivers:
-            if sender == "NOSPAM":
+            if sender == "CONFIG":
+
+                if action == "config":
+                    if action_type == "commit":
+                        gid = data["group_id"]
+                        config = data["config"]
+                        glovar.configs[gid] = config
+                        save("configs")
+                    elif action_type == "reply":
+                        gid = data["group_id"]
+                        uid = data["user_id"]
+                        mid = data["message_id"]
+                        text = (f"管理员：{user_mention(uid)}\n"
+                                f"操作：{code('更改设置')}\n"
+                                f"说明：{code('请点击下方按钮进行设置')}")
+                        markup = InlineKeyboardMarkup(
+                            [
+                                [
+                                    InlineKeyboardButton(
+                                        "前往设置",
+                                        url=f"https://t.me/{glovar.config_channel_username}/{mid}"
+                                    )
+                                ]
+                            ]
+                        )
+                        thread(send_message, (client, gid, text, None, markup))
+
+            elif sender == "NOSPAM":
+
                 if action == "help":
                     if action_type == "report":
                         gid = data["group_id"]
