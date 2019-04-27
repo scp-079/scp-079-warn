@@ -349,7 +349,7 @@ def update_score(client: Client, uid: int) -> bool:
         score = ban_count * 1 + warn_count * 0.4
         glovar.user_ids[uid]["score"] = score
         save("user_ids")
-        data = send_data(
+        exchange_text = send_data(
             sender="WARN",
             receivers=["NOSPAM"],
             action="update",
@@ -359,7 +359,7 @@ def update_score(client: Client, uid: int) -> bool:
                 "score": score
             }
         )
-        thread(send_message, (client, glovar.exchange_channel_id, data))
+        thread(send_message, (client, glovar.exchange_channel_id, exchange_text))
         return True
     except Exception as e:
         logger.warning(f"Update score error: {e}", exc_info=True)
