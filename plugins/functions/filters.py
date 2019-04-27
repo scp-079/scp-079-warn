@@ -36,6 +36,7 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
         else:
             message = update
 
+        logger.warning(f"Is class c message: {message}")
         if message.chat.id < 0:
             gid = message.chat.id
             init_group_id(gid)
