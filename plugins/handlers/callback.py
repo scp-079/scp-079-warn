@@ -64,8 +64,9 @@ def answer(client, callback_query):
             report_key = callback_data["d"]
             report_record = glovar.report_records.get(report_key)
             if report_record:
-                rid = glovar.report_records[report_key]["r"]
-                uid = glovar.report_records[report_key]["u"]
+                rid = glovar.report_records[report_key]["reporter"]
+                uid = glovar.report_records[report_key]["user"]
+                r_mid = glovar.report_records[report_key]["message"]
                 init_user_id(rid)
                 init_user_id(uid)
                 if gid not in glovar.user_ids[uid]["locked"] and gid not in glovar.user_ids[rid]["locked"]:
@@ -74,8 +75,12 @@ def answer(client, callback_query):
                         glovar.user_ids[uid]["locked"].add(gid)
                         if action_type == "ban":
                             text, markup = ban_user(client, gid, uid, aid)
+                            mids = [r_mid]
+                            thread(delete_messages, (client, gid, mids))
                         elif action_type == "warn":
                             text, markup = warn_user(client, gid, uid, aid)
+                            mids = [r_mid]
+                            thread(delete_messages, (client, gid, mids))
                         elif action_type == "spam":
                             text, markup = warn_user(client, gid, rid, aid)
                             text += f"\n原因：{code('滥用')}"

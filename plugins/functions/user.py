@@ -112,8 +112,9 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
             report_key = random_str(8)
 
         glovar.report_records[report_key] = {
-            "r": rid,
-            "u": uid
+            "reporter": rid,
+            "user": uid,
+            "message": mid
         }
         if rid:
             glovar.user_ids[rid]["waiting"].add(rid)
