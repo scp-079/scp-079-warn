@@ -95,7 +95,7 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
                     f"管理员：{user_mention(aid)}")
             result = True
 
-        update_score(client, gid)
+        update_score(client, uid)
     except Exception as e:
         logger.warning(f"Forgive user error: {e}")
 
@@ -320,7 +320,7 @@ def unwarn_user(client: Client, gid: int, uid: int, aid: int) -> str:
                 warn_count = glovar.user_ids[uid]["warn"][gid]
                 if warn_count == 0:
                     glovar.user_ids[uid]["warn"].pop(gid, 0)
-                    update_score(client, gid)
+                    update_score(client, uid)
                     text = (f"已撤销警告：{user_mention(uid)}\n"
                             f"该用户警告统计：{code('无警告')}\n"
                             f"管理员：{user_mention(aid)}")
