@@ -139,7 +139,7 @@ def forgive(client, message):
         mids = [mid]
         if is_class_c(None, message):
             aid = message.from_user.id
-            uid = get_class_d_id(message)
+            uid, _ = get_class_d_id(message)
             if uid:
                 text, result = forgive_user(client, gid, uid, aid)
                 if result:
