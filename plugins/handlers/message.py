@@ -120,4 +120,4 @@ def process_data(client, message):
                             thread(send_message, (client, gid, text, mid, markup))
 
     except Exception as e:
-        logger.warning(f"Auto report error: {e}", exc_info=True)
+        logger.warning(f"Process data error: {e}", exc_info=True)
