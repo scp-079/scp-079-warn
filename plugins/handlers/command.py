@@ -173,7 +173,6 @@ def report(client, message):
                    & Filters.command(["warn"], glovar.prefix))
 def warn(client, message):
     try:
-        logger.warning(f"Warn command message: {message}")
         gid = message.chat.id
         mid = message.message_id
         mids = [mid]
