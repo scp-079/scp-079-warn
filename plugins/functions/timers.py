@@ -24,7 +24,7 @@ from pyrogram import Client
 
 from .. import glovar
 from .etc import send_data, thread
-from .file import crypt_file
+from .file import crypt_file, save
 from .telegram import get_admins, send_document, send_message
 
 # Enable logging
@@ -53,6 +53,13 @@ def backup_files(client: Client) -> bool:
         logger.warning(f"Backup error: {e}", exc_info=True)
 
     return False
+
+
+def reset_data() -> bool:
+    glovar.user_ids = {}
+    save("user_ids")
+
+    return True
 
 
 def update_admins(client: Client) -> bool:

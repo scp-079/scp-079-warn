@@ -30,6 +30,7 @@ test_group_id = 0
 default_group_link = [DATA EXPUNGED]
 project_link = [DATA EXPUNGED]
 project_name = [DATA EXPUNGED]
+reset_day = [DATA EXPUNGED]
 user_name = [DATA EXPUNGED]
 
 [encrypt]
