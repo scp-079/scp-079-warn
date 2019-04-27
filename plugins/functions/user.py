@@ -165,7 +165,7 @@ def get_class_d_id(message: Message) -> (int, int):
     try:
         r_message = message.reply_to_message
         if r_message:
-            if is_class_c(None, r_message):
+            if not is_class_c(None, r_message):
                 uid = r_message.from_user.id
                 mid = r_message.message_id
             elif r_message.reply_to_message.from_user.is_self:

@@ -39,8 +39,8 @@ logger = logging.getLogger(__name__)
 def auto_report(client, message):
     try:
         data = receive_data(message)
-        if data and "WARN" in data["receivers"]:
-            if (data["sender"] == "NOSPAM"
+        if data and "WARN" in data["to"]:
+            if (data["from"] == "NOSPAM"
                     and data["action"] == "help" and data["type"] == "report"):
                 gid = data["data"]["group_id"]
                 init_group_id(gid)
