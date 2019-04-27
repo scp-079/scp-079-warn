@@ -135,7 +135,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     pickle - Pickle file
 
                 When action is config:
-                    ask - Let CONFIG provide config options in CONFIG Group
+                    ask - Let CONFIG provide config options in CONFIG Channel
                     update - Update some group's configurations
 
                 When action is declare:
