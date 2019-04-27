@@ -95,3 +95,20 @@ def update_admins(client: Client) -> bool:
             logger.warning(f"Update admin in {gid} error: {e}")
 
     return True
+
+
+def update_status(client: Client) -> bool:
+    try:
+        exchange_text = send_data(
+            sender="WARN",
+            receivers=["MANAGE"],
+            action="update",
+            action_type="status",
+            data="awake"
+        )
+        thread(send_message, (client, glovar.exchange_channel_id, exchange_text))
+        return True
+    except Exception as e:
+        logger.warning(f"Update status error: {e}")
+
+    return False
