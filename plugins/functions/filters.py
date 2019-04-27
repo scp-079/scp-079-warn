@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 from typing import Union
 
 from pyrogram import CallbackQuery, Filters, Message
@@ -24,18 +25,25 @@ from .. import glovar
 from .ids import init_group_id
 
 
-def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
-    if isinstance(update, CallbackQuery):
-        message = update.message
-    else:
-        message = update
+# Enable logging
+logger = logging.getLogger(__name__)
 
-    if message.chat.id < 0:
-        gid = message.chat.id
-        init_group_id(gid)
-        uid = message.from_user.id
-        if uid in glovar.admin_ids.get(gid, set()) or uid in glovar.bot_ids:
-            return True
+
+def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
+    try:
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
+
+        if message.chat.id < 0:
+            gid = message.chat.id
+            init_group_id(gid)
+            uid = message.from_user.id
+            if uid in glovar.admin_ids.get(gid, set()) or uid in glovar.bot_ids:
+                return True
+    except Exception as e:
+        logger.warning(f"Is class c error: {e}")
 
     return False
 
