@@ -33,14 +33,14 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
     try:
         if isinstance(update, CallbackQuery):
             message = update.message
+            uid = update.from_user.id
         else:
             message = update
+            uid = message.from_user.id
 
-        logger.warning(f"Is class c message: {message}")
         if message.chat.id < 0:
             gid = message.chat.id
             init_group_id(gid)
-            uid = message.from_user.id
             if uid in glovar.admin_ids.get(gid, set()) or uid in glovar.bot_ids:
                 return True
     except Exception as e:
