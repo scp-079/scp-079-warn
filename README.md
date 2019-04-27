@@ -36,13 +36,15 @@ See [this article](https://scp-079.org/warn/).
         - `etc.py` : Miscellaneous
         - `files.py` : Save files
         - `filters.py` : Some filters
+        - `group.py` : Functions about group
+        - `ids.py` : Modify id lists
         - `telegram.py` : Some telegram functions
-        - `timer.py` : Timer functions
-        - `words.py` : Manage words
+        - `timers.py` : Timer functions
+        - `user.py` : Functions about user
     - handlers
-        - `callbacks.py` : Handle callbacks
-        - `commands` : Handle commands
-        - `messages.py`: Handle messages
+        - `callback.py` : Handle callbacks
+        - `command` : Handle commands
+        - `message.py`: Handle messages
     - `glovar.py` : Global variables
 - `.gitignore` : Ignore
 - `config.ini.example` -> `config.ini` : Configures
