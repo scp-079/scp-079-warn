@@ -23,7 +23,7 @@ from json import loads
 from pyrogram import Client
 
 from .. import glovar
-from ..functions.etc import code, delay, thread, user_mention
+from ..functions.etc import code, delay, get_text, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c
 from ..functions.ids import init_user_id
@@ -107,10 +107,16 @@ def answer(client, callback_query):
                 else:
                     thread(answer_callback, (client, callback_query.id, "已被其他管理员处理"))
             else:
+                message_text = get_text(callback_query.message)
+                uid = int(message_text.split("\n")[0].split("：")[1])
+                rid = int(message_text.split("\n")[2].split("：")[1])
                 text = (f"管理员：{user_mention(aid)}\n"
                         f"状态：{code('已失效')}")
                 thread(edit_message_text, (client, gid, mid, text))
                 mids = [mid]
                 delay(10, delete_messages, [client, gid, mids])
+                glovar.user_ids[uid]["locked"].discard(gid)
+                glovar.user_ids[rid]["locked"].discard(gid)
+                save("user_ids")
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)
