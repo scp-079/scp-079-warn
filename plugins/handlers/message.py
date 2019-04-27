@@ -34,25 +34,6 @@ from ..functions.user import report_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.channel & exchange_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
-def auto_report(client, message):
-    try:
-        data = receive_data(message)
-        if data and "WARN" in data["to"]:
-            if (data["from"] == "NOSPAM"
-                    and data["action"] == "help" and data["type"] == "report"):
-                gid = data["data"]["group_id"]
-                init_group_id(gid)
-                if glovar.configs[gid]["report"]["auto"]:
-                    uid = data["data"]["user_id"]
-                    mid = data["data"]["message_id"]
-                    text, markup = report_user(gid, uid, 0, mid)
-                    thread(send_message, (client, gid, text, mid, markup))
-    except Exception as e:
-        logger.warning(f"Auto report error: {e}", exc_info=True)
-
-
 @Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members & new_group
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def init_group(client, message):
@@ -81,5 +62,98 @@ def init_group(client, message):
                      f"邀请人：{user_mention(invited_by)}")
 
         thread(send_message, (client, glovar.debug_channel_id, text))
+    except Exception as e:
+        logger.warning(f"Auto report error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.channel & exchange_channel
+                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+def process_data(client, message):
+    try:
+        data = receive_data(message)
+        sender = data["from"]
+        receivers = data["to"]
+        action = data["action"]
+        action_type = data["type"]
+        data = data["data"]
+        # This will look awkward,
+        # seems like it can be simplified,
+        # but this is to ensure that the permissions are clear,
+        # so this is intentionally written like this
+        if "WARN" in receivers:
+            if sender == "LANG":
+
+                if action == "add":
+                    if action_type == "bad":
+                        the_id = data["id"]
+                        the_type = data["type"]
+                        if the_type == "channel":
+                            glovar.bad_ids["channels"].add(the_id)
+                        elif the_type == "user":
+                            glovar.bad_ids["users"].add(the_id)
+
+            elif sender == "NOPORN":
+
+                if action == "add":
+                    if action_type == "bad":
+                        the_id = data["id"]
+                        the_type = data["type"]
+                        if the_type == "channel":
+                            glovar.bad_ids["channels"].add(the_id)
+                        elif the_type == "user":
+                            glovar.bad_ids["users"].add(the_id)
+
+            elif sender == "NOSPAM":
+
+                if action == "add":
+                    if action_type == "bad":
+                        the_id = data["id"]
+                        the_type = data["type"]
+                        if the_type == "channel":
+                            glovar.bad_ids["channels"].add(the_id)
+                        elif the_type == "user":
+                            glovar.bad_ids["users"].add(the_id)
+
+                elif action == "help":
+                    if action_type == "report":
+                        gid = data["group_id"]
+                        init_group_id(gid)
+                        if glovar.configs[gid]["report"]["auto"]:
+                            uid = data["user_id"]
+                            mid = data["message_id"]
+                            text, markup = report_user(gid, uid, 0, mid)
+                            thread(send_message, (client, gid, text, mid, markup))
+
+            elif sender == "MANAGE":
+
+                if action == "add":
+                    if action_type == "except":
+                        the_id = data["id"]
+                        the_type = data["type"]
+                        if the_type == "channel":
+                            glovar.except_ids["channels"].add(the_id)
+                        elif the_type == "user":
+                            glovar.except_ids["users"].add(the_id)
+
+                        save("except_ids")
+
+                elif action == "remove":
+                    if action_type == "bad":
+                        the_id = data["id"]
+                        the_type = data["type"]
+                        if the_type == "channel":
+                            glovar.bad_ids["channels"].discard(the_id)
+                        elif the_type == "user":
+                            glovar.bad_ids["users"].discard(the_id)
+                    elif action_type == "except":
+                        the_id = data["id"]
+                        the_type = data["type"]
+                        if the_type == "channel":
+                            glovar.except_ids["channels"].discard(the_id)
+                        elif the_type == "user":
+                            glovar.except_ids["users"].discard(the_id)
+
+                        save("except_ids")
+
     except Exception as e:
         logger.warning(f"Auto report error: {e}", exc_info=True)

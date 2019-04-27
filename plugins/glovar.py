@@ -41,6 +41,11 @@ all_commands: List[str] = [
     "warn"
 ]
 
+bad_ids: Dict[str, Set[int]] = {
+    "channels": set(),
+    "users": set()
+}
+
 declared_message_ids: Dict[int, Set[int]] = {}
 # declared_message_ids = {
 #     -10012345678: {123}

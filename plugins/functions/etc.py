@@ -208,6 +208,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                         {
                             "group_id": -10012345678,
                             "user_id": 12345678,
+                            "message_id": 123
                         }
 
                 Leave:
