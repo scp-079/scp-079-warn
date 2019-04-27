@@ -26,7 +26,7 @@ from ..functions.etc import code, general_link, receive_data, thread, user_menti
 from ..functions.file import save
 from ..functions.filters import exchange_channel, new_group
 from ..functions.group import leave_group
-from ..functions.ids import init_group_id
+from ..functions.ids import init_group_id, init_user_id
 from ..functions.telegram import get_admins, get_group_info, leave_chat, send_message, send_report_message
 from ..functions.user import report_user
 
@@ -116,6 +116,7 @@ def process_data(client, message):
                         if glovar.configs[gid]["report"]["auto"]:
                             uid = data["user_id"]
                             mid = data["message_id"]
+                            init_user_id(0)
                             text, markup = report_user(gid, uid, 0, mid)
                             thread(send_message, (client, gid, text, mid, markup))
 

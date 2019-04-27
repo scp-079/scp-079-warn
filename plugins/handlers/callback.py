@@ -101,6 +101,8 @@ def answer(client, callback_query):
                     finally:
                         glovar.user_ids[uid]["locked"].discard(gid)
                         glovar.user_ids[rid]["locked"].discard(gid)
+                        glovar.user_ids[uid]["waiting"].discard(gid)
+                        glovar.user_ids[rid]["waiting"].discard(gid)
                         save("user_ids")
 
                     glovar.report_records.pop(report_key)
@@ -115,8 +117,8 @@ def answer(client, callback_query):
                 thread(edit_message_text, (client, gid, mid, text))
                 mids = [mid]
                 delay(10, delete_messages, [client, gid, mids])
-                glovar.user_ids[uid]["locked"].discard(gid)
-                glovar.user_ids[rid]["locked"].discard(gid)
+                glovar.user_ids[uid]["waiting"].discard(gid)
+                glovar.user_ids[rid]["waiting"].discard(gid)
                 save("user_ids")
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)

@@ -107,6 +107,8 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
     markup = None
     try:
         glovar.user_ids[uid]["waiting"].add(gid)
+        glovar.user_ids[rid]["waiting"].add(rid)
+        save("user_ids")
         report_key = random_str(8)
         while glovar.report_records.get(report_key):
             report_key = random_str(8)
@@ -117,12 +119,10 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
             "message": mid
         }
         if rid:
-            glovar.user_ids[rid]["waiting"].add(rid)
             reporter_text = user_mention(rid)
         else:
             reporter_text = code("自动触发")
 
-        save("user_ids")
         text = (f"被举报用户：{user_mention(uid)}\n"
                 f"被举报消息：{message_link(gid, mid)}\n"
                 f"举报人：{reporter_text}\n"
