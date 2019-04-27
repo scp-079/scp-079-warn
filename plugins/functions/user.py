@@ -190,6 +190,8 @@ def get_class_d_id(message: Message) -> (int, int):
                 mid = r_message.message_id
             elif r_message.from_user.is_self:
                 uid = int(r_message.text.partition("\n")[0].partition("：")[2])
+                if uid in glovar.admin_ids[message.chat.id]:
+                    uid = 0
     except Exception as e:
         logger.warning(f"Get class d id error: {e}", exc_info=True)
 
