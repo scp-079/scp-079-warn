@@ -23,7 +23,6 @@ from string import ascii_letters, digits
 from threading import Thread, Timer
 from typing import Callable, List, Optional, Union
 
-from opencc import convert
 from pyrogram import Message
 
 # Enable logging
@@ -68,15 +67,12 @@ def delay(secs: int, target: Callable, args: list) -> bool:
     return True
 
 
-def get_text(message: Message, con: bool = True) -> Optional[str]:
+def get_text(message: Message) -> Optional[str]:
     text = None
     if message.text:
         text = message.text
     elif message.caption:
         text = message.caption
-
-    if text and con:
-        text = t2s(text)
 
     return text
 
@@ -94,7 +90,7 @@ def random_str(i: int) -> str:
 
 
 def receive_data(message: Message) -> dict:
-    text = get_text(message, False)
+    text = get_text(message)
     try:
         assert text is not None, f"Can't get text from message: {message}"
         data = loads(text)
@@ -266,10 +262,6 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
     }
 
     return code_block(dumps(data, indent=4))
-
-
-def t2s(text: str) -> str:
-    return convert(text, config="t2s.json")
 
 
 def thread(target: Callable, args: tuple) -> bool:
