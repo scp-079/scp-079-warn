@@ -66,21 +66,18 @@ def update_admins(client: Client) -> bool:
     group_list = list(glovar.configs)
     for gid in group_list:
         try:
-            should_leave = False
-            reason_text = ""
+            should_leave = True
+            reason_text = "permissions"
             admin_members = get_admins(client, gid)
             if admin_members:
                 glovar.admin_ids[gid] = {admin.user.id for admin in admin_members if not admin.user.is_bot}
                 if glovar.user_id not in glovar.admin_ids[gid]:
-                    should_leave = True
                     reason_text = "user"
-
-                if not should_leave:
+                else:
                     for admin in admin_members:
                         if admin.user.is_self:
                             if not (admin.permissions.can_delete_messages and admin.permissions.can_restrict_members):
-                                should_leave = True
-                                reason_text = "permissions"
+                                should_leave = False
 
                 if should_leave:
                     data = send_data(
