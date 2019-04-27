@@ -28,7 +28,6 @@ See [this article](https://scp-079.org/warn/).
 
 - Python 3.6 or higher.
 - `requirements.txt` ： APScheduler pyAesCrypt pyrogram[fast]
-- Ubuntu: `sudo apt update && sudo apt install opencc`
 
 ## Files
 
