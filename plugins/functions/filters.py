@@ -33,6 +33,7 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
     try:
         if isinstance(update, CallbackQuery):
             message = update.message
+            message.from_user.is_self = False
             uid = update.from_user.id
         else:
             message = update
