@@ -54,7 +54,7 @@ def admin(client, message):
                     text = (f"来自用户：{user_mention(uid)}\n"
                             f"呼叫管理：{get_admin_text(gid)}")
                     command_list = message.command
-                    if len(command_list) < 1:
+                    if len(command_list) < 2:
                         mids = [mid]
                         thread(delete_messages, (client, gid, mids))
                         mid = None
