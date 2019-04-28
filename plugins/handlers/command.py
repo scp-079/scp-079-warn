@@ -155,7 +155,7 @@ def forgive(client, message):
                 else:
                     secs = 10
 
-                thread(send_report_message, (secs, client, gid, text, mid))
+                thread(send_report_message, (secs, client, gid, text, None))
 
         thread(delete_messages, (client, gid, mids))
     except Exception as e:

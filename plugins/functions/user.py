@@ -235,7 +235,7 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
             ]
         ]
         if rid:
-            markup_list[2].append(
+            markup_list[1].append(
                 InlineKeyboardButton(
                     "滥用",
                     callback_data=warn_reporter_data
