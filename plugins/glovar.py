@@ -51,6 +51,14 @@ default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
     }
 }
 
+default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
+    "ban": set(),
+    "locked": set(),
+    "score": 0,
+    "warn": {},
+    "waiting": set()
+}
+
 message_ids: Dict[int, int] = {}
 # message_ids = {
 #     -10012345678: 123
