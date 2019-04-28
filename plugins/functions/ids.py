@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from copy import deepcopy
 
 from .. import glovar
 from .file import save
@@ -28,7 +29,7 @@ logger = logging.getLogger(__name__)
 def init_group_id(gid: int) -> bool:
     try:
         if glovar.configs.get(gid) is None:
-            glovar.configs[gid] = glovar.default_config
+            glovar.configs[gid] = deepcopy(glovar.default_config)
             save("configs")
 
         if glovar.admin_ids.get(gid) is None:
@@ -45,7 +46,7 @@ def init_group_id(gid: int) -> bool:
 def init_user_id(uid: int) -> bool:
     try:
         if glovar.user_ids.get(uid) is None:
-            glovar.user_ids[uid] = glovar.default_user_status
+            glovar.user_ids[uid] = deepcopy(glovar.default_user_status)
             save("user_ids")
 
         return True

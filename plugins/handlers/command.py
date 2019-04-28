@@ -244,7 +244,7 @@ def warn_config(client, message):
                         return
                     elif command_type == "default":
                         if not new_config["default"]:
-                            new_config = glovar.default_config
+                            new_config = deepcopy(glovar.default_config)
                     else:
                         command_context = get_command_context(message)
                         if command_context:
@@ -301,7 +301,7 @@ def warn_config(client, message):
                 reason = "格式有误"
 
             if success and new_config != glovar.configs[gid]:
-                glovar.configs[gid] = new_config
+                glovar.configs[gid] = deepcopy(new_config)
                 save("configs")
 
             text += (f"操作：{code('更改设置')}\n"
