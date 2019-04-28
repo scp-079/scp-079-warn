@@ -79,7 +79,7 @@ def ban(client, message):
         mids = [mid]
         if is_class_c(None, message):
             uid, re_mid = get_class_d_id(message)
-            if uid:
+            if uid and uid not in glovar.admin_ids[gid]:
                 aid = message.from_user.id
                 text, markup = ban_user(client, gid, uid, aid)
                 if markup:
@@ -144,7 +144,7 @@ def forgive(client, message):
         if is_class_c(None, message):
             aid = message.from_user.id
             uid, _ = get_class_d_id(message)
-            if uid:
+            if uid and uid not in glovar.admin_ids[gid]:
                 text, result = forgive_user(client, gid, uid, aid)
                 glovar.user_ids[uid]["locked"].discard(gid)
                 glovar.user_ids[uid]["waiting"].discard(gid)
@@ -175,6 +175,7 @@ def report(client, message):
         init_user_id(uid)
         if (uid
                 and uid != rid
+                and uid not in glovar.admin_ids[gid]
                 and gid not in glovar.user_ids[rid]["waiting"]
                 and gid not in glovar.user_ids[uid]["waiting"]
                 and gid not in glovar.user_ids[uid]["ban"]):
@@ -197,7 +198,7 @@ def warn(client, message):
         if is_class_c(None, message):
             aid = message.from_user.id
             uid, re_mid = get_class_d_id(message)
-            if uid:
+            if uid and uid not in glovar.admin_ids[gid]:
                 text, markup = warn_user(client, gid, uid, aid)
                 if markup:
                     secs = 60
