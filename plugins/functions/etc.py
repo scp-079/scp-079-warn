@@ -192,7 +192,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     watch:
                         {
                             "id": 12345678,
-                            "type": "all / bad / delete"
+                            "type": "all / ban / delete"
                         }
 
                 Backup:
@@ -243,7 +243,7 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
 
                 Leave:
                     {
-                        "group_id": -10012345678,
+                        "id": -10012345678,
                         "reason": "reason here"
                     }
 

@@ -22,11 +22,12 @@ from random import sample
 from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .etc import button_data, code, general_link, get_text, message_link, random_str, send_data, thread, user_mention
+from .etc import button_data, code, get_text, message_link, random_str, send_data, thread, user_mention
 from .file import save
 from .filters import is_class_c
+from .group import get_debug_text
 from .ids import init_user_id
-from .telegram import get_group_info, kick_chat_member, send_message, unban_chat_member
+from .telegram import kick_chat_member, send_message, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -248,14 +249,11 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
     return text, markup
 
 
-def send_debug(client: Client, message: Message, action: str, gid: int, uid: int, aid: int) -> bool:
+def send_debug(client: Client, message: Message, action: str, uid: int, aid: int) -> bool:
     try:
-        group_name, group_link = get_group_info(client, message.chat)
-        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"群组名称：{general_link(group_name, group_link)}\n"
-                f"群组 ID：{code(gid)}\n"
-                f"已{action}用户：{user_mention(uid)}\n"
-                f"群管理：{user_mention(aid)}")
+        text = get_debug_text(client, message.chat)
+        text += (f"已{action}用户：{user_mention(uid)}\n"
+                 f"群管理：{user_mention(aid)}")
         if message.from_user.is_self:
             text += f"\n原因：{code('受群员举报或群管认定滥用')}"
         else:

@@ -22,12 +22,12 @@ import logging
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from ..functions.etc import code, general_link, receive_data, thread, user_mention
+from ..functions.etc import code, receive_data, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, new_group
-from ..functions.group import leave_group
+from ..functions.group import get_debug_text, leave_group
 from ..functions.ids import init_group_id, init_user_id
-from ..functions.telegram import get_admins, get_group_info, leave_chat, send_message, send_report_message
+from ..functions.telegram import get_admins, leave_chat, send_message, send_report_message
 from ..functions.user import report_user
 
 # Enable logging
@@ -39,10 +39,7 @@ def init_group(client, message):
     try:
         gid = message.chat.id
         invited_by = message.from_user.id
-        group_name, group_link = get_group_info(client, message.chat)
-        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"群组名称：{general_link(group_name, group_link)}\n"
-                f"群组 ID：{code(gid)}\n")
+        text = get_debug_text(client, message.chat)
         if invited_by == glovar.user_id:
             init_group_id(gid)
             admin_members = get_admins(client, gid)
@@ -120,5 +117,16 @@ def process_data(client, message):
                             text, markup = report_user(gid, uid, 0, mid)
                             thread(send_message, (client, gid, text, mid, markup))
 
+            elif sender == "MANAGE":
+
+                if action == "leave":
+                    the_id = data["id"]
+                    reason = data["reason"]
+                    if action_type == "group":
+                        leave_group(client, the_id)
+                        text = get_debug_text(client, the_id)
+                        text += (f"状态：{code('已退出该群组')}\n"
+                                 f"原因：{code(reason)}")
+                        thread(send_message, (client, glovar.debug_channel_id, text))
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)

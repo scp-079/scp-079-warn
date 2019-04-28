@@ -77,16 +77,16 @@ def answer(client, callback_query):
                             text, markup = ban_user(client, gid, uid, aid)
                             mids = [r_mid]
                             thread(delete_messages, (client, gid, mids))
-                            send_debug(client, callback_query.message, "封禁", gid, uid, aid)
+                            send_debug(client, callback_query.message, "封禁", uid, aid)
                         elif action_type == "warn":
                             text, markup = warn_user(client, gid, uid, aid)
                             mids = [r_mid]
                             thread(delete_messages, (client, gid, mids))
-                            send_debug(client, callback_query.message, "警告", gid, uid, aid)
+                            send_debug(client, callback_query.message, "警告", uid, aid)
                         elif action_type == "spam":
                             text, markup = warn_user(client, gid, rid, aid)
                             text += f"\n原因：{code('滥用')}"
-                            send_debug(client, callback_query.message, "警告", gid, uid, aid)
+                            send_debug(client, callback_query.message, "警告", uid, aid)
                         else:
                             text = (f"被举报用户：{user_mention(uid)}\n"
                                     f"管理员：{user_mention(aid)}\n"

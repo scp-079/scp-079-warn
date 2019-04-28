@@ -84,7 +84,7 @@ def ban(client, message):
                 if markup:
                     secs = 60
                     text = get_reason(message, text)
-                    send_debug(client, message, "封禁", gid, uid, aid)
+                    send_debug(client, message, "封禁", uid, aid)
                 else:
                     secs = 10
 
@@ -199,7 +199,7 @@ def warn(client, message):
                 if markup:
                     secs = 60
                     text = get_reason(message, text)
-                    send_debug(client, message, "警告", gid, uid, aid)
+                    send_debug(client, message, "警告", uid, aid)
                 else:
                     secs = 10
 
