@@ -22,14 +22,34 @@ from random import sample
 from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .etc import button_data, code, get_text, message_link, random_str, send_data, thread, user_mention
+from .etc import button_data, code, general_link, get_text, message_link, random_str, send_data, thread, user_mention
 from .file import save
 from .filters import is_class_c
 from .ids import init_user_id
-from .telegram import kick_chat_member, send_message, unban_chat_member
+from .telegram import get_group_info, kick_chat_member, send_message, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:
+    try:
+        data = send_data(
+            sender="WARN",
+            receivers=["USER"],
+            action="help",
+            action_type=level,
+            data={
+                "group_id": gid,
+                "user_id": uid
+            }
+        )
+        thread(send_message, (client, glovar.exchange_channel_id, data))
+        return True
+    except Exception as e:
+        logger.warning(f"Ask for help error: {e}", exc_info=True)
+
+    return False
 
 
 def ban_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeyboardMarkup):
@@ -113,6 +133,59 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
     return text, result
 
 
+def get_admin_text(gid: int) -> str:
+    mention_text = ""
+    try:
+        admin_list = list(glovar.admin_ids[gid])
+        if glovar.user_id in admin_list:
+            admin_list.remove(glovar.user_id)
+
+        admin_count = len(admin_list)
+        mention_style = ["A", "D", "M", "I", "N", "S"]
+        mention_count = len(mention_style)
+        if admin_count < mention_count:
+            admin_list += [admin_list[0]] * (mention_count - admin_count)
+
+        mention_list = sample(admin_list, mention_count)
+        mention_text = ""
+        for i in range(mention_count):
+            mention_text += f"[{mention_style[i]}](tg://user?id={mention_list[i]})"
+    except Exception as e:
+        logging.warning(f"Get admin text error: {e}", exc_info=True)
+
+    return mention_text
+
+
+def get_class_d_id(message: Message) -> (int, int):
+    uid, mid = (0, 0)
+    try:
+        r_message = message.reply_to_message
+        if r_message:
+            if not is_class_c(None, r_message):
+                uid = r_message.from_user.id
+                mid = r_message.message_id
+            elif r_message.from_user.is_self:
+                uid = int(r_message.text.partition("\n")[0].partition("：")[2])
+                if uid in glovar.admin_ids[message.chat.id]:
+                    uid = 0
+    except Exception as e:
+        logger.warning(f"Get class d id error: {e}", exc_info=True)
+
+    return uid, mid
+
+
+def get_reason(message: Message, text: str) -> str:
+    try:
+        command_list = list(filter(None, message.command))
+        reason = get_text(message)[len(command_list[0]) + 1:].strip()
+        if reason:
+            text += f"\n原因：{code(reason)}"
+    except Exception as e:
+        logging.warning(f"Get reason error: {e}", exc_info=True)
+
+    return text
+
+
 def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardMarkup):
     text = ""
     markup = None
@@ -175,75 +248,21 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
     return text, markup
 
 
-def get_admin_text(gid: int) -> str:
-    mention_text = ""
+def send_debug(client: Client, message: Message, action: str, gid: int, uid: int, aid: int) -> bool:
     try:
-        admin_list = list(glovar.admin_ids[gid])
-        if glovar.user_id in admin_list:
-            admin_list.remove(glovar.user_id)
-
-        admin_count = len(admin_list)
-        mention_style = ["A", "D", "M", "I", "N", "S"]
-        mention_count = len(mention_style)
-        if admin_count < mention_count:
-            admin_list += [admin_list[0]] * (mention_count - admin_count)
-
-        mention_list = sample(admin_list, mention_count)
-        mention_text = ""
-        for i in range(mention_count):
-            mention_text += f"[{mention_style[i]}](tg://user?id={mention_list[i]})"
+        group_name, group_link = get_group_info(client, message.chat)
+        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"群组名称：{general_link(group_name, group_link)}\n"
+                f"群组 ID：{code(gid)}\n"
+                f"已{action}用户：{user_mention(uid)}\n"
+                f"群管理：{user_mention(aid)}")
+        if message.from_user.is_self:
+            text += f"\n原因：{code('受群员举报或群管认定滥用')}"
+        else:
+            text = get_reason(message, text)
+        thread(send_message, (client, glovar.debug_channel_id, text))
     except Exception as e:
-        logging.warning(f"Get admin text error: {e}", exc_info=True)
-
-    return mention_text
-
-
-def get_class_d_id(message: Message) -> (int, int):
-    uid, mid = (0, 0)
-    try:
-        r_message = message.reply_to_message
-        if r_message:
-            if not is_class_c(None, r_message):
-                uid = r_message.from_user.id
-                mid = r_message.message_id
-            elif r_message.from_user.is_self:
-                uid = int(r_message.text.partition("\n")[0].partition("：")[2])
-                if uid in glovar.admin_ids[message.chat.id]:
-                    uid = 0
-    except Exception as e:
-        logger.warning(f"Get class d id error: {e}", exc_info=True)
-
-    return uid, mid
-
-
-def get_reason(message: Message, text: str) -> str:
-    try:
-        command_list = list(filter(None, message.command))
-        reason = get_text(message)[len(command_list[0]) + 1:].strip()
-        if reason:
-            text += f"\n原因：{code(reason)}"
-    except Exception as e:
-        logging.warning(f"Get reason error: {e}", exc_info=True)
-
-    return text
-
-
-def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:
-    try:
-        data = send_data(
-            sender="WARN",
-            receivers=["USER"],
-            action="help",
-            action_type=level,
-            data={
-                "group_id": gid,
-                "user_id": uid
-            }
-        )
-        thread(send_message, (client, glovar.exchange_channel_id, data))
-        return True
-    except Exception as e:
-        logger.warning(f"Ask for help error: {e}", exc_info=True)
+        logger.warning(f"Send debug error: {e}", exc_info=True)
 
     return False
 

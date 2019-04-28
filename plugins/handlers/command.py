@@ -23,11 +23,12 @@ from time import time
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import bold, code, get_command_context, send_data, thread, user_mention
+from ..functions.etc import bold, code, general_link, get_command_context, send_data, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c, is_class_c, test_group
 from ..functions.ids import init_user_id
-from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user, warn_user
+from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user
+from ..functions.user import send_debug, warn_user
 
 from ..functions.telegram import delete_messages, get_group_info, send_message, send_report_message
 
@@ -83,6 +84,7 @@ def ban(client, message):
                 if markup:
                     secs = 60
                     text = get_reason(message, text)
+                    send_debug(client, message, "封禁", gid, uid, aid)
                 else:
                     secs = 10
 
@@ -194,6 +196,7 @@ def warn(client, message):
                 if markup:
                     secs = 60
                     text = get_reason(message, text)
+                    send_debug(client, message, "警告", gid, uid, aid)
                 else:
                     secs = 10
 
