@@ -43,9 +43,9 @@ logger = logging.getLogger(__name__)
 def admin(client, message):
     try:
         gid = message.chat.id
+        mid = message.message_id
         if glovar.configs[gid]["mention"]:
             if not is_class_c(None, message):
-                mid = message.message_id
                 uid = message.from_user.id
                 init_user_id(uid)
                 if (uid
@@ -53,13 +53,8 @@ def admin(client, message):
                         and gid not in glovar.user_ids[uid]["ban"]):
                     text = (f"来自用户：{user_mention(uid)}\n"
                             f"呼叫管理：{get_admin_text(gid)}")
-                    command_list = message.command
-                    if len(command_list) < 2:
-                        mids = [mid]
-                        thread(delete_messages, (client, gid, mids))
-                        mid = None
-
-                    sent_message = send_message(client, gid, text, mid)
+                    text = get_reason(message, text)
+                    sent_message = send_message(client, gid, text, None)
                     if sent_message:
                         old_mid = glovar.message_ids.get(gid, 0)
                         if old_mid:
@@ -68,6 +63,9 @@ def admin(client, message):
 
                         sent_mid = sent_message.message_id
                         glovar.message_ids[gid] = sent_mid
+
+        mids = [mid]
+        thread(delete_messages, (client, gid, mids))
     except Exception as e:
         logger.warning(f"Admin error: {e}", exc_info=True)
 
@@ -180,6 +178,7 @@ def report(client, message):
                 and gid not in glovar.user_ids[uid]["waiting"]
                 and gid not in glovar.user_ids[uid]["ban"]):
             text, markup = report_user(gid, uid, rid, re_mid)
+            text = get_reason(message, text)
             thread(send_message, (client, gid, text, None, markup))
 
         thread(delete_messages, (client, gid, mids))
