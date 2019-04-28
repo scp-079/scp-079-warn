@@ -55,6 +55,17 @@ def ban_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeyboa
                     ]
                 ]
             )
+            exchange_text = send_data(
+                sender="WARN",
+                receivers=["USER"],
+                action="help",
+                action_type="delete",
+                data={
+                    "group_id": gid,
+                    "user_id": aid
+                }
+            )
+            thread(send_message, (client, glovar.exchange_channel_id, exchange_text))
         else:
             text = (f"用户：{user_mention(uid)}\n"
                     f"结果：{code('未操作')}\n"

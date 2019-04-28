@@ -36,7 +36,8 @@ all_commands: List[str] = [
     "forgive",
     "report",
     "version",
-    "warn"
+    "warn",
+    "warn_config"
 ]
 
 message_ids: Dict[int, int] = {}
