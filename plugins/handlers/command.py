@@ -19,6 +19,7 @@
 import logging
 import re
 from time import time
+from copy import deepcopy
 
 from pyrogram import Client, Filters
 
@@ -225,7 +226,7 @@ def warn_config(client, message):
             command_list = message.command
             success = True
             reason = "已更新"
-            new_config = glovar.configs[gid]
+            new_config = deepcopy(glovar.configs[gid])
             text = f"管理员：{user_mention(aid)}\n"
             if len(command_list) > 1:
                 now = int(time())
