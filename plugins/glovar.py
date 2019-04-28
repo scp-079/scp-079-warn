@@ -56,14 +56,6 @@ message_ids: Dict[int, int] = {}
 #     -10012345678: 123
 # }
 
-names: Dict[str, str] = {
-    "auto": "自动举报",
-    "both": "自动与手动",
-    "limit": "警告上限",
-    "report": "举报模式",
-    "manual": "手动举报"
-}
-
 report_records: Dict[str, Dict[str, int]] = {}
 # report_records = {
 #     "random": {
