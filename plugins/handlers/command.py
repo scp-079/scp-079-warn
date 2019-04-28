@@ -174,6 +174,7 @@ def report(client, message):
         uid, re_mid = get_class_d_id(message)
         init_user_id(uid)
         if (uid
+                and uid != rid
                 and gid not in glovar.user_ids[rid]["waiting"]
                 and gid not in glovar.user_ids[uid]["waiting"]
                 and gid not in glovar.user_ids[uid]["ban"]):
