@@ -242,7 +242,10 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                         }
 
                 Leave:
-                    -10012345678
+                    {
+                        "group_id": -10012345678,
+                        "reason": "reason here"
+                    }
 
                 Request:
                     leave:
