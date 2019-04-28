@@ -255,7 +255,10 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
         text += (f"已{action}用户：{user_mention(uid)}\n"
                  f"群管理：{user_mention(aid)}")
         if message.from_user.is_self:
-            text += f"\n原因：{code('受群员举报或群管认定滥用')}"
+            if action == "警告":
+                text += f"\n原因：{code('受群员举报或群管认定滥用')}"
+            else:
+                text += f"\n原因：{code('受群员举报并由群管处理')}"
         else:
             text = get_reason(message, text)
         thread(send_message, (client, glovar.debug_channel_id, text))
