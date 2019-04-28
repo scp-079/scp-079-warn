@@ -58,6 +58,8 @@ def answer(client, callback_query):
                 finally:
                     glovar.user_ids[uid]["locked"].discard(gid)
                     save("user_ids")
+
+                thread(answer_callback, (client, callback_query.id, ""))
             else:
                 thread(answer_callback, (client, callback_query.id, "已被其他管理员处理"))
         elif action == "report":
@@ -109,6 +111,7 @@ def answer(client, callback_query):
                         save("user_ids")
 
                     glovar.report_records.pop(report_key)
+                    thread(answer_callback, (client, callback_query.id, ""))
                 else:
                     thread(answer_callback, (client, callback_query.id, "已被其他管理员处理"))
             else:
@@ -123,5 +126,6 @@ def answer(client, callback_query):
                 glovar.user_ids[uid]["waiting"].discard(gid)
                 glovar.user_ids[rid]["waiting"].discard(gid)
                 save("user_ids")
+                thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)
