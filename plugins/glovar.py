@@ -103,7 +103,7 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # configs = {
 #     -10012345678: {
-#         "default": True
+#         "default": True,
 #         "limit": 3,
 #         "locked": 0,
 #         "mention": False,
