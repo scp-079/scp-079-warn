@@ -240,7 +240,6 @@ def warn_config(client, message):
                             new_config = glovar.default_config
                     else:
                         command_context = get_command_context(message)
-                        new_config["default"] = False
                         if command_context:
                             if command_type == "limit":
                                 try:
@@ -284,6 +283,9 @@ def warn_config(client, message):
                         else:
                             success = False
                             reason = "命令选项缺失"
+
+                        if success:
+                            new_config["default"] = False
                 else:
                     success = False
                     reason = "设置当前被锁定"
