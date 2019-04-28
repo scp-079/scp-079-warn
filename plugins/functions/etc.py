@@ -67,6 +67,22 @@ def delay(secs: int, target: Callable, args: list) -> bool:
     return True
 
 
+def get_command_context(message: Message) -> str:
+    command_list = message.command
+    if len(list(filter(None, command_list))) > 2:
+        i = 1
+        command_type = command_list[i]
+        while command_type == "" and i < len(command_list):
+            i += 1
+            command_type = command_list[i]
+
+        command_context = get_text(message)[1 + len(command_list[0]) + i + len(command_list[1]):].strip()
+    else:
+        command_context = ""
+
+    return command_context
+
+
 def get_text(message: Message) -> Optional[str]:
     text = None
     if message.text:

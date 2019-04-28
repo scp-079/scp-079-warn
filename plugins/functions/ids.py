@@ -28,16 +28,7 @@ logger = logging.getLogger(__name__)
 def init_group_id(gid: int) -> bool:
     try:
         if glovar.configs.get(gid) is None:
-            glovar.configs[gid] = {
-                "default": True,
-                "limit": 3,
-                "locked": 0,
-                "mention": False,
-                "report": {
-                    "auto": False,
-                    "manual": False
-                }
-            }
+            glovar.configs[gid] = glovar.default_config
             save("configs")
 
         if glovar.admin_ids.get(gid) is None:

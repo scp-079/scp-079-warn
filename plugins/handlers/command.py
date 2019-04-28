@@ -23,7 +23,8 @@ from time import time
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import bold, send_data, thread, user_mention
+from ..functions.etc import bold, code, get_command_context, send_data, thread, user_mention
+from ..functions.file import save
 from ..functions.filters import class_c, is_class_c, test_group
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user, warn_user
@@ -205,6 +206,73 @@ def warn(client, message):
         thread(delete_messages, (client, gid, mids))
     except Exception as e:
         logger.warning(f"Warn error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group
+                   & Filters.command(["warn_config"], glovar.prefix))
+def warn_config(client, message):
+    try:
+        gid = message.chat.id
+        mid = message.message_id
+        if is_class_c(None, message):
+            aid = message.from_user.id
+            command_list = message.command
+            success = True
+            reason = "已更新设置"
+            if len(command_list) > 1:
+                now = int(time())
+                if now - glovar.configs[gid]["locked"] > 360:
+                    glovar.configs[gid]["locked"] = now
+                    command_type = list(filter(None, command_list))[1]
+                    if command_type == "default":
+                        if not glovar.configs[gid]["default"]:
+                            glovar.configs[gid] = glovar.default_config
+                            save("configs")
+                    else:
+                        command_context = get_command_context(message)
+                        if command_context:
+                            if command_type == "limit":
+                                limit = int(command_context)
+                                if 2 <= limit <= 5:
+                                    glovar.configs[gid]["limit"] = limit
+                            elif command_type == "report":
+                                if command_context == "off":
+                                    glovar.configs[gid]["report"]["auto"] = False
+                                    glovar.configs[gid]["report"]["manual"] = False
+                                elif command_context == "auto":
+                                    glovar.configs[gid]["report"]["auto"] = True
+                                    glovar.configs[gid]["report"]["manual"] = False
+                                elif command_context == "manual":
+                                    glovar.configs[gid]["report"]["auto"] = False
+                                    glovar.configs[gid]["report"]["manual"] = True
+                                elif command_context == "both":
+                                    glovar.configs[gid]["report"]["auto"] = True
+                                    glovar.configs[gid]["report"]["manual"] = True
+                                else:
+                                    success = False
+                                    reason = "举报选项有误"
+                            else:
+                                success = False
+                                reason = "命令类别有误"
+                        else:
+                            success = False
+                            reason = "命令选项缺失"
+                else:
+                    success = False
+                    reason = "设置当前被锁定"
+            else:
+                success = False
+                reason = "格式有误"
+
+            text = (f"管理员：{user_mention(aid)}\n"
+                    f"操作：{code('更新设置')}\n"
+                    f"状态：{code(reason)}")
+            thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
+
+        mids = [mid]
+        thread(delete_messages, (client, gid, mids))
+    except Exception as e:
+        logger.warning(f"Config error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.group & test_group

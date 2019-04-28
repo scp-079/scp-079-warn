@@ -40,6 +40,17 @@ all_commands: List[str] = [
     "warn_config"
 ]
 
+default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
+    "default": True,
+    "limit": 3,
+    "locked": 0,
+    "mention": False,
+    "report": {
+        "auto": False,
+        "manual": False
+    }
+}
+
 message_ids: Dict[int, int] = {}
 # message_ids = {
 #     -10012345678: 123
@@ -61,7 +72,7 @@ report_records: Dict[str, Dict[str, int]] = {}
 #     }
 # }
 
-version: str = "0.0.8"
+version: str = "0.1.0"
 
 # Load data from pickle
 
