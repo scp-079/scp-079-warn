@@ -142,30 +142,33 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
         ban_data = button_data("report", "ban", report_key)
         cancel_data = button_data("report", "cancel", report_key)
         warn_reporter_data = button_data("report", "spam", report_key)
-        markup = InlineKeyboardMarkup(
+        markup_list = [
             [
-                [
-                    InlineKeyboardButton(
-                        "警告",
-                        callback_data=warn_data
-                    ),
-                    InlineKeyboardButton(
-                        "封禁",
-                        callback_data=ban_data
-                    )
-                ],
-                [
-                    InlineKeyboardButton(
-                        "取消",
-                        callback_data=cancel_data
-                    ),
-                    InlineKeyboardButton(
-                        "滥用",
-                        callback_data=warn_reporter_data
-                    )
-                ]
+                InlineKeyboardButton(
+                    "警告",
+                    callback_data=warn_data
+                ),
+                InlineKeyboardButton(
+                    "封禁",
+                    callback_data=ban_data
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    "取消",
+                    callback_data=cancel_data
+                )
             ]
-        )
+        ]
+        if rid:
+            markup_list[2].append(
+                InlineKeyboardButton(
+                    "滥用",
+                    callback_data=warn_reporter_data
+                )
+            )
+
+        markup = InlineKeyboardMarkup(markup_list)
     except Exception as e:
         logger.warning(f"Report user error: {e}", exc_info=True)
 
