@@ -233,6 +233,8 @@ def warn_config(client, message):
                                  f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
                                  f"手动举报："
                                  f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}")
+                        thread(send_report_message, (15, client, gid, text))
+                        return
                     elif command_type == "default":
                         if not glovar.configs[gid]["default"]:
                             new_config = glovar.default_config
