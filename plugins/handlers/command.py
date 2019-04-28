@@ -220,15 +220,25 @@ def warn_config(client, message):
             success = True
             reason = "已更新"
             new_config = glovar.configs[gid]
+            text = f"管理员：{user_mention(aid)}\n"
             if len(command_list) > 1:
                 now = int(time())
                 if now - glovar.configs[gid]["locked"] > 360:
                     command_type = list(filter(None, command_list))[1]
-                    if command_type == "default":
+                    if command_type == "show":
+                        text += (f"操作：{code('查看设置')}\n"
+                                 f"设置：{code((lambda x: '默认' if x else '自定义')(new_config['default']))}\n"
+                                 f"警告上限：{code(new_config['limit'])}\n"
+                                 f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config['mention']))}\n"
+                                 f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
+                                 f"手动举报："
+                                 f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}")
+                    elif command_type == "default":
                         if not glovar.configs[gid]["default"]:
                             new_config = glovar.default_config
                     else:
                         command_context = get_command_context(message)
+                        new_config["default"] = False
                         if command_context:
                             if command_type == "limit":
                                 try:
@@ -283,9 +293,8 @@ def warn_config(client, message):
                 glovar.configs[gid] = new_config
                 save("configs")
 
-            text = (f"管理员：{user_mention(aid)}\n"
-                    f"操作：{code('更改设置')}\n"
-                    f"状态：{code(reason)}")
+            text += (f"操作：{code('更改设置')}\n"
+                     f"状态：{code(reason)}")
             thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
 
         mids = [mid]
