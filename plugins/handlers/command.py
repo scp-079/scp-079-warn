@@ -180,7 +180,7 @@ def report(client, message):
                 and gid not in glovar.user_ids[uid]["waiting"]
                 and gid not in glovar.user_ids[uid]["ban"]):
             text, markup = report_user(gid, uid, rid, re_mid)
-            thread(send_message, (client, gid, text, mid, markup))
+            thread(send_message, (client, gid, text, None, markup))
 
         thread(delete_messages, (client, gid, mids))
     except Exception as e:
