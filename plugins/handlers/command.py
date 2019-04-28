@@ -230,7 +230,7 @@ def warn_config(client, message):
             text = f"管理员：{user_mention(aid)}\n"
             if len(command_list) > 1:
                 now = int(time())
-                if now - glovar.configs[gid]["locked"] > 360:
+                if now - new_config["locked"] > 360:
                     command_type = list(filter(None, command_list))[1]
                     if command_type == "show":
                         text += (f"操作：{code('查看设置')}\n"
@@ -243,7 +243,7 @@ def warn_config(client, message):
                         thread(send_report_message, (15, client, gid, text))
                         return
                     elif command_type == "default":
-                        if not glovar.configs[gid]["default"]:
+                        if not new_config["default"]:
                             new_config = glovar.default_config
                     else:
                         command_context = get_command_context(message)
