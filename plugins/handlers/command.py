@@ -310,7 +310,7 @@ def warn_config(client, message):
                 reason = "格式有误"
 
             if success and new_config != glovar.configs[gid]:
-                glovar.configs[gid] = deepcopy(new_config)
+                glovar.configs[gid] = new_config
                 save("configs")
 
             text += (f"操作：{code('更改设置')}\n"
