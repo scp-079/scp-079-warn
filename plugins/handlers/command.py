@@ -241,6 +241,8 @@ def warn_config(client, message):
                                  f"手动举报："
                                  f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}")
                         thread(send_report_message, (15, client, gid, text))
+                        mids = [mid]
+                        thread(delete_messages, (client, gid, mids))
                         return
                     elif command_type == "default":
                         if not new_config["default"]:
