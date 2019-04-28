@@ -23,7 +23,7 @@ from time import time
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import bold, code, general_link, get_command_context, send_data, thread, user_mention
+from ..functions.etc import bold, code, get_command_context, send_data, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c, is_class_c, test_group
 from ..functions.ids import init_user_id
@@ -145,6 +145,9 @@ def forgive(client, message):
             uid, _ = get_class_d_id(message)
             if uid:
                 text, result = forgive_user(client, gid, uid, aid)
+                glovar.user_ids[uid]["locked"].discard(gid)
+                glovar.user_ids[uid]["waiting"].discard(gid)
+                save("user_ids")
                 if result:
                     secs = 60
                     text = get_reason(message, text)
