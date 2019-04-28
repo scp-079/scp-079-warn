@@ -47,6 +47,7 @@ def admin(client, message):
             if not is_class_c(None, message):
                 mid = message.message_id
                 uid = message.from_user.id
+                init_user_id(uid)
                 if (uid
                         and gid not in glovar.user_ids[uid]["waiting"]
                         and gid not in glovar.user_ids[uid]["ban"]):
