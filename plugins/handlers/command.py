@@ -27,6 +27,7 @@ from .. import glovar
 from ..functions.etc import bold, code, get_command_context, send_data, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c, is_class_c, test_group
+from ..functions.group import get_debug_text
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user
 from ..functions.user import send_debug, warn_user
@@ -127,6 +128,9 @@ def config(client, message):
                         }
                     )
                     thread(send_message, (client, glovar.exchange_channel_id, exchange_text))
+                    text = get_debug_text(client, message.chat)
+                    text += (f"群管理：{user_mention(message.from_user.id)}\n"
+                             f"操作：{'创建设置会话'}")
 
         mids = [mid]
         thread(delete_messages, (client, gid, mids))
