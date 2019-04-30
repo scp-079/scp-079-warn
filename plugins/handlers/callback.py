@@ -38,7 +38,6 @@ logger = logging.getLogger(__name__)
 @Client.on_callback_query(class_c)
 def answer(client, callback_query):
     try:
-        logger.warning(callback_query.message)
         # Basic callback data
         gid = callback_query.message.chat.id
         aid = callback_query.from_user.id

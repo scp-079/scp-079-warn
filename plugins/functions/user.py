@@ -235,7 +235,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
         text += (f"已{action}用户：{user_mention(uid)}\n"
                  f"群管理：{user_mention(aid)}")
         # If the message is a report callback message
-        if message.from_user.is_self:
+        if message.from_user.is_self or message.from_user.id == glovar.warn_id:
             text += f"\n原因：{code('由群管处理的举报')}"
         else:
             text = get_reason(message, text)
