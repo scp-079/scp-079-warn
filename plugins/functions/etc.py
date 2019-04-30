@@ -134,7 +134,8 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
                 config - Update bot config
                 declare - Declare a message
                 help - Let others bot do something
-                leave - Let bots leave some group or channel
+                join - Let bots join some group
+                leave - Let bots leave some group
                 remove - Remove id in some list
                 update - Update some data
 
@@ -162,6 +163,12 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
                     ban - Let USER ban a user globally
                     delete - Let USER delete a user's all messages in some group
                     report - Let WARN alert admins
+
+                When action is join:
+                    approve - Let USER invite bots to a group
+                    request - Send a join request to MANAGE
+                    status - Send USER permission status to MANAGE
+                    update - Let USER update the permission status
 
                 When action is leave:
                     approve - Let bot leave a group
@@ -236,6 +243,30 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
                             "user_id": 12345678,
                             "message_id": 123
                         }
+
+                Join:
+                    approve:
+                        {
+                            "id": "random",
+                            "bots": List[str]
+                        }
+
+                    request:
+                        {
+                            "id": "random",
+                            "bots": List[str],
+                            "group_link": "link to group",
+                            "user_id": 12345678
+                        }
+
+                    status:
+                        {
+                            "id": "random",
+                            "status": "left / permission / invalid" / -10012345678
+                        }
+
+                    update:
+                        "random id"
 
                 Leave:
                     approve:
