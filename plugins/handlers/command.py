@@ -243,7 +243,7 @@ def warn_config(client, message):
                         thread(delete_message, (client, gid, mid))
                         return
                     elif command_type == "default":
-                        if not new_config["default"]:
+                        if not new_config.get("default"):
                             new_config = deepcopy(glovar.default_config)
                     else:
                         command_context = get_command_context(message)
@@ -269,6 +269,9 @@ def warn_config(client, message):
                                     success = False
                                     reason = "呼叫选项有误"
                             elif command_type == "report":
+                                if not new_config.get("report"):
+                                    new_config["report"] = {}
+
                                 if command_context == "off":
                                     new_config["report"]["auto"] = False
                                     new_config["report"]["manual"] = False
