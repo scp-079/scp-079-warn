@@ -149,7 +149,14 @@ prefix: List[str] = []
 prefix_str: str = "/!"
 
 # [bots]
+captcha_id: int = 0
+clean_id: int = 0
+lang_id: int = 0
+noflood_id: int = 0
+noporn_id: int = 0
+nospam_id: int = 0
 user_id: int = 0
+warn_id: int = 0
 
 # [channels]
 debug_channel_id: int = 0
@@ -174,13 +181,20 @@ try:
     bot_token = config["basic"].get("bot_token", bot_token)
     prefix = list(config["basic"].get("prefix", prefix_str))
     # [bots]
+    captcha_id = int(config["bots"].get("captcha_id", captcha_id))
+    clean_id = int(config["bots"].get("clean_id", clean_id))
+    lang_id = int(config["bots"].get("lang_id", lang_id))
+    noflood_id = int(config["bots"].get("noflood_id", noflood_id))
+    noporn_id = int(config["bots"].get("noporn_id", noporn_id))
+    nospam_id = int(config["bots"].get("nospam_id", nospam_id))
     user_id = int(config["bots"].get("user_id", user_id))
+    warn_id = int(config["bots"].get("warn_id", warn_id))
     # [channels]
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+    config_channel_username = config["channels"].get("config_channel_username", config_channel_username)
     # [custom]
-    config_channel_username = config["custom"].get("config_channel_username", config_channel_username)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)

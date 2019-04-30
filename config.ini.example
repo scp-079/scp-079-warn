@@ -19,15 +19,22 @@ bot_token = [DATA EXPUNGED]
 prefix = /!
 
 [bots]
+clean_id = [DATA EXPUNGED]
+captcha_id = [DATA EXPUNGED]
+lang_id = [DATA EXPUNGED]
+noflood_id = [DATA EXPUNGED]
+noporn_id = [DATA EXPUNGED]
+nospam_id = [DATA EXPUNGED]
 user_id = [DATA EXPUNGED]
+warn_id = [DATA EXPUNGED]
 
 [channels]
 debug_channel_id = [DATA EXPUNGED]
 exchange_channel_id = [DATA EXPUNGED]
 test_group_id = 0
+config_channel_username = [DATA EXPUNGED]
 
 [custom]
-config_channel_username = [DATA EXPUNGED]
 default_group_link = [DATA EXPUNGED]
 project_link = [DATA EXPUNGED]
 project_name = [DATA EXPUNGED]
