@@ -58,6 +58,10 @@ def init_group(client, message):
             text += (f"状态：{code('已退出群组')}\n"
                      f"原因：{code('未授权使用')}\n"
                      f"邀请人：{user_mention(invited_by)}")
+            if gid in glovar.left_group_ids:
+                return
+            else:
+                glovar.left_group_ids.add(gid)
 
         thread(send_message, (client, glovar.debug_channel_id, text))
     except Exception as e:

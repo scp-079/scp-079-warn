@@ -59,6 +59,8 @@ default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
     "waiting": set()
 }
 
+left_group_ids: Set[int] = set()
+
 message_ids: Dict[int, int] = {}
 # message_ids = {
 #     -10012345678: 123
