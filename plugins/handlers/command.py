@@ -24,15 +24,16 @@ from copy import deepcopy
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import bold, code, get_command_context, send_data, thread, user_mention
+from ..functions.channel import share_data
+from ..functions.etc import bold, code, get_command_context, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c, is_class_c, test_group
-from ..functions.group import get_debug_text
+from ..functions.group import delete_message, get_debug_text
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user
 from ..functions.user import send_debug, warn_user
 
-from ..functions.telegram import delete_messages, get_group_info, send_message, send_report_message
+from ..functions.telegram import get_group_info, send_message, send_report_message
 
 
 # Enable logging
@@ -46,12 +47,14 @@ def admin(client, message):
         gid = message.chat.id
         mid = message.message_id
         if glovar.configs[gid]["mention"]:
+            # Admin can not mention admins
             if not is_class_c(None, message):
                 uid = message.from_user.id
                 init_user_id(uid)
-                if (uid
-                        and gid not in glovar.user_ids[uid]["waiting"]
-                        and gid not in glovar.user_ids[uid]["ban"]):
+                # Warned user and the user having report status can't mention admins
+                if (gid not in glovar.user_ids[uid]["waiting"]
+                        and gid not in glovar.user_ids[uid]["ban"]
+                        and glovar.user_ids[uid]["warn"].get(gid) is None):
                     text = (f"来自用户：{user_mention(uid)}\n"
                             f"呼叫管理：{get_admin_text(gid)}")
                     text = get_reason(message, text)
@@ -59,14 +62,12 @@ def admin(client, message):
                     if sent_message:
                         old_mid = glovar.message_ids.get(gid, 0)
                         if old_mid:
-                            mids = [old_mid]
-                            thread(delete_messages, (client, gid, mids))
+                            thread(delete_message, (client, gid, old_mid))
 
                         sent_mid = sent_message.message_id
                         glovar.message_ids[gid] = sent_mid
 
-        mids = [mid]
-        thread(delete_messages, (client, gid, mids))
+        thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Admin error: {e}", exc_info=True)
 
@@ -77,26 +78,23 @@ def ban(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
-        mids = [mid]
         if is_class_c(None, message):
             uid, re_mid = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
                 aid = message.from_user.id
                 text, markup = ban_user(client, gid, uid, aid)
                 if markup:
-                    secs = 60
+                    secs = 180
                     text = get_reason(message, text)
                     send_debug(client, message, "封禁", uid, aid)
                 else:
-                    secs = 10
+                    secs = 15
 
                 thread(send_report_message, (secs, client, gid, text, None, markup))
                 if re_mid:
-                    mids = [re_mid, mid]
-                else:
-                    mids = [mid]
+                    thread(delete_message, (client, gid, re_mid))
 
-        thread(delete_messages, (client, gid, mids))
+        thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Ban error: {e}", exc_info=True)
 
@@ -114,7 +112,8 @@ def config(client, message):
                 if now - glovar.configs[gid]["locked"] > 360:
                     glovar.configs[gid]["locked"] = now
                     group_name, group_link = get_group_info(client, message.chat)
-                    exchange_text = send_data(
+                    share_data(
+                        client=client,
                         sender="WARN",
                         receivers=["CONFIG"],
                         action="config",
@@ -127,13 +126,11 @@ def config(client, message):
                             "config": glovar.configs[gid]
                         }
                     )
-                    thread(send_message, (client, glovar.exchange_channel_id, exchange_text))
                     text = get_debug_text(client, message.chat)
                     text += (f"群管理：{user_mention(message.from_user.id)}\n"
                              f"操作：{'创建设置会话'}")
 
-        mids = [mid]
-        thread(delete_messages, (client, gid, mids))
+        thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
 
@@ -144,7 +141,6 @@ def forgive(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
-        mids = [mid]
         if is_class_c(None, message):
             aid = message.from_user.id
             uid, _ = get_class_d_id(message)
@@ -154,14 +150,14 @@ def forgive(client, message):
                 glovar.user_ids[uid]["waiting"].discard(gid)
                 save("user_ids")
                 if result:
-                    secs = 60
+                    secs = 180
                     text = get_reason(message, text)
                 else:
-                    secs = 10
+                    secs = 15
 
                 thread(send_report_message, (secs, client, gid, text, None))
 
-        thread(delete_messages, (client, gid, mids))
+        thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Forgive error: {e}", exc_info=True)
 
@@ -172,7 +168,6 @@ def report(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
-        mids = [mid]
         rid = message.from_user.id
         init_user_id(rid)
         uid, re_mid = get_class_d_id(message)
@@ -187,7 +182,7 @@ def report(client, message):
             text = get_reason(message, text)
             thread(send_message, (client, gid, text, None, markup))
 
-        thread(delete_messages, (client, gid, mids))
+        thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Report error: {e}", exc_info=True)
 
@@ -198,26 +193,23 @@ def warn(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
-        mids = [mid]
         if is_class_c(None, message):
             aid = message.from_user.id
             uid, re_mid = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
                 text, markup = warn_user(client, gid, uid, aid)
                 if markup:
-                    secs = 60
+                    secs = 180
                     text = get_reason(message, text)
                     send_debug(client, message, "警告", uid, aid)
                 else:
-                    secs = 10
+                    secs = 15
 
                 thread(send_report_message, (secs, client, gid, text, mid, markup))
                 if re_mid:
-                    mids = [re_mid, mid]
-                else:
-                    mids = [mid]
+                    thread(delete_message, (client, gid, re_mid))
 
-        thread(delete_messages, (client, gid, mids))
+        thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Warn error: {e}", exc_info=True)
 
@@ -247,9 +239,8 @@ def warn_config(client, message):
                                  f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
                                  f"手动举报："
                                  f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}")
-                        thread(send_report_message, (15, client, gid, text))
-                        mids = [mid]
-                        thread(delete_messages, (client, gid, mids))
+                        thread(send_report_message, (30, client, gid, text))
+                        thread(delete_message, (client, gid, mid))
                         return
                     elif command_type == "default":
                         if not new_config["default"]:
@@ -317,8 +308,7 @@ def warn_config(client, message):
                      f"状态：{code(reason)}")
             thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
 
-        mids = [mid]
-        thread(delete_messages, (client, gid, mids))
+        thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
 
@@ -328,8 +318,10 @@ def warn_config(client, message):
 def version(client, message):
     try:
         cid = message.chat.id
+        aid = message.from_user.id
         mid = message.message_id
-        text = f"版本：{bold(glovar.version)}"
+        text = (f"版本：{bold(glovar.version)}\n"
+                f"管理员：{user_mention(aid)}")
         thread(send_message, (client, cid, text, mid))
     except Exception as e:
         logger.warning(f"Version error: {e}", exc_info=True)

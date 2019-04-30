@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
+    # Encrypt or decrypt a file
     try:
         buffer = 64 * 1024
         if operation == "decrypt":
@@ -45,6 +46,7 @@ def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
 
 
 def save(file: str) -> bool:
+    # Save a global variable to a file
     t = Thread(target=save_thread, args=(file,))
     t.start()
 

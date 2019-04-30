@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def init_group_id(gid: int) -> bool:
+    # Init group data
     try:
         if glovar.configs.get(gid) is None:
             glovar.configs[gid] = deepcopy(glovar.default_config)
@@ -44,6 +45,7 @@ def init_group_id(gid: int) -> bool:
 
 
 def init_user_id(uid: int) -> bool:
+    # Init user data
     try:
         if glovar.user_ids.get(uid) is None:
             glovar.user_ids[uid] = deepcopy(glovar.default_user_status)

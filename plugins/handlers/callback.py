@@ -23,11 +23,12 @@ from json import loads
 from pyrogram import Client
 
 from .. import glovar
-from ..functions.etc import code, delay, get_text, thread, user_mention
+from ..functions.etc import code, delay, get_text, message_link, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c
+from ..functions.group import delete_message
 from ..functions.ids import init_user_id
-from ..functions.telegram import answer_callback, delete_messages, edit_message_text
+from ..functions.telegram import answer_callback, edit_message_text
 from ..functions.user import ban_user, send_debug, unban_user, unwarn_user, warn_user
 
 # Enable logging
@@ -37,6 +38,7 @@ logger = logging.getLogger(__name__)
 @Client.on_callback_query(class_c)
 def answer(client, callback_query):
     try:
+        # Basic callback data
         gid = callback_query.message.chat.id
         aid = callback_query.from_user.id
         mid = callback_query.message.message_id
@@ -46,6 +48,7 @@ def answer(client, callback_query):
         if action == "undo":
             uid = callback_data["d"]
             init_user_id(uid)
+            # Check the user's lock
             if gid not in glovar.user_ids[uid]["locked"]:
                 try:
                     glovar.user_ids[uid]["locked"].add(gid)
@@ -71,38 +74,45 @@ def answer(client, callback_query):
                 r_mid = glovar.report_records[report_key]["message"]
                 init_user_id(rid)
                 init_user_id(uid)
+                # Check users' locks
                 if gid not in glovar.user_ids[uid]["locked"] and gid not in glovar.user_ids[rid]["locked"]:
                     try:
                         glovar.user_ids[rid]["locked"].add(gid)
                         glovar.user_ids[uid]["locked"].add(gid)
                         if action_type == "ban":
                             text, markup = ban_user(client, gid, uid, aid)
-                            mids = [r_mid]
-                            thread(delete_messages, (client, gid, mids))
+                            thread(delete_message, (client, gid, r_mid))
                             send_debug(client, callback_query.message, "封禁", uid, aid)
                         elif action_type == "warn":
                             text, markup = warn_user(client, gid, uid, aid)
-                            mids = [r_mid]
-                            thread(delete_messages, (client, gid, mids))
+                            thread(delete_message, (client, gid, r_mid))
                             send_debug(client, callback_query.message, "警告", uid, aid)
+                        # Warn reporter
                         elif action_type == "spam":
                             text, markup = warn_user(client, gid, rid, aid)
                             text += f"\n原因：{code('滥用')}"
                             send_debug(client, callback_query.message, "警告", uid, aid)
                         else:
+                            if rid:
+                                reporter_text = user_mention(rid)
+                            else:
+                                reporter_text = code("自动触发")
+
                             text = (f"被举报用户：{user_mention(uid)}\n"
+                                    f"被举报消息：{message_link(gid, r_mid)}\n"
+                                    f"举报人：{reporter_text}\n"
                                     f"管理员：{user_mention(aid)}\n"
                                     f"状态：{code('已取消')}")
                             markup = None
 
                         if markup:
-                            secs = 60
+                            secs = 180
                         else:
-                            secs = 10
+                            secs = 15
 
                         thread(edit_message_text, (client, gid, mid, text, markup))
-                        mids = [mid]
-                        delay(secs, delete_messages, [client, gid, mids])
+                        delay(secs, delete_message, [client, gid, mid])
+                    # Finally, release the lock and reset the report status
                     finally:
                         glovar.user_ids[uid]["locked"].discard(gid)
                         glovar.user_ids[rid]["locked"].discard(gid)
@@ -121,8 +131,7 @@ def answer(client, callback_query):
                 text = (f"管理员：{user_mention(aid)}\n"
                         f"状态：{code('已失效')}")
                 thread(edit_message_text, (client, gid, mid, text))
-                mids = [mid]
-                delay(10, delete_messages, [client, gid, mids])
+                delay(15, delete_message, [client, gid, mid])
                 glovar.user_ids[uid]["waiting"].discard(gid)
                 glovar.user_ids[rid]["waiting"].discard(gid)
                 save("user_ids")

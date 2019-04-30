@@ -40,7 +40,9 @@ def init_group(client, message):
         gid = message.chat.id
         invited_by = message.from_user.id
         text = get_debug_text(client, message.chat)
+        # Check permission
         if invited_by == glovar.user_id:
+            # Update group's admin list
             init_group_id(gid)
             admin_members = get_admins(client, gid)
             if admin_members:
@@ -102,7 +104,7 @@ def process_data(client, message):
                                 ]
                             ]
                         )
-                        thread(send_report_message, (120, client, gid, text, None, markup))
+                        thread(send_report_message, (180, client, gid, text, None, markup))
 
             elif sender == "NOSPAM":
 

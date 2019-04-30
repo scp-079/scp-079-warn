@@ -68,7 +68,7 @@ def delay(secs: int, target: Callable, args: list) -> bool:
 
 
 def get_command_context(message: Message) -> str:
-    command_list = message.command
+    command_list = get_text(message).split(" ")
     if len(list(filter(None, command_list))) > 2:
         i = 1
         command_type = command_list[i]
@@ -117,7 +117,7 @@ def receive_data(message: Message) -> dict:
     return {}
 
 
-def send_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
+def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
     """Make a unified format string for data exchange.
 
     Args:
@@ -136,7 +136,6 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                 help - Let others bot do something
                 leave - Let bots leave some group or channel
                 remove - Remove id in some list
-                request - Send a request to manage bot
                 update - Update some data
 
         action_type (str):
@@ -165,12 +164,9 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                     report - Let WARN alert admins
 
                 When action is leave:
-                    group - Leave the group
-                    channel - Leave the channel
-
-                When action is request:
-                    leave - Leave the group
-                    join - Join the group
+                    approve - Let bot leave a group
+                    info - Send auto left group info to MANAGE
+                    request - Send a leave request to MANAGE
 
                 When action is update:
                     download - Download the data, then update
@@ -242,24 +238,21 @@ def send_data(sender: str, receivers: List[str], action: str, action_type: str, 
                         }
 
                 Leave:
-                    {
-                        "id": -10012345678,
-                        "reason": "reason here"
-                    }
+                    approve:
+                        {
+                            "group_id": -10012345678,
+                            "reason": "reason here"
+                        }
 
-                Request:
-                    leave:
+                    info:
+                        -10012345678
+
+                    request:
                         {
                             "group_id": -10012345678,
                             "group_name": "Group Name",
                             "group_link": "link to group",
                             "reason": "user / permissions"
-                        }
-
-                    join:
-                        {
-                            "group_id": -10012345678,
-                            "bots": List[str]
                         }
 
                 Score:
