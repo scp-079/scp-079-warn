@@ -122,6 +122,8 @@ def config(client, message):
                             "group_id": gid,
                             "group_name": group_name,
                             "group_link": group_link,
+                            "project_name": glovar.project_name,
+                            "project_link": glovar.project_link,
                             "user_id": message.from_user.id,
                             "config": glovar.configs[gid]
                         }

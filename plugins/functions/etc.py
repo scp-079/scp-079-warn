@@ -207,6 +207,8 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
                             "group_id": -10012345678,
                             "group_name": "Group Name",
                             "group_link": "link to group",
+                            "project_name": "Project name",
+                            "project_link": "Link to project",
                             "user_id": 12345678
                             "config": dict
                         }
@@ -221,7 +223,7 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
                         {
                             "group_id": -10012345678,
                             "user_id": 12345678,
-                            "message_id": 123
+                            "config_link": "link to config"
                         }
 
                 Declare:
