@@ -96,7 +96,7 @@ def process_data(client, message):
                     elif action_type == "reply":
                         gid = data["group_id"]
                         uid = data["user_id"]
-                        mid = data["message_id"]
+                        link = data["config_link"]
                         text = (f"管理员：{user_mention(uid)}\n"
                                 f"操作：{code('更改设置')}\n"
                                 f"说明：{code('请点击下方按钮进行设置')}")
@@ -105,7 +105,7 @@ def process_data(client, message):
                                 [
                                     InlineKeyboardButton(
                                         "前往设置",
-                                        url=f"https://t.me/{glovar.config_channel_username}/{mid}"
+                                        url=link
                                     )
                                 ]
                             ]
