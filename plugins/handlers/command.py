@@ -119,13 +119,14 @@ def config(client, message):
                         action="config",
                         action_type="ask",
                         data={
+                            "project_name": glovar.project_name,
+                            "project_link": glovar.project_link,
                             "group_id": gid,
                             "group_name": group_name,
                             "group_link": group_link,
-                            "project_name": glovar.project_name,
-                            "project_link": glovar.project_link,
                             "user_id": message.from_user.id,
-                            "config": glovar.configs[gid]
+                            "config": glovar.configs[gid],
+                            "default": glovar.default_config
                         }
                     )
                     text = get_debug_text(client, message.chat)
