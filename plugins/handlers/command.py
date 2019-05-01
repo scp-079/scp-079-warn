@@ -114,7 +114,6 @@ def config(client, message):
                     group_name, group_link = get_group_info(client, message.chat)
                     share_data(
                         client=client,
-                        sender="WARN",
                         receivers=["CONFIG"],
                         action="config",
                         action_type="ask",

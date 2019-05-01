@@ -17,13 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import List
+from typing import List, Union
 
 from pyrogram import Client
 
 from .. import glovar
 from .etc import format_data, thread
-from .telegram import send_message
+from .file import crypt_file
+from .telegram import send_document, send_message
 
 
 # Enable logging
@@ -35,7 +36,6 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:
     try:
         share_data(
             client=client,
-            sender="WARN",
             receivers=["USER"],
             action="help",
             action_type=level,
@@ -51,17 +51,31 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:
     return False
 
 
-def share_data(client: Client, sender: str, receivers: List[str], action: str, action_type: str, data=None) -> bool:
+def share_data(client: Client, receivers: List[str], action: str, action_type: str, data: Union[dict, int, str],
+               file: str = None) -> bool:
     # Use this function to share data in exchange channel
     try:
-        text = format_data(
-            sender=sender,
-            receivers=receivers,
-            action=action,
-            action_type=action_type,
-            data=data
-        )
-        thread(send_message, (client, glovar.exchange_channel_id, text))
+        sender = "WARN"
+        if file:
+            text = format_data(
+                sender=sender,
+                receivers=receivers,
+                action=action,
+                action_type=action_type,
+                data=data
+            )
+            crypt_file("encrypt", f"data/{file}", f"tmp/{file}")
+            thread(send_document, (client, glovar.exchange_channel_id, f"tmp/{file}", text))
+        else:
+            text = format_data(
+                sender=sender,
+                receivers=receivers,
+                action=action,
+                action_type=action_type,
+                data=data
+            )
+            thread(send_message, (client, glovar.exchange_channel_id, text))
+
         return True
     except Exception as e:
         logger.warning(f"Share data error: {e}", exc_info=True)

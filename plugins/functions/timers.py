@@ -25,8 +25,8 @@ from pyrogram import Client
 from .. import glovar
 from .channel import share_data
 from .etc import code, general_link, thread
-from .file import crypt_file, save
-from .telegram import get_admins, get_group_info, send_document, send_message
+from .file import save
+from .telegram import get_admins, get_group_info, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -37,16 +37,14 @@ def backup_files(client: Client) -> bool:
     try:
         for file in glovar.file_list:
             try:
-                exchange_text = share_data(
+                share_data(
                     client=client,
-                    sender="WARN",
                     receivers=["BACKUP"],
                     action="backup",
                     action_type="pickle",
-                    data=file
+                    data=file,
+                    file=file
                 )
-                crypt_file("encrypt", f"data/{file}", f"tmp/{file}")
-                thread(send_document, (client, glovar.exchange_channel_id, f"tmp/{file}", exchange_text))
                 sleep(5)
             except Exception as e:
                 logger.warning(f"Send backup file {file} error: {e}", exc_info=True)
@@ -87,7 +85,6 @@ def update_admins(client: Client) -> bool:
                     group_name, group_link = get_group_info(client, gid)
                     exchange_text = share_data(
                         client=client,
-                        sender="WARN",
                         receivers=["MANAGE"],
                         action="request",
                         action_type="leave",
@@ -119,7 +116,6 @@ def update_status(client: Client) -> bool:
     try:
         share_data(
             client=client,
-            sender="WARN",
             receivers=["BACKUP"],
             action="update",
             action_type="status",
