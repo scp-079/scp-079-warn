@@ -40,7 +40,7 @@ from ..functions.telegram import get_group_info, send_message, send_report_messa
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~class_c
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~class_c
                    & Filters.command(["admin", "admins"], glovar.prefix))
 def admin(client, message):
     try:
@@ -72,7 +72,7 @@ def admin(client, message):
         logger.warning(f"Admin error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["ban"], glovar.prefix))
 def ban(client, message):
     try:
@@ -99,7 +99,7 @@ def ban(client, message):
         logger.warning(f"Ban error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["config"], glovar.prefix))
 def config(client, message):
     try:
@@ -137,7 +137,7 @@ def config(client, message):
         logger.warning(f"Config error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & class_c
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & class_c
                    & Filters.command(["forgive"], glovar.prefix))
 def forgive(client, message):
     try:
@@ -164,7 +164,7 @@ def forgive(client, message):
         logger.warning(f"Forgive error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~class_c
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~class_c
                    & Filters.command(["report"], glovar.prefix))
 def report(client, message):
     try:
@@ -190,7 +190,7 @@ def report(client, message):
         logger.warning(f"Report error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["warn"], glovar.prefix))
 def warn(client, message):
     try:
@@ -217,7 +217,7 @@ def warn(client, message):
         logger.warning(f"Warn error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["warn_config"], glovar.prefix))
 def warn_config(client, message):
     try:
