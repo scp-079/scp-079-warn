@@ -31,7 +31,7 @@ warn_id = [DATA EXPUNGED]
 [channels]
 debug_channel_id = [DATA EXPUNGED]
 exchange_channel_id = [DATA EXPUNGED]
-test_group_id = 0
+test_group_id = [DATA EXPUNGED]
 
 [custom]
 default_group_link = [DATA EXPUNGED]
