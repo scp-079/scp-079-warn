@@ -182,7 +182,7 @@ def report(client, message):
                 and gid not in glovar.user_ids[uid]["ban"]):
             text, markup = report_user(gid, uid, rid, re_mid)
             text = get_reason(message, text)
-            thread(send_message, (client, gid, text, None, markup))
+            thread(send_message, (client, gid, text, re_mid, markup))
 
         thread(delete_message, (client, gid, mid))
     except Exception as e:
