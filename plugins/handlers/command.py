@@ -169,22 +169,23 @@ def forgive(client, message):
 def report(client, message):
     try:
         gid = message.chat.id
-        mid = message.message_id
-        rid = message.from_user.id
-        init_user_id(rid)
-        uid, re_mid = get_class_d_id(message)
-        init_user_id(uid)
-        if (uid
-                and uid != rid
-                and uid not in glovar.admin_ids[gid]
-                and gid not in glovar.user_ids[rid]["waiting"]
-                and gid not in glovar.user_ids[uid]["waiting"]
-                and gid not in glovar.user_ids[uid]["ban"]):
-            text, markup = report_user(gid, uid, rid, re_mid)
-            text = get_reason(message, text)
-            thread(send_message, (client, gid, text, re_mid, markup))
+        if glovar.configs[gid]["report"]["manual"]:
+            mid = message.message_id
+            rid = message.from_user.id
+            init_user_id(rid)
+            uid, re_mid = get_class_d_id(message)
+            init_user_id(uid)
+            if (uid
+                    and uid != rid
+                    and uid not in glovar.admin_ids[gid]
+                    and gid not in glovar.user_ids[rid]["waiting"]
+                    and gid not in glovar.user_ids[uid]["waiting"]
+                    and gid not in glovar.user_ids[uid]["ban"]):
+                text, markup = report_user(gid, uid, rid, re_mid)
+                text = get_reason(message, text)
+                thread(send_message, (client, gid, text, re_mid, markup))
 
-        thread(delete_message, (client, gid, mid))
+            thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Report error: {e}", exc_info=True)
 
