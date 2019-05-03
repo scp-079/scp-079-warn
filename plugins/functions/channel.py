@@ -112,6 +112,9 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
     # Use this function to share data in exchange channel
     try:
         sender = "WARN"
+        if sender in receivers:
+            receivers.remove(sender)
+
         if file:
             text = format_data(
                 sender=sender,
