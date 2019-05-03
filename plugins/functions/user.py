@@ -226,7 +226,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
         gid = message.chat.id
         init_user_id(uid)
         if gid not in glovar.user_ids[uid]["ban"]:
-            result = forward_evidence(client, message.reply_to_message, "封禁用户", "群管自行操作")
+            result = forward_evidence(client, message.reply_to_message, "警告用户", "群管自行操作")
             if result:
                 if not glovar.user_ids[uid]["warn"].get(gid, 0):
                     glovar.user_ids[uid]["warn"][gid] = 1
