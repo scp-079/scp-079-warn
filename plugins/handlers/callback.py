@@ -29,7 +29,7 @@ from ..functions.filters import class_c
 from ..functions.group import delete_message
 from ..functions.ids import init_user_id
 from ..functions.telegram import answer_callback, edit_message_text
-from ..functions.user import ban_user, send_debug, unban_user, unwarn_user, warn_user
+from ..functions.user import ban_user, unban_user, unwarn_user, warn_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -80,18 +80,15 @@ def answer(client, callback_query):
                         glovar.user_ids[rid]["locked"].add(gid)
                         glovar.user_ids[uid]["locked"].add(gid)
                         if action_type == "ban":
-                            text, markup = ban_user(client, gid, uid, aid)
+                            text, markup = ban_user(client, callback_query.message, uid, aid)
                             thread(delete_message, (client, gid, r_mid))
-                            send_debug(client, callback_query.message, "封禁", uid, aid)
                         elif action_type == "warn":
-                            text, markup = warn_user(client, gid, uid, aid)
+                            text, markup = warn_user(client, callback_query.message, uid, aid)
                             thread(delete_message, (client, gid, r_mid))
-                            send_debug(client, callback_query.message, "警告", uid, aid)
                         # Warn reporter
                         elif action_type == "spam":
-                            text, markup = warn_user(client, gid, rid, aid)
+                            text, markup = warn_user(client, callback_query.message, rid, aid)
                             text += f"\n原因：{code('滥用')}"
-                            send_debug(client, callback_query.message, "警告", uid, aid)
                         else:
                             if rid:
                                 reporter_text = user_mention(rid)

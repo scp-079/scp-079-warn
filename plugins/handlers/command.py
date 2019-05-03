@@ -25,13 +25,13 @@ from pyrogram import Client, Filters
 
 from .. import glovar
 from ..functions.channel import share_data
-from ..functions.etc import bold, code, get_command_context, thread, user_mention
+from ..functions.etc import bold, code, get_command_context, get_reason, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c, is_class_c, test_group
 from ..functions.group import delete_message, get_debug_text
 from ..functions.ids import init_user_id
-from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, get_reason, report_user
-from ..functions.user import send_debug, warn_user
+from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, report_user
+from ..functions.user import warn_user
 
 from ..functions.telegram import get_group_info, send_message, send_report_message
 
@@ -82,11 +82,10 @@ def ban(client, message):
             uid, re_mid = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
                 aid = message.from_user.id
-                text, markup = ban_user(client, gid, uid, aid)
+                text, markup = ban_user(client, message, uid, aid)
                 if markup:
                     secs = 180
                     text = get_reason(message, text)
-                    send_debug(client, message, "封禁", uid, aid)
                 else:
                     secs = 15
 
@@ -200,11 +199,10 @@ def warn(client, message):
             aid = message.from_user.id
             uid, re_mid = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
-                text, markup = warn_user(client, gid, uid, aid)
+                text, markup = warn_user(client, message, uid, aid)
                 if markup:
                     secs = 180
                     text = get_reason(message, text)
-                    send_debug(client, message, "警告", uid, aid)
                 else:
                     secs = 15
 

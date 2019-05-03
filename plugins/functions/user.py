@@ -22,42 +22,45 @@ from random import sample
 from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .channel import ask_for_help, share_data
-from .etc import button_data, code, general_link, get_text, message_link, random_str, thread, user_mention
+from .channel import ask_for_help, forward_evidence, send_debug, share_data
+from .etc import button_data, code, general_link, message_link, random_str, thread, user_mention
 from .file import save
 from .filters import is_class_c
-from .group import get_debug_text
 from .ids import init_user_id
-from .telegram import kick_chat_member, send_message, unban_chat_member
+from .telegram import kick_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-def ban_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeyboardMarkup):
+def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, InlineKeyboardMarkup):
     # Ban a user
     text = ""
     markup = None
     try:
+        gid = message.chat.id
         init_user_id(uid)
         if gid not in glovar.user_ids[uid]["ban"]:
-            thread(kick_chat_member, (client, gid, uid))
-            glovar.user_ids[uid]["ban"].add(gid)
-            glovar.user_ids[uid]["warn"].pop(gid, 0)
-            update_score(client, uid)
-            text = f"已封禁用户：{user_mention(uid)}\n"
-            data = button_data("undo", "ban", uid)
-            markup = InlineKeyboardMarkup(
-                [
+            result = forward_evidence(client, message, "封禁用户", "群管自行操作")
+            if result:
+                thread(kick_chat_member, (client, gid, uid))
+                glovar.user_ids[uid]["ban"].add(gid)
+                glovar.user_ids[uid]["warn"].pop(gid, 0)
+                update_score(client, uid)
+                text = f"已封禁用户：{user_mention(uid)}\n"
+                data = button_data("undo", "ban", uid)
+                markup = InlineKeyboardMarkup(
                     [
-                        InlineKeyboardButton(
-                            "解禁",
-                            callback_data=data
-                        )
+                        [
+                            InlineKeyboardButton(
+                                "解禁",
+                                callback_data=data
+                            )
+                        ]
                     ]
-                ]
-            )
-            ask_for_help(client, "delete", gid, uid)
+                )
+                ask_for_help(client, "delete", gid, uid)
+                send_debug(client, message, "封禁", uid, aid, result)
         else:
             text = (f"用户：{user_mention(uid)}\n"
                     f"结果：{code('未操作')}\n"
@@ -152,19 +155,6 @@ def get_class_d_id(message: Message) -> (int, int):
     return uid, mid
 
 
-def get_reason(message: Message, text: str) -> str:
-    # Get the reason text
-    try:
-        command_list = list(filter(None, get_text(message).split(" ")))
-        reason = get_text(message)[len(command_list[0]):].strip()
-        if reason:
-            text += f"\n原因：{code(reason)}"
-    except Exception as e:
-        logging.warning(f"Get reason error: {e}", exc_info=True)
-
-    return text
-
-
 def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardMarkup):
     # Report a user
     text = ""
@@ -228,70 +218,56 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
     return text, markup
 
 
-def send_debug(client: Client, message: Message, action: str, uid: int, aid: int) -> bool:
-    # Send the debug message
-    try:
-        text = get_debug_text(client, message.chat)
-        text += (f"已{action}用户：{user_mention(uid)}\n"
-                 f"群管理：{user_mention(aid)}")
-        # If the message is a report callback message
-        if message.from_user.is_self or message.from_user.id == glovar.warn_id:
-            text += f"\n原因：{code('由群管处理的举报')}"
-        else:
-            text = get_reason(message, text)
-
-        thread(send_message, (client, glovar.debug_channel_id, text))
-    except Exception as e:
-        logger.warning(f"Send debug error: {e}", exc_info=True)
-
-    return False
-
-
-def warn_user(client: Client, gid: int, uid: int, aid: int) -> (str, InlineKeyboardMarkup):
+def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, InlineKeyboardMarkup):
     # Warn a user
     text = ""
     markup = None
     try:
+        gid = message.chat.id
         init_user_id(uid)
         if gid not in glovar.user_ids[uid]["ban"]:
-            if not glovar.user_ids[uid]["warn"].get(gid, 0):
-                glovar.user_ids[uid]["warn"][gid] = 1
-                update_score(client, uid)
-            else:
-                glovar.user_ids[uid]["warn"][gid] += 1
+            result = forward_evidence(client, message, "封禁用户", "群管自行操作")
+            if result:
+                if not glovar.user_ids[uid]["warn"].get(gid, 0):
+                    glovar.user_ids[uid]["warn"][gid] = 1
+                    update_score(client, uid)
+                else:
+                    glovar.user_ids[uid]["warn"][gid] += 1
 
-            warn_count = glovar.user_ids[uid]["warn"][gid]
-            limit = glovar.configs[gid]["limit"]
-            if warn_count >= limit:
-                ban_user(client, gid, uid, aid)
-                text = (f"已封禁用户：{user_mention(uid)}\n"
-                        f"原因：{code('警告次数达到上限')}\n")
-                data = button_data("undo", "ban", uid)
-                markup = InlineKeyboardMarkup(
-                    [
+                warn_count = glovar.user_ids[uid]["warn"][gid]
+                limit = glovar.configs[gid]["limit"]
+                if warn_count >= limit:
+                    ban_user(client, message, uid, aid)
+                    text = (f"已封禁用户：{user_mention(uid)}\n"
+                            f"原因：{code('警告次数达到上限')}\n")
+                    data = button_data("undo", "ban", uid)
+                    markup = InlineKeyboardMarkup(
                         [
-                            InlineKeyboardButton(
-                                "解禁",
-                                callback_data=data
-                            )
+                            [
+                                InlineKeyboardButton(
+                                    "解禁",
+                                    callback_data=data
+                                )
+                            ]
                         ]
-                    ]
-                )
-                ask_for_help(client, "delete", gid, uid)
-            else:
-                text = (f"已警告用户：{user_mention(uid)}\n"
-                        f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
-                data = button_data("undo", "warn", uid)
-                markup = InlineKeyboardMarkup(
-                    [
+                    )
+                    ask_for_help(client, "delete", gid, uid)
+                else:
+                    text = (f"已警告用户：{user_mention(uid)}\n"
+                            f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
+                    data = button_data("undo", "warn", uid)
+                    markup = InlineKeyboardMarkup(
                         [
-                            InlineKeyboardButton(
-                                "撤销",
-                                callback_data=data
-                            )
+                            [
+                                InlineKeyboardButton(
+                                    "撤销",
+                                    callback_data=data
+                                )
+                            ]
                         ]
-                    ]
-                )
+                    )
+
+                send_debug(client, message, "警告", uid, aid, result)
         else:
             text = (f"用户：{user_mention(uid)}\n"
                     f"结果：{code('未操作')}\n"

@@ -281,6 +281,7 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
 
 
 def get_command_context(message: Message) -> str:
+    # Get the context "b" in "/command a b"
     command_list = get_text(message).split(" ")
     if len(list(filter(None, command_list))) > 2:
         i = 1
@@ -294,6 +295,19 @@ def get_command_context(message: Message) -> str:
         command_context = ""
 
     return command_context
+
+
+def get_reason(message: Message, text: str) -> str:
+    # Get the reason text
+    try:
+        command_list = list(filter(None, get_text(message).split(" ")))
+        reason = get_text(message)[len(command_list[0]):].strip()
+        if reason:
+            text += f"\n原因：{code(reason)}"
+    except Exception as e:
+        logging.warning(f"Get reason error: {e}", exc_info=True)
+
+    return text
 
 
 def get_text(message: Message) -> Optional[str]:

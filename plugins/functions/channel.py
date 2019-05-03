@@ -24,8 +24,9 @@ from pyrogram import Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, format_data, general_link, thread
+from .etc import code, format_data, general_link, get_reason, thread, user_mention
 from .file import crypt_file
+from .group import get_debug_text
 from .telegram import send_document, send_message
 
 
@@ -53,7 +54,8 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:
     return False
 
 
-def forward_evidence(client: Client, message: Message, level: str, reason: str) -> Optional[Union[bool, int]]:
+def forward_evidence(client: Client, message: Message, level: str, rule: str,
+                     more: str = None) -> Optional[Union[bool, int]]:
     # Forward the message to logging channel as evidence
     result = None
     try:
@@ -73,15 +75,36 @@ def forward_evidence(client: Client, message: Message, level: str, reason: str) 
         result = result.message_id
         text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"用户 ID：{code(uid)}\n"
-                f"操作等级：{code((lambda x: '警告用户' if x == 'warn' else '封禁用户')(level))}\n"
-                f"规则：{code('群管自行操作')}")
-        if reason:
-            text += f"原因：{code(reason)}"
+                f"操作等级：{code(level)}\n"
+                f"规则：{code(rule)}\n")
+        if more:
+            text += f"附加信息：{code(more)}"
+
         thread(send_message, (client, glovar.logging_channel_id, text, result))
     except Exception as e:
         logger.warning(f"Forward evidence error: {e}", exc_info=True)
 
     return result
+
+
+def send_debug(client: Client, message: Message, action: str, uid: int, aid: int, eid: int) -> bool:
+    # Send the debug message
+    try:
+        text = get_debug_text(client, message.chat)
+        text += (f"已{action}用户：{user_mention(uid)}\n"
+                 f"群管理：{user_mention(aid)}\n"
+                 f"消息存放：{general_link(eid, f'https://t.me/{glovar.logging_channel_username}/{eid}')}\n")
+        # If the message is a report callback message
+        if message.from_user.is_self or message.from_user.id == glovar.warn_id:
+            text += f"原因：{code('由群管处理的举报')}"
+        else:
+            text = get_reason(message, text)
+
+        thread(send_message, (client, glovar.debug_channel_id, text))
+    except Exception as e:
+        logger.warning(f"Send debug error: {e}", exc_info=True)
+
+    return False
 
 
 def share_data(client: Client, receivers: List[str], action: str, action_type: str, data: Union[dict, int, str],
