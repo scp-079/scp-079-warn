@@ -206,7 +206,7 @@ def warn(client, message):
                 else:
                     secs = 15
 
-                thread(send_report_message, (secs, client, gid, text, mid, markup))
+                thread(send_report_message, (secs, client, gid, text, None, markup))
                 if re_mid:
                     thread(delete_message, (client, gid, re_mid))
 
