@@ -68,6 +68,7 @@ def delay(secs: int, target: Callable, args: list) -> bool:
 
 
 def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
+    # See https://scp-079.org/exchange/
     data = {
         "from": sender,
         "to": receivers,
