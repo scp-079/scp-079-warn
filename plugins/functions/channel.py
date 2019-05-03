@@ -25,7 +25,7 @@ from pyrogram.errors import FloodWait
 
 from .. import glovar
 from .etc import code, format_data, general_link, get_reason, thread, user_mention
-from .file import crypt_file
+from .file import crypt_file, save
 from .group import get_debug_text
 from .telegram import send_document, send_message
 
@@ -135,5 +135,30 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
         return True
     except Exception as e:
         logger.warning(f"Share data error: {e}", exc_info=True)
+
+    return False
+
+
+def update_score(client: Client, uid: int) -> bool:
+    # Update a user's score, share it
+    try:
+        ban_count = len(glovar.user_ids[uid]["ban"])
+        warn_count = len(glovar.user_ids[uid]["warn"])
+        score = ban_count * 1 + warn_count * 0.4
+        glovar.user_ids[uid]["score"] = score
+        save("user_ids")
+        share_data(
+            client=client,
+            receivers=["CAPTCHA", "LANG", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"],
+            action="update",
+            action_type="score",
+            data={
+                "id": uid,
+                "score": score
+            }
+        )
+        return True
+    except Exception as e:
+        logger.warning(f"Update score error: {e}", exc_info=True)
 
     return False

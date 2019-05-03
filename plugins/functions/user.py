@@ -22,7 +22,7 @@ from random import sample
 from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .channel import ask_for_help, forward_evidence, send_debug, share_data
+from .channel import ask_for_help, forward_evidence, send_debug, update_score
 from .etc import button_data, code, general_link, message_link, random_str, thread, user_mention
 from .file import save
 from .filters import is_class_c
@@ -333,28 +333,3 @@ def unwarn_user(client: Client, gid: int, uid: int, aid: int) -> str:
         logger.warning(f"Unwarn user error: {e}", exc_info=True)
 
     return text
-
-
-def update_score(client: Client, uid: int) -> bool:
-    # Update a user's score, share it
-    try:
-        ban_count = len(glovar.user_ids[uid]["ban"])
-        warn_count = len(glovar.user_ids[uid]["warn"])
-        score = ban_count * 1 + warn_count * 0.4
-        glovar.user_ids[uid]["score"] = score
-        save("user_ids")
-        share_data(
-            client=client,
-            receivers=["CAPTCHA", "LANG", "NOFLOOD", "NOPORN", "RECHECK", "NOSPAM"],
-            action="update",
-            action_type="score",
-            data={
-                "id": uid,
-                "score": score
-            }
-        )
-        return True
-    except Exception as e:
-        logger.warning(f"Update score error: {e}", exc_info=True)
-
-    return False
