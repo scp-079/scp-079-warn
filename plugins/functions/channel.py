@@ -17,12 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import List, Union
+from time import sleep
+from typing import List, Optional, Union
 
-from pyrogram import Client
+from pyrogram import Client, Message
+from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import format_data, thread
+from .etc import code, format_data, general_link, thread
 from .file import crypt_file
 from .telegram import send_document, send_message
 
@@ -49,6 +51,37 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:
         logger.warning(f"Ask for help error: {e}", exc_info=True)
 
     return False
+
+
+def forward_evidence(client: Client, message: Message, level: str, reason: str) -> Optional[Union[bool, int]]:
+    # Forward the message to logging channel as evidence
+    result = None
+    try:
+        uid = message.from_user.id
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = message.forward(glovar.logging_channel_id)
+            except FloodWait as e:
+                flood_wait = True
+                sleep(e.x + 1)
+            except Exception as e:
+                logger.info(f"Forward evidence message error: {e}", exc_info=True)
+                return False
+
+        result = result.message_id
+        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"用户 ID：{code(uid)}\n"
+                f"操作等级：{code((lambda x: '警告用户' if x == 'warn' else '封禁用户')(level))}\n"
+                f"规则：{code('群管自行操作')}")
+        if reason:
+            text += f"原因：{code(reason)}"
+        thread(send_message, (client, glovar.logging_channel_id, text, result))
+    except Exception as e:
+        logger.warning(f"Forward evidence error: {e}", exc_info=True)
+
+    return result
 
 
 def share_data(client: Client, receivers: List[str], action: str, action_type: str, data: Union[dict, int, str],

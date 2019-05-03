@@ -163,7 +163,9 @@ warn_id: int = 0
 # [channels]
 debug_channel_id: int = 0
 exchange_channel_id: int = 0
+logging_channel_id: int = 0
 test_group_id: int = 0
+logging_channel_username: str = ""
 
 # [custom]
 default_group_link: str = ""
@@ -193,7 +195,9 @@ try:
     # [channels]
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
+    logging_channel_id = int(config["channels"].get("logging_channel_id", logging_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+    logging_channel_username = config["channels"].get("logging_channel_username", logging_channel_username)
     # [custom]
     default_group_link = config["custom"].get("default_group_link", default_group_link)
     project_link = config["custom"].get("project_link", project_link)
@@ -211,7 +215,9 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or user_id == 0
         or debug_channel_id == 0
         or exchange_channel_id == 0
+        or logging_channel_id == 0
         or test_group_id == 0
+        or logging_channel_username in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
