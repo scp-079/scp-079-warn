@@ -90,7 +90,7 @@ def get_command_context(message: Message) -> str:
             i += 1
             command_type = command_list[i]
 
-        command_context = get_text(message)[1 + len(command_list[0]) + i + len(command_list[1]):].strip()
+        command_context = get_text(message)[1 + len(command_list[0]) + i + len(command_type):].strip()
     else:
         command_context = ""
 
