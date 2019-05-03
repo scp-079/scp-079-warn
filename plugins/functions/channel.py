@@ -149,7 +149,7 @@ def update_score(client: Client, uid: int) -> bool:
         save("user_ids")
         share_data(
             client=client,
-            receivers=["CAPTCHA", "LANG", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"],
+            receivers=glovar.receivers_status,
             action="update",
             action_type="score",
             data={
