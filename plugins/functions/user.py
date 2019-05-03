@@ -180,7 +180,7 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
         text = (f"被举报用户：{user_mention(uid)}\n"
                 f"被举报消息：{message_link(gid, mid)}\n"
                 f"举报人：{reporter_text}\n"
-                f"呼叫管理：{get_admin_text(gid)}")
+                f"呼叫管理：{get_admin_text(gid)}\n")
         warn_data = button_data("report", "warn", report_key)
         ban_data = button_data("report", "ban", report_key)
         cancel_data = button_data("report", "cancel", report_key)
@@ -274,7 +274,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                     f"原因：{code('已在封禁列表中')}\n")
             markup = None
 
-        text += f"管理员：{user_mention(aid)}"
+        text += f"管理员：{user_mention(aid)}\n"
     except Exception as e:
         logger.warning(f"Warn user error: {e}", exc_info=True)
 
@@ -345,7 +345,7 @@ def update_score(client: Client, uid: int) -> bool:
         save("user_ids")
         share_data(
             client=client,
-            receivers=["CAPTCHA", "LANG", "NOFLOOD", "NOPORN", "NOPORN-RECHECK", "NOSPAM"],
+            receivers=["CAPTCHA", "LANG", "NOFLOOD", "NOPORN", "RECHECK", "NOSPAM"],
             action="update",
             action_type="score",
             data={

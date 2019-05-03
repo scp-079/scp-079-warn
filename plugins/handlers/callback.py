@@ -88,7 +88,7 @@ def answer(client, callback_query):
                         # Warn reporter
                         elif action_type == "spam":
                             text, markup = warn_user(client, callback_query.message, rid, aid)
-                            text += f"\n原因：{code('滥用')}"
+                            text += f"原因：{code('滥用')}\n"
                         else:
                             if rid:
                                 reporter_text = user_mention(rid)
@@ -99,7 +99,7 @@ def answer(client, callback_query):
                                     f"被举报消息：{message_link(gid, r_mid)}\n"
                                     f"举报人：{reporter_text}\n"
                                     f"管理员：{user_mention(aid)}\n"
-                                    f"状态：{code('已取消')}")
+                                    f"状态：{code('已取消')}\n")
                             markup = None
 
                         if markup:
@@ -126,7 +126,7 @@ def answer(client, callback_query):
                 uid = int(message_text.split("\n")[0].split("：")[1])
                 rid = int(message_text.split("\n")[2].split("：")[1])
                 text = (f"管理员：{user_mention(aid)}\n"
-                        f"状态：{code('已失效')}")
+                        f"状态：{code('已失效')}\n")
                 thread(edit_message_text, (client, gid, mid, text))
                 delay(15, delete_message, [client, gid, mid])
                 glovar.user_ids[uid]["waiting"].discard(gid)

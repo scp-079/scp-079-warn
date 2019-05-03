@@ -78,7 +78,7 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str,
                 f"操作等级：{code(level)}\n"
                 f"规则：{code(rule)}\n")
         if more:
-            text += f"附加信息：{code(more)}"
+            text += f"附加信息：{code(more)}\n"
 
         thread(send_message, (client, glovar.logging_channel_id, text, result))
     except Exception as e:
@@ -96,7 +96,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
                  f"消息存放：{general_link(eid, f'https://t.me/{glovar.logging_channel_username}/{eid}')}\n")
         # If the message is a report callback message
         if message.from_user.is_self or message.from_user.id == glovar.warn_id:
-            text += f"原因：{code('由群管处理的举报')}"
+            text += f"原因：{code('由群管处理的举报')}\n"
         else:
             text = get_reason(message, text)
 

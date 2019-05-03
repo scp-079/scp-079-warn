@@ -303,7 +303,7 @@ def get_reason(message: Message, text: str) -> str:
         command_list = list(filter(None, get_text(message).split(" ")))
         reason = get_text(message)[len(command_list[0]):].strip()
         if reason:
-            text += f"\n原因：{code(reason)}"
+            text += f"原因：{code(reason)}\n"
     except Exception as e:
         logging.warning(f"Get reason error: {e}", exc_info=True)
 

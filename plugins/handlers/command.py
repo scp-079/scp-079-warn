@@ -56,7 +56,7 @@ def admin(client, message):
                         and gid not in glovar.user_ids[uid]["ban"]
                         and glovar.user_ids[uid]["warn"].get(gid) is None):
                     text = (f"来自用户：{user_mention(uid)}\n"
-                            f"呼叫管理：{get_admin_text(gid)}")
+                            f"呼叫管理：{get_admin_text(gid)}\n")
                     text = get_reason(message, text)
                     sent_message = send_message(client, gid, text, None)
                     if sent_message:
@@ -129,7 +129,7 @@ def config(client, message):
                     )
                     text = get_debug_text(client, message.chat)
                     text += (f"群管理：{user_mention(message.from_user.id)}\n"
-                             f"操作：{code('创建设置会话')}")
+                             f"操作：{code('创建设置会话')}\n")
 
         thread(delete_message, (client, gid, mid))
     except Exception as e:
@@ -239,7 +239,7 @@ def warn_config(client, message):
                                  f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config['mention']))}\n"
                                  f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
                                  f"手动举报："
-                                 f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}")
+                                 f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}\n")
                         thread(send_report_message, (30, client, gid, text))
                         thread(delete_message, (client, gid, mid))
                         return
@@ -309,7 +309,7 @@ def warn_config(client, message):
                 save("configs")
 
             text += (f"操作：{code('更改设置')}\n"
-                     f"状态：{code(reason)}")
+                     f"状态：{code(reason)}\n")
             thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
 
         thread(delete_message, (client, gid, mid))
@@ -325,7 +325,7 @@ def version(client, message):
         aid = message.from_user.id
         mid = message.message_id
         text = (f"版本：{bold(glovar.version)}\n"
-                f"管理员：{user_mention(aid)}")
+                f"管理员：{user_mention(aid)}\n")
         thread(send_message, (client, cid, text, mid))
     except Exception as e:
         logger.warning(f"Version error: {e}", exc_info=True)

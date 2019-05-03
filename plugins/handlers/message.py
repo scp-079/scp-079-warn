@@ -49,11 +49,11 @@ def init_group(client, message):
             if admin_members:
                 glovar.admin_ids[gid] = {admin.user.id for admin in admin_members if not admin.user.is_bot}
                 save("admin_ids")
-                text += f"状态：{code('已加入群组')}"
+                text += f"状态：{code('已加入群组')}\n"
             else:
                 thread(leave_group, (client, gid))
                 text += (f"状态：{code('已退出群组')}\n"
-                         f"原因：{code('获取管理员列表失败')}")
+                         f"原因：{code('获取管理员列表失败')}\n")
         else:
             thread(leave_chat, (client, gid))
             if gid in glovar.left_group_ids:
@@ -63,7 +63,7 @@ def init_group(client, message):
 
             text += (f"状态：{code('已退出群组')}\n"
                      f"原因：{code('未授权使用')}\n"
-                     f"邀请人：{user_mention(invited_by)}")
+                     f"邀请人：{user_mention(invited_by)}\n")
 
         thread(send_message, (client, glovar.debug_channel_id, text))
     except Exception as e:
@@ -99,7 +99,7 @@ def process_data(client, message):
                         link = data["config_link"]
                         text = (f"管理员：{user_mention(uid)}\n"
                                 f"操作：{code('更改设置')}\n"
-                                f"说明：{code('请点击下方按钮进行设置')}")
+                                f"说明：{code('请点击下方按钮进行设置')}\n")
                         markup = InlineKeyboardMarkup(
                             [
                                 [
@@ -121,7 +121,7 @@ def process_data(client, message):
                         leave_group(client, the_id)
                         text = get_debug_text(client, the_id)
                         text += (f"状态：{code('已退出该群组')}\n"
-                                 f"原因：{code(reason)}")
+                                 f"原因：{code(reason)}\n")
                         thread(send_message, (client, glovar.debug_channel_id, text))
 
                 elif action == "remove":
