@@ -54,8 +54,7 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int) -> bool:
     return False
 
 
-def forward_evidence(client: Client, message: Message, level: str, rule: str,
-                     more: str = None) -> Optional[Union[bool, int]]:
+def forward_evidence(client: Client, message: Message, level: str, rule: str) -> Optional[Union[bool, int]]:
     # Forward the message to logging channel as evidence
     result = None
     try:
@@ -91,9 +90,6 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str,
                 return False
 
         result = result.message_id
-        if more:
-            text += f"附加信息：{code(more)}\n"
-
         thread(send_message, (client, glovar.logging_channel_id, text, result))
     except Exception as e:
         logger.warning(f"Forward evidence error: {e}", exc_info=True)
