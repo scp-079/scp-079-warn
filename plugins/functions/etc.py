@@ -23,7 +23,7 @@ from string import ascii_letters, digits
 from threading import Thread, Timer
 from typing import Callable, List, Optional, Union
 
-from pyrogram import Message
+from pyrogram import Message, User
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -95,6 +95,19 @@ def get_command_context(message: Message) -> str:
         command_context = ""
 
     return command_context
+
+
+def get_full_name(user: User) -> str:
+    text = ""
+    try:
+        if user and not user.is_deleted:
+            text = user.first_name
+            if user.last_name:
+                text += f" {user.last_name}"
+    except Exception as e:
+        logger.warning(f"Get full name error: {e}", exc_info=True)
+
+    return text
 
 
 def get_reason(message: Message, text: str) -> str:

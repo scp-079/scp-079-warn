@@ -24,7 +24,7 @@ from pyrogram import Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, format_data, general_link, get_reason, thread, user_mention
+from .etc import code, format_data, general_link, get_full_name, get_reason, thread, user_mention
 from .file import crypt_file, save
 from .group import get_debug_text
 from .telegram import send_document, send_message
@@ -60,6 +60,24 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str,
     result = None
     try:
         uid = message.from_user.id
+        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"用户 ID：{code(uid)}\n"
+                f"操作等级：{code(level)}\n"
+                f"规则：{code(rule)}\n")
+        if message.service:
+            name = get_full_name(message.from_user)
+            if name:
+                text += f"附加信息：{code(name)}\n"
+
+            result = send_message(client, glovar.logging_channel_id, text)
+            result = result.message_id
+            return result
+        elif message.from_user.is_self:
+            text += f"附加信息：{code('群管直接回复回报消息')}\n"
+            result = send_message(client, glovar.logging_channel_id, text)
+            result = result.message_id
+            return result
+
         flood_wait = True
         while flood_wait:
             flood_wait = False
@@ -73,10 +91,6 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str,
                 return False
 
         result = result.message_id
-        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"用户 ID：{code(uid)}\n"
-                f"操作等级：{code(level)}\n"
-                f"规则：{code(rule)}\n")
         if more:
             text += f"附加信息：{code(more)}\n"
 
