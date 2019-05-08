@@ -83,7 +83,7 @@ def update_admins(client: Client) -> bool:
 
                 if should_leave:
                     group_name, group_link = get_group_info(client, gid)
-                    exchange_text = share_data(
+                    share_data(
                         client=client,
                         receivers=["MANAGE"],
                         action="request",
@@ -95,7 +95,6 @@ def update_admins(client: Client) -> bool:
                             "reason": reason_text
                         }
                     )
-                    thread(send_message, (client, glovar.exchange_channel_id, exchange_text))
                     if reason_text == "user":
                         reason_text = f"缺失 {glovar.user_name}"
                     elif reason_text == "permissions":
