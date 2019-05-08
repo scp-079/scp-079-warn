@@ -76,74 +76,9 @@ report_records: Dict[str, Dict[str, int]] = {}
 
 receivers_status: List[str] = ["CAPTCHA", "LANG", "NOFLOOD", "NOPORN", "NOSPAM", "MANAGE", "RECHECK"]
 
+sender: str = "WARN"
+
 version: str = "0.1.9"
-
-# Load data from pickle
-
-# Init dir
-try:
-    rmtree("tmp")
-except Exception as e:
-    logger.info(f"Remove tmp error: {e}")
-
-for path in ["data", "tmp"]:
-    if not exists(path):
-        mkdir(path)
-
-# Init ids variables
-
-admin_ids: Dict[int, Set[int]] = {}
-# admin_ids = {
-#     -10012345678: {12345678}
-# }
-
-user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
-# user_ids = {
-#     12345678: {
-#         "ban": {-10012345678},
-#         "locked": {-10012345678},
-#         "score": 1,
-#         "warn": {
-#             -10012345678: 0
-#         },
-#         "waiting": {-10012345678}
-#     }
-# }
-
-# Init data variables
-
-configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
-# configs = {
-#     -10012345678: {
-#         "default": True,
-#         "limit": 3,
-#         "locked": 0,
-#         "mention": False,
-#         "report": {
-#             "auto": False,
-#             "manual": False
-#         }
-#     }
-# }
-
-# Load data
-file_list: List[str] = ["admin_ids", "configs", "user_ids"]
-for file in file_list:
-    try:
-        try:
-            if exists(f"data/{file}") or exists(f"data/.{file}"):
-                with open(f"data/{file}", 'rb') as f:
-                    locals()[f"{file}"] = pickle.load(f)
-            else:
-                with open(f"data/{file}", 'wb') as f:
-                    pickle.dump(eval(f"{file}"), f)
-        except Exception as e:
-            logger.error(f"Load data {file} error: {e}")
-            with open(f"data/.{file}", 'rb') as f:
-                locals()[f"{file}"] = pickle.load(f)
-    except Exception as e:
-        logger.critical(f"Load data {file} backup error: {e}")
-        raise SystemExit("[DATA CORRUPTION]")
 
 # Read data from config.ini
 
@@ -230,6 +165,73 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
     raise SystemExit('No proper settings')
 
 bot_ids: Set[int] = {user_id}
+
+# Load data from pickle
+
+# Init dir
+try:
+    rmtree("tmp")
+except Exception as e:
+    logger.info(f"Remove tmp error: {e}")
+
+for path in ["data", "tmp"]:
+    if not exists(path):
+        mkdir(path)
+
+# Init ids variables
+
+admin_ids: Dict[int, Set[int]] = {}
+# admin_ids = {
+#     -10012345678: {12345678}
+# }
+
+user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
+# user_ids = {
+#     12345678: {
+#         "ban": {-10012345678},
+#         "locked": {-10012345678},
+#         "score": 1,
+#         "warn": {
+#             -10012345678: 0
+#         },
+#         "waiting": {-10012345678}
+#     }
+# }
+
+# Init data variables
+
+configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
+# configs = {
+#     -10012345678: {
+#         "default": True,
+#         "limit": 3,
+#         "locked": 0,
+#         "mention": False,
+#         "report": {
+#             "auto": False,
+#             "manual": False
+#         }
+#     }
+# }
+
+# Load data
+file_list: List[str] = ["admin_ids", "configs", "user_ids"]
+for file in file_list:
+    try:
+        try:
+            if exists(f"data/{file}") or exists(f"data/.{file}"):
+                with open(f"data/{file}", 'rb') as f:
+                    locals()[f"{file}"] = pickle.load(f)
+            else:
+                with open(f"data/{file}", 'wb') as f:
+                    pickle.dump(eval(f"{file}"), f)
+        except Exception as e:
+            logger.error(f"Load data {file} error: {e}")
+            with open(f"data/.{file}", 'rb') as f:
+                locals()[f"{file}"] = pickle.load(f)
+    except Exception as e:
+        logger.critical(f"Load data {file} backup error: {e}")
+        raise SystemExit("[DATA CORRUPTION]")
 
 # Start program
 copyright_text = (f"SCP-079-WARN v{version}, Copyright (C) 2019 SCP-079 <https://scp-079.org>\n"
