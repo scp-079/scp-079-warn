@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
+    # Check if the user who sent the message is Class C personnel
     try:
         if isinstance(update, CallbackQuery):
             message = update.message
@@ -50,6 +51,7 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
 
 
 def is_exchange_channel(_, message: Message) -> bool:
+    # Check if the message is sent from exchange channel
     cid = message.chat.id
     if cid == glovar.exchange_channel_id:
         return True
@@ -58,6 +60,7 @@ def is_exchange_channel(_, message: Message) -> bool:
 
 
 def is_new_group(_, message: Message) -> bool:
+    # Check if the bot joined a new group
     new_users = message.new_chat_members
     for user in new_users:
         if user.is_self:
@@ -67,6 +70,7 @@ def is_new_group(_, message: Message) -> bool:
 
 
 def is_test_group(_, message: Message) -> bool:
+    # Check if the message is sent from test group
     cid = message.chat.id
     if cid == glovar.test_group_id:
         return True
