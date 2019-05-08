@@ -44,16 +44,16 @@ def init_group(client, message):
         # Check permission
         if invited_by == glovar.user_id:
             # Update group's admin list
-            init_group_id(gid)
-            admin_members = get_admins(client, gid)
-            if admin_members:
-                glovar.admin_ids[gid] = {admin.user.id for admin in admin_members if not admin.user.is_bot}
-                save("admin_ids")
-                text += f"状态：{code('已加入群组')}\n"
-            else:
-                thread(leave_group, (client, gid))
-                text += (f"状态：{code('已退出群组')}\n"
-                         f"原因：{code('获取管理员列表失败')}\n")
+            if init_group_id(gid):
+                admin_members = get_admins(client, gid)
+                if admin_members:
+                    glovar.admin_ids[gid] = {admin.user.id for admin in admin_members if not admin.user.is_bot}
+                    save("admin_ids")
+                    text += f"状态：{code('已加入群组')}\n"
+                else:
+                    thread(leave_group, (client, gid))
+                    text += (f"状态：{code('已退出群组')}\n"
+                             f"原因：{code('获取管理员列表失败')}\n")
         else:
             thread(leave_chat, (client, gid))
             if gid in glovar.left_group_ids:
@@ -139,12 +139,12 @@ def process_data(client, message):
                 if action == "help":
                     if action_type == "report":
                         gid = data["group_id"]
-                        init_group_id(gid)
-                        if glovar.configs[gid]["report"]["auto"]:
-                            uid = data["user_id"]
-                            mid = data["message_id"]
-                            init_user_id(0)
-                            text, markup = report_user(gid, uid, 0, mid)
-                            thread(send_message, (client, gid, text, mid, markup))
+                        if init_group_id(gid):
+                            if glovar.configs[gid]["report"]["auto"]:
+                                uid = data["user_id"]
+                                mid = data["message_id"]
+                                init_user_id(0)
+                                text, markup = report_user(gid, uid, 0, mid)
+                                thread(send_message, (client, gid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)
