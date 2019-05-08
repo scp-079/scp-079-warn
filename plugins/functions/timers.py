@@ -65,6 +65,7 @@ def reset_data() -> bool:
 
 
 def update_admins(client: Client) -> bool:
+    # Update admin list every day
     group_list = list(glovar.configs)
     for gid in group_list:
         try:

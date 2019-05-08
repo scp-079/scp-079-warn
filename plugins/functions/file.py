@@ -54,6 +54,7 @@ def save(file: str) -> bool:
 
 
 def save_thread(file: str) -> bool:
+    # Save function's thread
     try:
         if glovar:
             with open(f"data/.{file}", "wb") as f:
