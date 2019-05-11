@@ -24,6 +24,7 @@ from pyrogram import Chat, Client
 
 from .. import glovar
 from .etc import code, general_link, thread
+from .file import save
 from .telegram import delete_messages, get_group_info, leave_chat
 
 # Enable logging
@@ -64,5 +65,7 @@ def leave_group(client: Client, gid: int) -> bool:
     thread(leave_chat, (client, gid))
     glovar.admin_ids.pop(gid, None)
     glovar.configs.pop(gid, None)
+    save("admin_ids")
+    save("configs")
 
     return True
