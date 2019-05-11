@@ -67,7 +67,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
                     f"原因：{code('已在封禁列表中')}\n")
             markup = None
 
-        text += f"管理员：{user_mention(aid)}"
+        text += f"管理员：{user_mention(aid)}\n"
     except Exception as e:
         logger.warning(f"Ban user error: {e}", exc_info=True)
 
@@ -105,7 +105,7 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
             result = True
 
         update_score(client, uid)
-        text += f"管理员：{user_mention(aid)}"
+        text += f"管理员：{user_mention(aid)}\n"
     except Exception as e:
         logger.warning(f"Forgive user error: {e}")
 
@@ -129,7 +129,7 @@ def get_admin_text(gid: int) -> str:
         mention_list = sample(admin_list, mention_count)
         mention_text = ""
         for i in range(mention_count):
-            mention_text += f"{general_link(mention_style[i], f'tg://user?id={mention_list[i]}')}"
+            mention_text += f"{general_link(mention_style[i], f'tg://user?id={mention_list[i]}')}\n"
     except Exception as e:
         logging.warning(f"Get admin text error: {e}", exc_info=True)
 
