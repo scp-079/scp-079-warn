@@ -129,7 +129,7 @@ def get_admin_text(gid: int) -> str:
         mention_list = sample(admin_list, mention_count)
         mention_text = ""
         for i in range(mention_count):
-            mention_text += f"{general_link(mention_style[i], f'tg://user?id={mention_list[i]}')}\n"
+            mention_text += f"{general_link(mention_style[i], f'tg://user?id={mention_list[i]}')}"
     except Exception as e:
         logging.warning(f"Get admin text error: {e}", exc_info=True)
 
