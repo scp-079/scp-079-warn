@@ -137,7 +137,7 @@ def process_data(client, message):
                 if action == "leave":
                     the_id = data["id"]
                     reason = data["reason"]
-                    if action_type == "group":
+                    if action_type == "approve":
                         leave_group(client, the_id)
                         text = get_debug_text(client, the_id)
                         text += (f"状态：{code('已退出该群组')}\n"
