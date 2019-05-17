@@ -206,7 +206,7 @@ def report(client, message):
                     callback_data_list = get_callback_data(r_message)
                     if callback_data_list and callback_data_list[0]["a"] == "report":
                         report_key = callback_data_list[0]["d"]
-                        report_answer(client, r_message, gid, aid, mid, command_type, report_key)
+                        report_answer(client, r_message, gid, aid, r_message.message_id, command_type, report_key)
                         thread(delete_message, (client, gid, mid))
                         return
                     else:
