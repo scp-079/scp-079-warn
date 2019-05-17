@@ -201,15 +201,19 @@ def report(client, message):
                 command_type = command_list[1]
                 if message.reply_to_message:
                     r_message = get_message(client, gid, message.reply_to_message.message_id)
-                    callback_data_list = get_callback_data(r_message)
-                    if callback_data_list and callback_data_list[0]["a"] == "report":
-                        report_key = callback_data_list[0]["d"]
-                        report_answer(client, r_message, gid, aid, r_message.message_id, command_type, report_key)
-                        thread(delete_message, (client, gid, mid))
-                        return
+                    if r_message and r_message.reply_to_message:
+                        callback_data_list = get_callback_data(r_message)
+                        if callback_data_list and callback_data_list[0]["a"] == "report":
+                            report_key = callback_data_list[0]["d"]
+                            report_answer(client, r_message, gid, aid, r_message.message_id, command_type, report_key)
+                            thread(delete_message, (client, gid, mid))
+                            return
+                        else:
+                            text += (f"状态：{code('未操作')}\n"
+                                     f"原因：{code('来源有误')}\n")
                     else:
-                        text += (f"状态：{code('未操作')}\n"
-                                 f"原因：{code('来源有误')}\n")
+                        text += (f"结果：{code('未操作')}\n"
+                                 f"原因：{code('消息已被删除')}\n")
                 else:
                     text += (f"状态：{code('未操作')}\n"
                              f"原因：{code('用法有误')}\n")
