@@ -18,16 +18,18 @@
 
 import logging
 from random import sample
+from typing import Optional
 
 from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from .channel import ask_for_help, forward_evidence, send_debug, update_score
-from .etc import button_data, code, general_link, message_link, random_str, thread, user_mention
+from .etc import button_data, code, delay, general_link, get_text, message_link, random_str, thread, user_mention
 from .file import save
 from .filters import is_class_c
+from .group import delete_message
 from .ids import init_user_id
-from .telegram import kick_chat_member, unban_chat_member
+from .telegram import edit_message_text, kick_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -155,6 +157,83 @@ def get_class_d_id(message: Message) -> (int, int):
         logger.warning(f"Get class d id error: {e}", exc_info=True)
 
     return uid, mid
+
+
+def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int,
+                  action_type: str, report_key: str) -> Optional[str]:
+    # Answer the user's report
+    result = None
+    try:
+        report_record = glovar.report_records.get(report_key)
+        if report_record:
+            rid = glovar.report_records[report_key]["reporter"]
+            uid = glovar.report_records[report_key]["user"]
+            r_mid = glovar.report_records[report_key]["message"]
+            init_user_id(rid)
+            init_user_id(uid)
+            # Check users' locks
+            if gid not in glovar.user_ids[uid]["locked"] and gid not in glovar.user_ids[rid]["locked"]:
+                try:
+                    glovar.user_ids[rid]["locked"].add(gid)
+                    glovar.user_ids[uid]["locked"].add(gid)
+                    if action_type == "ban":
+                        text, markup = ban_user(client, message, uid, aid)
+                        thread(delete_message, (client, gid, r_mid))
+                    elif action_type == "warn":
+                        text, markup = warn_user(client, message, uid, aid)
+                        thread(delete_message, (client, gid, r_mid))
+                    # Warn reporter
+                    elif action_type == "spam":
+                        text, markup = warn_user(client, message, rid, aid)
+                        text += f"原因：{code('滥用')}\n"
+                    else:
+                        if rid:
+                            reporter_text = user_mention(rid)
+                        else:
+                            reporter_text = code("自动触发")
+
+                        text = (f"被举报用户：{user_mention(uid)}\n"
+                                f"被举报消息：{message_link(gid, r_mid)}\n"
+                                f"举报人：{reporter_text}\n"
+                                f"管理员：{user_mention(aid)}\n"
+                                f"状态：{code('已取消')}\n")
+                        markup = None
+
+                    if markup:
+                        secs = 180
+                    else:
+                        secs = 15
+
+                    thread(edit_message_text, (client, gid, mid, text, markup))
+                    delay(secs, delete_message, [client, gid, mid])
+                # Finally, release the lock and reset the report status
+                finally:
+                    glovar.user_ids[uid]["locked"].discard(gid)
+                    glovar.user_ids[rid]["locked"].discard(gid)
+                    glovar.user_ids[uid]["waiting"].discard(gid)
+                    glovar.user_ids[rid]["waiting"].discard(gid)
+                    save("user_ids")
+
+                glovar.report_records.pop(report_key)
+                result = ""
+            else:
+                result = "已被其他管理员处理"
+        else:
+            message_text = get_text(message)
+            uid = int(message_text.split("\n")[0].split("：")[1])
+            rid = int(message_text.split("\n")[2].split("：")[1])
+            text = (f"管理员：{user_mention(aid)}\n"
+                    f"状态：{code('已失效')}\n")
+            thread(edit_message_text, (client, gid, mid, text))
+            delay(15, delete_message, [client, gid, mid])
+            glovar.user_ids[uid]["waiting"].discard(gid)
+            glovar.user_ids[rid]["waiting"].discard(gid)
+            save("user_ids")
+            result = ""
+    except Exception as e:
+        logger.warning(f"Report answer error: {e}", exc_info=True)
+
+    return result
 
 
 def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardMarkup):
@@ -304,6 +383,33 @@ def unban_user(client: Client, gid: int, uid: int, aid: int) -> str:
         logger.warning(f"Unban user error: {e}", exc_info=True)
 
     return text
+
+
+def undo_user(client: Client, gid: int, aid: int, uid: int, mid: int, action_type: str) -> Optional[str]:
+    result = None
+    try:
+        init_user_id(uid)
+        # Check the user's lock
+        if gid not in glovar.user_ids[uid]["locked"]:
+            try:
+                glovar.user_ids[uid]["locked"].add(gid)
+                if action_type == "ban":
+                    text = unban_user(client, gid, uid, aid)
+                else:
+                    text = unwarn_user(client, gid, uid, aid)
+
+                thread(edit_message_text, (client, gid, mid, text))
+            finally:
+                glovar.user_ids[uid]["locked"].discard(gid)
+                save("user_ids")
+
+            result = ""
+        else:
+            result = "已被其他管理员处理"
+    except Exception as e:
+        logger.warning(f"Undo user error: {e}", exc_info=True)
+
+    return result
 
 
 def unwarn_user(client: Client, gid: int, uid: int, aid: int) -> str:

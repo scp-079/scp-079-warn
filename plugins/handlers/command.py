@@ -25,13 +25,14 @@ from pyrogram import Client, Filters
 
 from .. import glovar
 from ..functions.channel import share_data
-from ..functions.etc import bold, code, get_command_context, get_full_name, get_reason, thread, user_mention
+from ..functions.etc import bold, code, get_callback_data, get_command_context, get_full_name, get_reason
+from ..functions.etc import thread, user_mention
 from ..functions.file import save
 from ..functions.filters import is_class_c, test_group
 from ..functions.group import delete_message, get_debug_text
 from ..functions.ids import init_user_id
-from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, report_user
-from ..functions.user import warn_user
+from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, report_answer, report_user
+from ..functions.user import undo_user, warn_user
 
 from ..functions.telegram import get_group_info, send_message, send_report_message
 
@@ -194,10 +195,79 @@ def report(client, message):
                                 text += f"附加信息：{code(name)}\n"
 
                         thread(send_message, (client, gid, text, re_mid, markup))
+        else:
+            aid = message.from_user.id
+            text = f"管理员：{user_mention(aid)}\n"
+            command_list = list(filter(None, message.command))
+            if len(command_list) == 2 and command_list[1] in {"warn", "ban", "cancel", "spam"}:
+                command_type = command_list[1]
+                if message.reply_to_message:
+                    r_message = message.reply_to_message
+                    callback_data_list = get_callback_data(r_message)
+                    if callback_data_list and callback_data_list[0]["a"] == "report":
+                        report_key = callback_data_list[0]["d"]
+                        report_answer(client, r_message, gid, aid, mid, command_type, report_key)
+                        return
+                    else:
+                        text += (f"状态：{code('未操作')}\n"
+                                 f"原因：{code('来源有误')}\n")
+                else:
+                    text += (f"状态：{code('未操作')}\n"
+                             f"原因：{code('用法有误')}\n")
+            else:
+                text += (f"状态：{code('未操作')}\n"
+                         f"原因：{code('格式有误')}\n")
+
+            thread(send_report_message, (15, client, gid, text, mid))
 
         thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Report error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
+                   & Filters.command(["undo"], glovar.prefix))
+def undo(client, message):
+    try:
+        gid = message.chat.id
+        mid = message.message_id
+        if is_class_c(None, message):
+            aid = message.from_user.id
+            text = f"管理员：{user_mention(aid)}\n"
+            command_list = list(filter(None, message.command))
+            if len(command_list) == 1:
+                if message.reply_to_message:
+                    r_message = message.reply_to_message
+                    callback_data_list = get_callback_data(r_message)
+                    if r_message.from_user.is_self and callback_data_list and callback_data_list[0]["a"] == "undo":
+                        action_type = callback_data_list[0]["t"]
+                        uid = callback_data_list[0]["d"]
+                        undo_user(client, gid, aid, uid, r_message.message_id, action_type)
+                        return
+                    else:
+                        text += (f"状态：{code('未操作')}\n"
+                                 f"原因：{code('来源有误')}\n")
+                else:
+                    text += (f"状态：{code('未操作')}\n"
+                             f"原因：{code('用法有误')}\n")
+
+        thread(delete_message, (client, gid, mid))
+    except Exception as e:
+        logger.warning(f"Undo error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & test_group
+                   & Filters.command(["version"], glovar.prefix))
+def version(client, message):
+    try:
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+        text = (f"管理员：{user_mention(aid)}\n\n"
+                f"版本：{bold(glovar.version)}\n")
+        thread(send_message, (client, cid, text, mid))
+    except Exception as e:
+        logger.warning(f"Version error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
@@ -326,17 +396,3 @@ def warn_config(client, message):
         thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
-
-
-@Client.on_message(Filters.incoming & Filters.group & test_group
-                   & Filters.command(["version"], glovar.prefix))
-def version(client, message):
-    try:
-        cid = message.chat.id
-        aid = message.from_user.id
-        mid = message.message_id
-        text = (f"版本：{bold(glovar.version)}\n"
-                f"管理员：{user_mention(aid)}\n")
-        thread(send_message, (client, cid, text, mid))
-    except Exception as e:
-        logger.warning(f"Version error: {e}", exc_info=True)

@@ -13,6 +13,9 @@ See [this article](https://scp-079.org/warn/).
 - [x] Support response the reply to report message
 - [x] Interfacing with the whole project database
 - [x] Managed by SCP-079-CONFIG
+- [x] Support the HIDE channel
+- [x] Show more details
+- [x] Follow the hard core interaction principle
 
 ## Requirements
 
