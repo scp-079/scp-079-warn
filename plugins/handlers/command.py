@@ -25,7 +25,7 @@ from pyrogram import Client, Filters
 
 from .. import glovar
 from ..functions.channel import share_data
-from ..functions.etc import bold, code, get_command_context, get_reason, thread, user_mention
+from ..functions.etc import bold, code, get_command_context, get_full_name, get_reason, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import class_c, is_class_c, test_group
 from ..functions.group import delete_message, get_debug_text
@@ -174,15 +174,24 @@ def report(client, message):
             init_user_id(rid)
             uid, re_mid = get_class_d_id(message)
             init_user_id(uid)
+            # Reporter should not be admin or user in waiting list
             if (uid
                     and uid != rid
                     and uid not in glovar.admin_ids[gid]
                     and gid not in glovar.user_ids[rid]["waiting"]
                     and gid not in glovar.user_ids[uid]["waiting"]
                     and gid not in glovar.user_ids[uid]["ban"]):
-                text, markup = report_user(gid, uid, rid, re_mid)
-                text = get_reason(message, text)
-                thread(send_message, (client, gid, text, re_mid, markup))
+                # Reporter cannot report someone by replying WARN's report
+                r_message = message.reply_to_message
+                if not r_message.from_user.is_self:
+                    text, markup = report_user(gid, uid, rid, re_mid)
+                    text = get_reason(message, text)
+                    if r_message.service:
+                        name = get_full_name(r_message.from_user)
+                        if name:
+                            text += f"附加信息：{code(name)}\n"
+
+                    thread(send_message, (client, gid, text, re_mid, markup))
 
             thread(delete_message, (client, gid, mid))
     except Exception as e:

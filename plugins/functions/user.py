@@ -48,6 +48,8 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
                 glovar.user_ids[uid]["warn"].pop(gid, 0)
                 update_score(client, uid)
                 text = f"已封禁用户：{user_mention(uid)}\n"
+                text += (f"消息存放："
+                         f"{general_link(result, f'https://t.me/{glovar.logging_channel_username}/{result}')}\n")
                 data = button_data("undo", "ban", uid)
                 markup = InlineKeyboardMarkup(
                     [
@@ -267,6 +269,8 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                         ]
                     )
 
+                text += (f"消息存放："
+                         f"{general_link(result, f'https://t.me/{glovar.logging_channel_username}/{result}')}\n")
                 send_debug(client, message, "警告", uid, aid, result)
         else:
             text = (f"用户：{user_mention(uid)}\n"

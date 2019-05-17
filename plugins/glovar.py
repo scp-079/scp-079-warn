@@ -74,11 +74,13 @@ report_records: Dict[str, Dict[str, int]] = {}
 #     }
 # }
 
-receivers_status: List[str] = ["CAPTCHA", "LANG", "NOFLOOD", "NOPORN", "NOSPAM", "MANAGE", "RECHECK"]
+receivers_status: List[str] = ["CAPTCHA", "CLEAN", "LANG", "NOFLOOD", "NOPORN", "NOSPAM", "MANAGE", "RECHECK"]
 
 sender: str = "WARN"
 
-version: str = "0.1.9"
+should_hide: bool = False
+
+version: str = "0.2.0"
 
 # Read data from config.ini
 
@@ -100,6 +102,7 @@ warn_id: int = 0
 # [channels]
 debug_channel_id: int = 0
 exchange_channel_id: int = 0
+hide_channel_id: int = 0
 logging_channel_id: int = 0
 test_group_id: int = 0
 logging_channel_username: str = ""
@@ -132,6 +135,7 @@ try:
     # [channels]
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
+    hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
     logging_channel_id = int(config["channels"].get("logging_channel_id", logging_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     logging_channel_username = config["channels"].get("logging_channel_username", logging_channel_username)
@@ -152,6 +156,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or user_id == 0
         or debug_channel_id == 0
         or exchange_channel_id == 0
+        or hide_channel_id == 0
         or logging_channel_id == 0
         or test_group_id == 0
         or logging_channel_username in {"", "[DATA EXPUNGED]"}
@@ -161,7 +166,6 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or reset_day in {"", "[DATA EXPUNGED]"}
         or user_name in {"", "[DATA EXPUNGED]"}
         or password in {"", "[DATA EXPUNGED]"}):
-    logger.critical("No proper settings")
     raise SystemExit('No proper settings')
 
 bot_ids: Set[int] = {user_id}
