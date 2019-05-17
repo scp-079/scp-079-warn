@@ -201,7 +201,7 @@ def report(client, message):
             if len(command_list) == 2 and command_list[1] in {"warn", "ban", "cancel", "spam"}:
                 command_type = command_list[1]
                 if message.reply_to_message:
-                    r_message = get_message(client, gid, message.reply_to_message.id)
+                    r_message = get_message(client, gid, message.reply_to_message.message_id)
                     callback_data_list = get_callback_data(r_message)
                     if callback_data_list and callback_data_list[0]["a"] == "report":
                         report_key = callback_data_list[0]["d"]
