@@ -207,6 +207,7 @@ def report(client, message):
                     if callback_data_list and callback_data_list[0]["a"] == "report":
                         report_key = callback_data_list[0]["d"]
                         report_answer(client, r_message, gid, aid, mid, command_type, report_key)
+                        thread(delete_message, (client, gid, mid))
                         return
                     else:
                         text += (f"状态：{code('未操作')}\n"
@@ -243,6 +244,7 @@ def undo(client, message):
                         action_type = callback_data_list[0]["t"]
                         uid = callback_data_list[0]["d"]
                         undo_user(client, gid, aid, uid, r_message.message_id, action_type)
+                        thread(delete_message, (client, gid, mid))
                         return
                     else:
                         text += (f"状态：{code('未操作')}\n"
