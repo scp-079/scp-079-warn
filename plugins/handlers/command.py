@@ -27,7 +27,7 @@ from .. import glovar
 from ..functions.channel import share_data
 from ..functions.etc import bold, code, get_command_context, get_full_name, get_reason, thread, user_mention
 from ..functions.file import save
-from ..functions.filters import class_c, is_class_c, test_group
+from ..functions.filters import is_class_c, test_group
 from ..functions.group import delete_message, get_debug_text
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, report_user
@@ -40,32 +40,33 @@ from ..functions.telegram import get_group_info, send_message, send_report_messa
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~class_c
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["admin", "admins"], glovar.prefix))
 def admin(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
-        if glovar.configs[gid]["mention"]:
-            # Admin can not mention admins
-            if not is_class_c(None, message):
-                uid = message.from_user.id
-                init_user_id(uid)
-                # Warned user and the user having report status can't mention admins
-                if (gid not in glovar.user_ids[uid]["waiting"]
-                        and gid not in glovar.user_ids[uid]["ban"]
-                        and glovar.user_ids[uid]["warn"].get(gid) is None):
-                    text = (f"来自用户：{user_mention(uid)}\n"
-                            f"呼叫管理：{get_admin_text(gid)}\n")
-                    text = get_reason(message, text)
-                    sent_message = send_message(client, gid, text, None)
-                    if sent_message:
-                        old_mid = glovar.message_ids.get(gid, 0)
-                        if old_mid:
-                            thread(delete_message, (client, gid, old_mid))
+        if not is_class_c(None, message):
+            if glovar.configs[gid]["mention"]:
+                # Admin can not mention admins
+                if not is_class_c(None, message):
+                    uid = message.from_user.id
+                    init_user_id(uid)
+                    # Warned user and the user having report status can't mention admins
+                    if (gid not in glovar.user_ids[uid]["waiting"]
+                            and gid not in glovar.user_ids[uid]["ban"]
+                            and glovar.user_ids[uid]["warn"].get(gid) is None):
+                        text = (f"来自用户：{user_mention(uid)}\n"
+                                f"呼叫管理：{get_admin_text(gid)}\n")
+                        text = get_reason(message, text)
+                        sent_message = send_message(client, gid, text, None)
+                        if sent_message:
+                            old_mid = glovar.message_ids.get(gid, 0)
+                            if old_mid:
+                                thread(delete_message, (client, gid, old_mid))
 
-                        sent_mid = sent_message.message_id
-                        glovar.message_ids[gid] = sent_mid
+                            sent_mid = sent_message.message_id
+                            glovar.message_ids[gid] = sent_mid
 
         thread(delete_message, (client, gid, mid))
     except Exception as e:
@@ -136,7 +137,7 @@ def config(client, message):
         logger.warning(f"Config error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & class_c
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["forgive"], glovar.prefix))
 def forgive(client, message):
     try:
@@ -163,37 +164,38 @@ def forgive(client, message):
         logger.warning(f"Forgive error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~class_c
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["report"], glovar.prefix))
 def report(client, message):
     try:
         gid = message.chat.id
-        if glovar.configs[gid]["report"]["manual"]:
-            mid = message.message_id
-            rid = message.from_user.id
-            init_user_id(rid)
-            uid, re_mid = get_class_d_id(message)
-            init_user_id(uid)
-            # Reporter should not be admin or user in waiting list
-            if (uid
-                    and uid != rid
-                    and uid not in glovar.admin_ids[gid]
-                    and gid not in glovar.user_ids[rid]["waiting"]
-                    and gid not in glovar.user_ids[uid]["waiting"]
-                    and gid not in glovar.user_ids[uid]["ban"]):
-                # Reporter cannot report someone by replying WARN's report
-                r_message = message.reply_to_message
-                if not r_message.from_user.is_self:
-                    text, markup = report_user(gid, uid, rid, re_mid)
-                    text = get_reason(message, text)
-                    if r_message.service:
-                        name = get_full_name(r_message.from_user)
-                        if name:
-                            text += f"附加信息：{code(name)}\n"
+        mid = message.message_id
+        if not is_class_c(None, message):
+            if glovar.configs[gid]["report"]["manual"]:
+                rid = message.from_user.id
+                init_user_id(rid)
+                uid, re_mid = get_class_d_id(message)
+                init_user_id(uid)
+                # Reporter should not be admin or user in waiting list
+                if (uid
+                        and uid != rid
+                        and uid not in glovar.admin_ids[gid]
+                        and gid not in glovar.user_ids[rid]["waiting"]
+                        and gid not in glovar.user_ids[uid]["waiting"]
+                        and gid not in glovar.user_ids[uid]["ban"]):
+                    # Reporter cannot report someone by replying WARN's report
+                    r_message = message.reply_to_message
+                    if not r_message.from_user.is_self:
+                        text, markup = report_user(gid, uid, rid, re_mid)
+                        text = get_reason(message, text)
+                        if r_message.service:
+                            name = get_full_name(r_message.from_user)
+                            if name:
+                                text += f"附加信息：{code(name)}\n"
 
-                    thread(send_message, (client, gid, text, re_mid, markup))
+                        thread(send_message, (client, gid, text, re_mid, markup))
 
-            thread(delete_message, (client, gid, mid))
+        thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Report error: {e}", exc_info=True)
 
