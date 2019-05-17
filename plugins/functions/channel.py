@@ -98,7 +98,11 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
             result = result.message_id
             return result
         elif message.from_user.is_self:
-            text += f"附加信息：{code('群管直接回复回报消息')}\n"
+            if message.from_user.is_self is True:
+                text += f"附加信息：{code('群管直接回复回报消息')}\n"
+            else:
+                text += f"附加信息：{code(message.from_user.is_self)}"
+
             result = send_message(client, glovar.logging_channel_id, text)
             result = result.message_id
             return result
