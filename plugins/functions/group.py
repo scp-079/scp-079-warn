@@ -18,14 +18,14 @@
 
 
 import logging
-from typing import Union
+from typing import Optional, Union
 
-from pyrogram import Chat, Client
+from pyrogram import Chat, Client, Message
 
 from .. import glovar
 from .etc import code, general_link, thread
 from .file import save
-from .telegram import delete_messages, get_group_info, leave_chat
+from .telegram import delete_messages, get_group_info, get_messages, leave_chat
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -58,6 +58,17 @@ def get_debug_text(client: Client, context: Union[int, Chat]) -> str:
             f"群组 ID：{code(id_para)}\n")
 
     return text
+
+
+def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
+    # Get a message in a group
+    result = None
+    try:
+        result = get_messages(client, gid, [mid]).messages[0]
+    except Exception as e:
+        logger.warning(f"Get message error: {e}", exc_info=True)
+
+    return result
 
 
 def leave_group(client: Client, gid: int) -> bool:

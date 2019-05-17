@@ -65,11 +65,14 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
                 )
                 ask_for_help(client, "delete", gid, uid)
                 send_debug(client, message, "封禁", uid, aid, result)
+            else:
+                text += (f"用户：{user_mention(uid)}\n"
+                         f"结果：{code('未操作')}\n"
+                         f"原因：{code('消息已被删除')}\n")
         else:
-            text = (f"用户：{user_mention(uid)}\n"
-                    f"结果：{code('未操作')}\n"
-                    f"原因：{code('已在封禁列表中')}\n")
-            markup = None
+            text += (f"用户：{user_mention(uid)}\n"
+                     f"结果：{code('未操作')}\n"
+                     f"原因：{code('已在封禁列表中')}\n")
 
         text += f"管理员：{user_mention(aid)}\n"
     except Exception as e:
@@ -351,11 +354,14 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                 text += (f"消息存放："
                          f"{general_link(result, f'https://t.me/{glovar.logging_channel_username}/{result}')}\n")
                 send_debug(client, message, "警告", uid, aid, result)
+            else:
+                text += (f"用户：{user_mention(uid)}\n"
+                         f"结果：{code('未操作')}\n"
+                         f"原因：{code('消息已被删除')}\n")
         else:
-            text = (f"用户：{user_mention(uid)}\n"
-                    f"结果：{code('未操作')}\n"
-                    f"原因：{code('已在封禁列表中')}\n")
-            markup = None
+            text += (f"用户：{user_mention(uid)}\n"
+                     f"结果：{code('未操作')}\n"
+                     f"原因：{code('已在封禁列表中')}\n")
 
         text += f"管理员：{user_mention(aid)}\n"
     except Exception as e:
