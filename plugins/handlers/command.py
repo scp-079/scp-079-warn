@@ -108,8 +108,8 @@ def config(client, message):
             command_list = list(filter(None, message.command))
             if len(command_list) == 2 and re.search("^warn$", command_list[1], re.I):
                 now = int(time())
-                if now - glovar.configs[gid]["locked"] > 360:
-                    glovar.configs[gid]["locked"] = now
+                if now - glovar.configs[gid]["lock"] > 360:
+                    glovar.configs[gid]["lock"] = now
                     group_name, group_link = get_group_info(client, message.chat)
                     share_data(
                         client=client,
@@ -239,7 +239,7 @@ def warn_config(client, message):
             text = f"管理员：{user_mention(aid)}\n"
             if len(command_list) > 1:
                 now = int(time())
-                if now - new_config["locked"] > 360:
+                if now - new_config["lock"] > 360:
                     command_type = list(filter(None, command_list))[1]
                     if command_type == "show":
                         text += (f"操作：{code('查看设置')}\n"

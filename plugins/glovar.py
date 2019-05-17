@@ -42,8 +42,8 @@ all_commands: List[str] = [
 
 default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
     "default": True,
+    "lock": 0,
     "limit": 3,
-    "locked": 0,
     "mention": False,
     "report": {
         "auto": False,
