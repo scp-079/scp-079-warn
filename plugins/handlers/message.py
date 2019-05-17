@@ -135,7 +135,7 @@ def process_data(client, message):
             elif sender == "MANAGE":
 
                 if action == "leave":
-                    the_id = data["id"]
+                    the_id = data["group_id"]
                     reason = data["reason"]
                     if action_type == "approve":
                         leave_group(client, the_id)
