@@ -219,7 +219,7 @@ def report(client, message):
                 text += (f"状态：{code('未操作')}\n"
                          f"原因：{code('格式有误')}\n")
 
-            thread(send_report_message, (15, client, gid, text, mid))
+            thread(send_report_message, (15, client, gid, text))
 
         thread(delete_message, (client, gid, mid))
     except Exception as e:
@@ -252,6 +252,8 @@ def undo(client, message):
                 else:
                     text += (f"状态：{code('未操作')}\n"
                              f"原因：{code('用法有误')}\n")
+
+                thread(send_report_message, (15, client, gid, text))
 
         thread(delete_message, (client, gid, mid))
     except Exception as e:
