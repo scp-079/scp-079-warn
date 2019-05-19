@@ -178,7 +178,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or password in {"", "[DATA EXPUNGED]"}):
     raise SystemExit('No proper settings')
 
-bot_ids: Set[int] = {user_id}
+bot_ids: Set[int] = {captcha_id, clean_id, lang_id, noflood_id, noporn_id, nospam_id, tip_id, user_id, warn_id}
 
 # Load data from pickle
 
