@@ -33,11 +33,11 @@ all_commands: List[str] = [
     "admins",
     "ban",
     "config",
+    "config_warn",
     "forgive",
     "report",
     "version",
-    "warn",
-    "warn_config"
+    "warn"
 ]
 
 default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
