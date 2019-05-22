@@ -138,6 +138,108 @@ def config(client, message):
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
+                   & Filters.command(["config_warn"], glovar.prefix))
+def config_warn(client, message):
+    try:
+        gid = message.chat.id
+        mid = message.message_id
+        if is_class_c(None, message):
+            aid = message.from_user.id
+            command_list = message.command
+            success = True
+            reason = "已更新"
+            new_config = deepcopy(glovar.configs[gid])
+            text = f"管理员：{user_mention(aid)}\n"
+            if len(command_list) > 1:
+                now = int(time())
+                if now - new_config["lock"] > 360:
+                    command_type = list(filter(None, command_list))[1]
+                    if command_type == "show":
+                        text += (f"操作：{code('查看设置')}\n"
+                                 f"设置：{code((lambda x: '默认' if x else '自定义')(new_config['default']))}\n"
+                                 f"警告上限：{code(new_config['limit'])}\n"
+                                 f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config['mention']))}\n"
+                                 f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
+                                 f"手动举报："
+                                 f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}\n")
+                        thread(send_report_message, (30, client, gid, text))
+                        thread(delete_message, (client, gid, mid))
+                        return
+                    elif command_type == "default":
+                        if not new_config.get("default"):
+                            new_config = deepcopy(glovar.default_config)
+                    else:
+                        command_context = get_command_context(message)
+                        if command_context:
+                            if command_type == "limit":
+                                try:
+                                    limit = int(command_context)
+                                    if 2 <= limit <= 5:
+                                        new_config["limit"] = limit
+                                    else:
+                                        success = False
+                                        reason = "数值超过范围"
+                                except Exception as e:
+                                    logger.info(f"Convert limit context error: {e}")
+                                    success = False
+                                    reason = "错误的数值"
+                            elif command_type == "mention":
+                                if command_context == "off":
+                                    new_config["mention"] = False
+                                elif command_context == "on":
+                                    new_config["mention"] = True
+                                else:
+                                    success = False
+                                    reason = "呼叫选项有误"
+                            elif command_type == "report":
+                                if not new_config.get("report"):
+                                    new_config["report"] = {}
+
+                                if command_context == "off":
+                                    new_config["report"]["auto"] = False
+                                    new_config["report"]["manual"] = False
+                                elif command_context == "auto":
+                                    new_config["report"]["auto"] = True
+                                    new_config["report"]["manual"] = False
+                                elif command_context == "manual":
+                                    new_config["report"]["auto"] = False
+                                    new_config["report"]["manual"] = True
+                                elif command_context == "both":
+                                    new_config["report"]["auto"] = True
+                                    new_config["report"]["manual"] = True
+                                else:
+                                    success = False
+                                    reason = "举报选项有误"
+                            else:
+                                success = False
+                                reason = "命令类别有误"
+                        else:
+                            success = False
+                            reason = "命令选项缺失"
+
+                        if success:
+                            new_config["default"] = False
+                else:
+                    success = False
+                    reason = "设置当前被锁定"
+            else:
+                success = False
+                reason = "格式有误"
+
+            if success and new_config != glovar.configs[gid]:
+                glovar.configs[gid] = new_config
+                save("configs")
+
+            text += (f"操作：{code('更改设置')}\n"
+                     f"状态：{code(reason)}\n")
+            thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
+
+        thread(delete_message, (client, gid, mid))
+    except Exception as e:
+        logger.warning(f"Config error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["forgive"], glovar.prefix))
 def forgive(client, message):
     try:
@@ -300,105 +402,3 @@ def warn(client, message):
         thread(delete_message, (client, gid, mid))
     except Exception as e:
         logger.warning(f"Warn error: {e}", exc_info=True)
-
-
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
-                   & Filters.command(["config_warn"], glovar.prefix))
-def config_warn(client, message):
-    try:
-        gid = message.chat.id
-        mid = message.message_id
-        if is_class_c(None, message):
-            aid = message.from_user.id
-            command_list = message.command
-            success = True
-            reason = "已更新"
-            new_config = deepcopy(glovar.configs[gid])
-            text = f"管理员：{user_mention(aid)}\n"
-            if len(command_list) > 1:
-                now = int(time())
-                if now - new_config["lock"] > 360:
-                    command_type = list(filter(None, command_list))[1]
-                    if command_type == "show":
-                        text += (f"操作：{code('查看设置')}\n"
-                                 f"设置：{code((lambda x: '默认' if x else '自定义')(new_config['default']))}\n"
-                                 f"警告上限：{code(new_config['limit'])}\n"
-                                 f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config['mention']))}\n"
-                                 f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
-                                 f"手动举报："
-                                 f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}\n")
-                        thread(send_report_message, (30, client, gid, text))
-                        thread(delete_message, (client, gid, mid))
-                        return
-                    elif command_type == "default":
-                        if not new_config.get("default"):
-                            new_config = deepcopy(glovar.default_config)
-                    else:
-                        command_context = get_command_context(message)
-                        if command_context:
-                            if command_type == "limit":
-                                try:
-                                    limit = int(command_context)
-                                    if 2 <= limit <= 5:
-                                        new_config["limit"] = limit
-                                    else:
-                                        success = False
-                                        reason = "数值超过范围"
-                                except Exception as e:
-                                    logger.info(f"Convert limit context error: {e}")
-                                    success = False
-                                    reason = "错误的数值"
-                            elif command_type == "mention":
-                                if command_context == "off":
-                                    new_config["mention"] = False
-                                elif command_context == "on":
-                                    new_config["mention"] = True
-                                else:
-                                    success = False
-                                    reason = "呼叫选项有误"
-                            elif command_type == "report":
-                                if not new_config.get("report"):
-                                    new_config["report"] = {}
-
-                                if command_context == "off":
-                                    new_config["report"]["auto"] = False
-                                    new_config["report"]["manual"] = False
-                                elif command_context == "auto":
-                                    new_config["report"]["auto"] = True
-                                    new_config["report"]["manual"] = False
-                                elif command_context == "manual":
-                                    new_config["report"]["auto"] = False
-                                    new_config["report"]["manual"] = True
-                                elif command_context == "both":
-                                    new_config["report"]["auto"] = True
-                                    new_config["report"]["manual"] = True
-                                else:
-                                    success = False
-                                    reason = "举报选项有误"
-                            else:
-                                success = False
-                                reason = "命令类别有误"
-                        else:
-                            success = False
-                            reason = "命令选项缺失"
-
-                        if success:
-                            new_config["default"] = False
-                else:
-                    success = False
-                    reason = "设置当前被锁定"
-            else:
-                success = False
-                reason = "格式有误"
-
-            if success and new_config != glovar.configs[gid]:
-                glovar.configs[gid] = new_config
-                save("configs")
-
-            text += (f"操作：{code('更改设置')}\n"
-                     f"状态：{code(reason)}\n")
-            thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
-
-        thread(delete_message, (client, gid, mid))
-    except Exception as e:
-        logger.warning(f"Config error: {e}", exc_info=True)
