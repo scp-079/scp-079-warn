@@ -303,8 +303,8 @@ def warn(client, message):
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
-                   & Filters.command(["warn_config"], glovar.prefix))
-def warn_config(client, message):
+                   & Filters.command(["config_warn"], glovar.prefix))
+def config_warn(client, message):
     try:
         gid = message.chat.id
         mid = message.message_id
