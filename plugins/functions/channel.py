@@ -96,7 +96,6 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
 
             result = send_message(client, glovar.logging_channel_id, text)
             result = result.message_id
-            return result
         elif message.from_user.is_self:
             if message.from_user.is_self is True:
                 text += f"附加信息：{code('群管直接回复回报消息')}\n"
@@ -105,22 +104,22 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
 
             result = send_message(client, glovar.logging_channel_id, text)
             result = result.message_id
-            return result
+        else:
+            flood_wait = True
+            while flood_wait:
+                flood_wait = False
+                try:
+                    result = message.forward(glovar.logging_channel_id)
+                except FloodWait as e:
+                    flood_wait = True
+                    sleep(e.x + 1)
+                except Exception as e:
+                    logger.info(f"Forward evidence message error: {e}", exc_info=True)
+                    return False
 
-        flood_wait = True
-        while flood_wait:
-            flood_wait = False
-            try:
-                result = message.forward(glovar.logging_channel_id)
-            except FloodWait as e:
-                flood_wait = True
-                sleep(e.x + 1)
-            except Exception as e:
-                logger.info(f"Forward evidence message error: {e}", exc_info=True)
-                return False
-
-        result = result.message_id
-        thread(send_message, (client, glovar.logging_channel_id, text, result))
+            result = result.message_id
+            result = send_message(client, glovar.logging_channel_id, text, result)
+            result = result.message_id
     except Exception as e:
         logger.warning(f"Forward evidence error: {e}", exc_info=True)
 
