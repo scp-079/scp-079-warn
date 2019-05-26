@@ -24,12 +24,12 @@ from copy import deepcopy
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.channel import share_data
+from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, get_callback_data, get_command_context, get_full_name, get_reason
 from ..functions.etc import thread, user_mention
 from ..functions.file import save
 from ..functions.filters import is_class_c, test_group
-from ..functions.group import delete_message, get_debug_text, get_message
+from ..functions.group import delete_message, get_message
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, report_answer, report_user
 from ..functions.user import undo_user, warn_user

@@ -23,10 +23,11 @@ from copy import deepcopy
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
+from ..functions.channel import get_debug_text
 from ..functions.etc import code, receive_data, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel, new_group
-from ..functions.group import get_debug_text, leave_group
+from ..functions.group import leave_group
 from ..functions.ids import init_group_id, init_user_id
 from ..functions.telegram import get_admins, leave_chat, send_message, send_report_message
 from ..functions.user import report_user
@@ -96,76 +97,77 @@ def init_group(client, message):
 def process_data(client, message):
     try:
         data = receive_data(message)
-        sender = data["from"]
-        receivers = data["to"]
-        action = data["action"]
-        action_type = data["type"]
-        data = data["data"]
-        # This will look awkward,
-        # seems like it can be simplified,
-        # but this is to ensure that the permissions are clear,
-        # so it is intentionally written like this
-        if "WARN" in receivers:
-            if sender == "CONFIG":
+        if data:
+            sender = data["from"]
+            receivers = data["to"]
+            action = data["action"]
+            action_type = data["type"]
+            data = data["data"]
+            # This will look awkward,
+            # seems like it can be simplified,
+            # but this is to ensure that the permissions are clear,
+            # so it is intentionally written like this
+            if "WARN" in receivers:
+                if sender == "CONFIG":
 
-                if action == "config":
-                    if action_type == "commit":
-                        gid = data["group_id"]
-                        config = data["config"]
-                        glovar.configs[gid] = config
-                        save("configs")
-                    elif action_type == "reply":
-                        gid = data["group_id"]
-                        uid = data["user_id"]
-                        link = data["config_link"]
-                        text = (f"管理员：{user_mention(uid)}\n"
-                                f"操作：{code('更改设置')}\n"
-                                f"说明：{code('请点击下方按钮进行设置')}\n")
-                        markup = InlineKeyboardMarkup(
-                            [
+                    if action == "config":
+                        if action_type == "commit":
+                            gid = data["group_id"]
+                            config = data["config"]
+                            glovar.configs[gid] = config
+                            save("configs")
+                        elif action_type == "reply":
+                            gid = data["group_id"]
+                            uid = data["user_id"]
+                            link = data["config_link"]
+                            text = (f"管理员：{user_mention(uid)}\n"
+                                    f"操作：{code('更改设置')}\n"
+                                    f"说明：{code('请点击下方按钮进行设置')}\n")
+                            markup = InlineKeyboardMarkup(
                                 [
-                                    InlineKeyboardButton(
-                                        "前往设置",
-                                        url=link
-                                    )
+                                    [
+                                        InlineKeyboardButton(
+                                            "前往设置",
+                                            url=link
+                                        )
+                                    ]
                                 ]
-                            ]
-                        )
-                        thread(send_report_message, (180, client, gid, text, None, markup))
+                            )
+                            thread(send_report_message, (180, client, gid, text, None, markup))
 
-            elif sender == "MANAGE":
+                elif sender == "MANAGE":
 
-                if action == "leave":
-                    the_id = data["group_id"]
-                    reason = data["reason"]
-                    if action_type == "approve":
-                        leave_group(client, the_id)
-                        text = get_debug_text(client, the_id)
-                        text += (f"状态：{code('已退出该群组')}\n"
-                                 f"原因：{code(reason)}\n")
-                        thread(send_message, (client, glovar.debug_channel_id, text))
+                    if action == "leave":
+                        the_id = data["group_id"]
+                        reason = data["reason"]
+                        if action_type == "approve":
+                            leave_group(client, the_id)
+                            text = get_debug_text(client, the_id)
+                            text += (f"状态：{code('已退出该群组')}\n"
+                                     f"原因：{code(reason)}\n")
+                            thread(send_message, (client, glovar.debug_channel_id, text))
 
-                elif action == "remove":
-                    the_id = data["id"]
-                    the_type = data["type"]
-                    if action_type == "bad":
-                        if the_type == "user":
-                            if glovar.user_ids.get(the_id):
-                                glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
+                    elif action == "remove":
+                        the_id = data["id"]
+                        the_type = data["type"]
+                        if action_type == "bad":
+                            if the_type == "user":
+                                if glovar.user_ids.get(the_id):
+                                    glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
 
-                            save("user_ids")
+                                save("user_ids")
 
-            elif sender == "NOSPAM":
+                elif sender == "NOSPAM":
 
-                if action == "help":
-                    if action_type == "report":
-                        gid = data["group_id"]
-                        if init_group_id(gid):
-                            if glovar.configs[gid]["report"]["auto"]:
-                                uid = data["user_id"]
-                                mid = data["message_id"]
-                                init_user_id(0)
-                                text, markup = report_user(gid, uid, 0, mid)
-                                thread(send_message, (client, gid, text, mid, markup))
+                    if action == "help":
+                        if action_type == "report":
+                            gid = data["group_id"]
+                            if init_group_id(gid):
+                                if glovar.configs[gid]["report"]["auto"]:
+                                    uid = data["user_id"]
+                                    mid = data["message_id"]
+                                    init_user_id(0)
+                                    text, markup = report_user(gid, uid, 0, mid)
+                                    thread(send_message, (client, gid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)

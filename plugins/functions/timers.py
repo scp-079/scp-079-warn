@@ -58,10 +58,15 @@ def backup_files(client: Client) -> bool:
 
 def reset_data() -> bool:
     # Reset user data every month
-    glovar.user_ids = {}
-    save("user_ids")
+    try:
+        glovar.user_ids = {}
+        save("user_ids")
 
-    return True
+        return True
+    except Exception as e:
+        logger.warning(f"Reset data error: {e}", exc_info=True)
+
+    return False
 
 
 def update_admins(client: Client) -> bool:

@@ -20,15 +20,13 @@ import logging
 from time import sleep
 from typing import List, Optional, Union
 
-from pyrogram import Client, Message
+from pyrogram import Chat, Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
 from .etc import code, format_data, general_link, get_full_name, get_reason, thread, user_mention
 from .file import crypt_file, save
-from .group import get_debug_text
-from .telegram import send_document, send_message
-
+from .telegram import get_group_info, send_document, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -95,15 +93,14 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
                 text += f"附加信息：{code(name)}\n"
 
             result = send_message(client, glovar.logging_channel_id, text)
-            result = result.message_id
         elif message.from_user.is_self:
             if message.from_user.is_self is True:
                 text += f"附加信息：{code('群管直接回复回报消息')}\n"
+            # User didn't use report function wisely, should not forward evidence
             else:
                 text += f"附加信息：{code(message.from_user.is_self)}"
 
             result = send_message(client, glovar.logging_channel_id, text)
-            result = result.message_id
         else:
             flood_wait = True
             while flood_wait:
@@ -119,18 +116,41 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
 
             result = result.message_id
             result = send_message(client, glovar.logging_channel_id, text, result)
-            result = result.message_id
+
+        result = result.message_id
     except Exception as e:
         logger.warning(f"Forward evidence error: {e}", exc_info=True)
 
     return result
 
 
+def get_debug_text(client: Client, context: Union[int, Chat]) -> str:
+    # Get a debug message text prefix, accept int or Chat
+    text = ""
+    try:
+        if isinstance(context, int):
+            info_para = context
+            id_para = context
+        else:
+            info_para = context
+            id_para = context.id
+
+        group_name, group_link = get_group_info(client, info_para)
+        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"群组名称：{general_link(group_name, group_link)}\n"
+                f"群组 ID：{code(id_para)}\n")
+    except Exception as e:
+        logger.warning(f"Get debug text error: {e}", exc_info=True)
+
+    return text
+
+
 def send_debug(client: Client, message: Message, action: str, uid: int, aid: int, eid: int) -> bool:
     # Send the debug message
     try:
         text = get_debug_text(client, message.chat)
-        text += (f"已{action}用户：{user_mention(uid)}\n"
+        text += (f"用户 ID：{user_mention(uid)}\n"
+                 f"执行操作：{code(action)}用户\n"
                  f"群管理：{user_mention(aid)}\n"
                  f"消息存放：{general_link(eid, f'https://t.me/{glovar.logging_channel_username}/{eid}')}\n")
         # If the message is a report callback message

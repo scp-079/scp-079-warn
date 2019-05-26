@@ -18,14 +18,14 @@
 
 
 import logging
-from typing import Optional, Union
+from typing import Optional
 
-from pyrogram import Chat, Client, Message
+from pyrogram import Client, Message
 
 from .. import glovar
-from .etc import code, general_link, thread
+from .etc import thread
 from .file import save
-from .telegram import delete_messages, get_group_info, get_messages, leave_chat
+from .telegram import delete_messages, get_messages, leave_chat
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -43,23 +43,6 @@ def delete_message(client: Client, gid: int, mid: int) -> bool:
     return False
 
 
-def get_debug_text(client: Client, context: Union[int, Chat]) -> str:
-    # Get a debug message text prefix, accept int or Chat
-    if isinstance(context, int):
-        info_para = context
-        id_para = context
-    else:
-        info_para = context
-        id_para = context.id
-
-    group_name, group_link = get_group_info(client, info_para)
-    text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-            f"群组名称：{general_link(group_name, group_link)}\n"
-            f"群组 ID：{code(id_para)}\n")
-
-    return text
-
-
 def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
     # Get a message in a group
     result = None
@@ -73,10 +56,17 @@ def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
 
 def leave_group(client: Client, gid: int) -> bool:
     # Leave a group, clear it's data
-    thread(leave_chat, (client, gid))
-    glovar.admin_ids.pop(gid, None)
-    glovar.configs.pop(gid, None)
-    save("admin_ids")
-    save("configs")
+    try:
+        thread(leave_chat, (client, gid))
+
+        glovar.admin_ids.pop(gid, None)
+        save("admin_ids")
+
+        glovar.configs.pop(gid, None)
+        save("configs")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Leave group error: {e}", exc_info=True)
 
     return True

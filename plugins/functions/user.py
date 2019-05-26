@@ -188,6 +188,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                     # Warn reporter
                     elif action_type == "spam":
                         message.reply_to_message.from_user.id = rid
+                        # Should not let bot forward evidence
                         message.reply_to_message.from_user.is_self = "群管认定滥用举报功能"
                         text, markup = warn_user(client, message, rid, aid)
                         text += f"原因：{code('滥用')}\n"

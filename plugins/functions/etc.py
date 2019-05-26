@@ -18,12 +18,14 @@
 
 import logging
 from json import dumps, loads
-from random import choice
+from random import choice, uniform
 from string import ascii_letters, digits
 from threading import Thread, Timer
-from typing import Callable, List, Union
+from time import sleep
+from typing import Callable, List, Optional, Union
 
 from pyrogram import InlineKeyboardMarkup, Message, User
+from pyrogram.errors import FloodWait
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -31,58 +33,96 @@ logger = logging.getLogger(__name__)
 
 def bold(text) -> str:
     # Get a bold text
-    if text:
-        return f"**{text}**"
+    try:
+        text = str(text)
+        if text.strip():
+            return f"**{text}**"
+    except Exception as e:
+        logger.warning(f"Bold error: {e}", exc_info=True)
 
     return ""
 
 
-def button_data(action: str, action_type: str = None, data: Union[int, str] = None) -> bytes:
+def button_data(action: str, action_type: str = None, data: Union[int, str] = None) -> Optional[bytes]:
     # Get a button's bytes data
-    button = {
-        "a": action,
-        "t": action_type,
-        "d": data
-    }
-    return dumps(button).replace(" ", "").encode("utf-8")
+    result = None
+    try:
+        button = {
+            "a": action,
+            "t": action_type,
+            "d": data
+        }
+        result = dumps(button).replace(" ", "").encode("utf-8")
+    except Exception as e:
+        logger.warning(f"Button data error: {e}", exc_info=True)
+
+    return result
 
 
 def code(text) -> str:
     # Get a code text
-    if text:
-        return f"`{text}`"
+    try:
+        text = str(text)
+        if text.strip():
+            return f"`{text}`"
+    except Exception as e:
+        logger.warning(f"Code error: {e}", exc_info=True)
 
     return ""
 
 
 def code_block(text) -> str:
     # Get a code block text
-    if text:
-        return f"```{text}```"
+    try:
+        text = str(text)
+        if text.strip():
+            return f"```{text}```"
+    except Exception as e:
+        logger.warning(f"Code block error: {e}", exc_info=True)
 
     return ""
 
 
 def delay(secs: int, target: Callable, args: list) -> bool:
     # Call a function with delay
-    t = Timer(secs, target, args)
-    t.daemon = True
-    t.start()
+    try:
+        t = Timer(secs, target, args)
+        t.daemon = True
+        t.start()
+        return True
+    except Exception as e:
+        logger.warning(f"Delay error: {e}", exc_info=True)
 
-    return True
+    return False
 
 
 def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
     # See https://scp-079.org/exchange/
-    data = {
-        "from": sender,
-        "to": receivers,
-        "action": action,
-        "type": action_type,
-        "data": data
-    }
+    text = ""
+    try:
+        data = {
+            "from": sender,
+            "to": receivers,
+            "action": action,
+            "type": action_type,
+            "data": data
+        }
+        text = code_block(dumps(data, indent=4))
+    except Exception as e:
+        logger.warning(f"Format data error: {e}", exc_info=True)
 
-    return code_block(dumps(data, indent=4))
+    return text
+
+
+def general_link(text: Union[int, str], link: str) -> str:
+    # Get a general markdown link
+    result = ""
+    try:
+        result = f"[{text}]({link})"
+    except Exception as e:
+        logger.warning(f"General link error: {e}", exc_info=True)
+
+    return result
 
 
 def get_callback_data(message: Message) -> List[dict]:
@@ -108,19 +148,22 @@ def get_callback_data(message: Message) -> List[dict]:
 
 def get_command_context(message: Message) -> str:
     # Get the context "b" in "/command a b"
-    command_list = get_text(message).split(" ")
-    if len(list(filter(None, command_list))) > 2:
-        i = 1
-        command_type = command_list[i]
-        while command_type == "" and i < len(command_list):
-            i += 1
+    result = ""
+    try:
+        text = get_text(message)
+        command_list = text.split(" ")
+        if len(list(filter(None, command_list))) > 2:
+            i = 1
             command_type = command_list[i]
+            while command_type == "" and i < len(command_list):
+                i += 1
+                command_type = command_list[i]
 
-        command_context = get_text(message)[1 + len(command_list[0]) + i + len(command_type):].strip()
-    else:
-        command_context = ""
+            result = text[1 + len(command_list[0]) + i + len(command_type):].strip()
+    except Exception as e:
+        logger.warning(f"Get command context error: {e}", exc_info=True)
 
-    return command_context
+    return result
 
 
 def get_full_name(user: User) -> str:
@@ -165,43 +208,71 @@ def get_text(message: Message) -> str:
     return text
 
 
-def general_link(text: Union[int, str], link: str) -> str:
-    # Get a general markdown link
-    return f"[{text}]({link})"
-
-
 def message_link(cid: int, mid: int) -> str:
     # Get a message link in a channel
-    return f"[{mid}](https://t.me/c/{str(cid)[4:]}/{mid})"
+    text = ""
+    try:
+        text = f"[{mid}](https://t.me/c/{str(cid)[4:]}/{mid})"
+    except Exception as e:
+        logger.warning(f"Message link error: {e}", exc_info=True)
+
+    return text
 
 
 def random_str(i: int) -> str:
     # Get a random string
-    return "".join(choice(ascii_letters + digits) for _ in range(i))
+    text = ""
+    try:
+        text = "".join(choice(ascii_letters + digits) for _ in range(i))
+    except Exception as e:
+        logger.warning(f"Random str error: {e}", exc_info=True)
+
+    return text
 
 
 def receive_data(message: Message) -> dict:
     # Receive data from exchange channel
-    text = get_text(message)
+    data = {}
     try:
-        assert text is not "", f"Can't get text from message: {message}"
-        data = loads(text)
-        return data
+        text = get_text(message)
+        if text:
+            data = loads(text)
     except Exception as e:
         logger.warning(f"Receive data error: {e}")
 
-    return {}
+    return data
 
 
 def thread(target: Callable, args: tuple) -> bool:
     # Call a function using thread
-    t = Thread(target=target, args=args)
-    t.daemon = True
-    t.start()
+    try:
+        t = Thread(target=target, args=args)
+        t.daemon = True
+        t.start()
+        return True
+    except Exception as e:
+        logger.warning(f"Thread error: {e}", exc_info=True)
 
-    return True
+    return False
 
 
 def user_mention(uid: int) -> str:
     # Get a mention text
-    return f"[{uid}](tg://user?id={uid})"
+    text = ""
+    try:
+        text = f"[{uid}](tg://user?id={uid})"
+    except Exception as e:
+        logger.warning(f"User mention error: {e}", exc_info=True)
+
+    return text
+
+
+def wait_flood(e: FloodWait) -> bool:
+    # Wait flood secs
+    try:
+        sleep(e.x + uniform(0.5, 1.0))
+        return True
+    except Exception as e:
+        logger.warning(f"Wait flood error: {e}", exc_info=True)
+
+    return False
