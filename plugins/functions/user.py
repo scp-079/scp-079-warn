@@ -24,7 +24,8 @@ from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from .channel import ask_for_help, forward_evidence, send_debug, update_score
-from .etc import button_data, code, delay, general_link, get_text, message_link, random_str, thread, user_mention
+from .etc import button_data, code, delay, general_link, get_channel_link, get_text, message_link
+from .etc import random_str, thread, user_mention
 from .file import save
 from .filters import is_class_c
 from .group import delete_message
@@ -51,7 +52,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
                 update_score(client, uid)
                 text = f"已封禁用户：{user_mention(uid)}\n"
                 text += (f"消息存放："
-                         f"{general_link(result, f'https://t.me/{glovar.logging_channel_username}/{result}')}\n")
+                         f"{general_link(result.message_id, message_link(message))}\n")
                 data = button_data("undo", "ban", uid)
                 markup = InlineKeyboardMarkup(
                     [
@@ -199,7 +200,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                             reporter_text = code("自动触发")
 
                         text = (f"被举报用户：{user_mention(uid)}\n"
-                                f"被举报消息：{message_link(gid, r_mid)}\n"
+                                f"被举报消息：{general_link(r_mid, f'{get_channel_link(message)}/{r_mid}')}\n"
                                 f"举报人：{reporter_text}\n"
                                 f"管理员：{user_mention(aid)}\n"
                                 f"状态：{code('已取消')}\n")
@@ -265,7 +266,7 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
             reporter_text = code("自动触发")
 
         text = (f"被举报用户：{user_mention(uid)}\n"
-                f"被举报消息：{message_link(gid, mid)}\n"
+                f"被举报消息：{general_link(mid, f'{get_channel_link(gid)}/{mid}')}\n"
                 f"举报人：{reporter_text}\n"
                 f"呼叫管理：{get_admin_text(gid)}\n")
         warn_data = button_data("report", "warn", report_key)
@@ -355,7 +356,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                     )
 
                 text += (f"消息存放："
-                         f"{general_link(result, f'https://t.me/{glovar.logging_channel_username}/{result}')}\n")
+                         f"{general_link(result.message_id, message_link(result))}\n")
                 send_debug(client, message, "警告", uid, aid, result)
             else:
                 text += (f"用户：{user_mention(uid)}\n"

@@ -125,16 +125,19 @@ def general_link(text: Union[int, str], link: str) -> str:
     return result
 
 
-def get_channel_link(message: Message) -> str:
+def get_channel_link(message: Union[int, Message]) -> str:
     # Get a channel reference link
     text = ""
     try:
         text = "https://t.me/"
-        if message.chat.username:
-            text += f"{message.chat.username}"
+        if isinstance(message_link, int):
+            text += f"c/{str(message)[4:]}"
         else:
-            cid = message.chat.id
-            text += f"c/{str(cid)[4:]}"
+            if message.chat.username:
+                text += f"{message.chat.username}"
+            else:
+                cid = message.chat.id
+                text += f"c/{str(cid)[4:]}"
     except Exception as e:
         logger.warning(f"Get channel link error: {e}", exc_info=True)
 
