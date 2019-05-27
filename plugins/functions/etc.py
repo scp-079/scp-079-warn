@@ -232,7 +232,7 @@ def message_link(message: Message) -> str:
     text = ""
     try:
         mid = message.message_id
-        text = f"{get_channel_link(message)}/{mid})"
+        text = f"{get_channel_link(message)}/{mid}"
     except Exception as e:
         logger.warning(f"Message link error: {e}", exc_info=True)
 
