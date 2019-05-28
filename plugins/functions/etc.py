@@ -130,7 +130,7 @@ def get_channel_link(message: Union[int, Message]) -> str:
     text = ""
     try:
         text = "https://t.me/"
-        if isinstance(message_link, int):
+        if isinstance(message, int):
             text += f"c/{str(message)[4:]}"
         else:
             if message.chat.username:
