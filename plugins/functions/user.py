@@ -52,7 +52,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
                 update_score(client, uid)
                 text = f"已封禁用户：{user_mention(uid)}\n"
                 text += (f"消息存放："
-                         f"{general_link(result.message_id, message_link(message))}\n")
+                         f"{general_link(result.message_id, message_link(result))}\n")
                 data = button_data("undo", "ban", uid)
                 markup = InlineKeyboardMarkup(
                     [
