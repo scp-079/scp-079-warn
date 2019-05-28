@@ -149,7 +149,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
         text = get_debug_text(client, message.chat)
         text += (f"用户 ID：{user_mention(uid)}\n"
                  f"执行操作：{code(f'{action}用户')}\n"
-                 f"群管理：{user_mention(aid)}\n"
+                 f"群管理：{code(aid)}\n"
                  f"消息存放：{general_link(em.message_id, message_link(em))}\n")
         # If the message is a report callback message
         if message.from_user.is_self:

@@ -134,7 +134,7 @@ def config(client, message):
                         }
                     )
                     text = get_debug_text(client, message.chat)
-                    text += (f"群管理：{user_mention(message.from_user.id)}\n"
+                    text += (f"群管理：{code(message.from_user.id)}\n"
                              f"操作：{code('创建设置会话')}\n")
 
         thread(delete_message, (client, gid, mid))

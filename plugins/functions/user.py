@@ -75,7 +75,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
                      f"结果：{code('未操作')}\n"
                      f"原因：{code('已在封禁列表中')}\n")
 
-        text += f"管理员：{user_mention(aid)}\n"
+        text += f"管理员：{code(aid)}\n"
     except Exception as e:
         logger.warning(f"Ban user error: {e}", exc_info=True)
 
@@ -113,7 +113,7 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
             result = True
 
         update_score(client, uid)
-        text += f"管理员：{user_mention(aid)}\n"
+        text += f"管理员：{code(aid)}\n"
     except Exception as e:
         logger.warning(f"Forgive user error: {e}")
 
@@ -202,7 +202,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                         text = (f"被举报用户：{user_mention(uid)}\n"
                                 f"被举报消息：{general_link(r_mid, f'{get_channel_link(message)}/{r_mid}')}\n"
                                 f"举报人：{reporter_text}\n"
-                                f"管理员：{user_mention(aid)}\n"
+                                f"管理员：{code(aid)}\n"
                                 f"状态：{code('已取消')}\n")
                         markup = None
 
@@ -229,7 +229,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
             message_text = get_text(message)
             uid = int(message_text.split("\n")[0].split("：")[1])
             rid = int(message_text.split("\n")[2].split("：")[1])
-            text = (f"管理员：{user_mention(aid)}\n"
+            text = (f"管理员：{code(aid)}\n"
                     f"状态：{code('已失效')}\n")
             thread(edit_message_text, (client, gid, mid, text))
             delay(15, delete_message, [client, gid, mid])
@@ -367,7 +367,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                      f"结果：{code('未操作')}\n"
                      f"原因：{code('已在封禁列表中')}\n")
 
-        text += f"管理员：{user_mention(aid)}\n"
+        text += f"管理员：{code(aid)}\n"
     except Exception as e:
         logger.warning(f"Warn user error: {e}", exc_info=True)
 
