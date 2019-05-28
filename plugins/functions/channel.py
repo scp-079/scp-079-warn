@@ -155,7 +155,9 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
         if message.from_user.is_self or message.from_user.id == glovar.warn_id:
             text += f"原因：{code('由群管处理的举报')}\n"
         else:
-            text = get_reason(message, text)
+            reason = get_reason(message)
+            if reason:
+                text += f"原因：{code(reason)}\n"
 
         thread(send_message, (client, glovar.debug_channel_id, text))
     except Exception as e:

@@ -199,13 +199,12 @@ def get_full_name(user: User) -> str:
     return text
 
 
-def get_reason(message: Message, text: str) -> str:
+def get_reason(message: Message) -> str:
     # Get the reason text
+    text = ""
     try:
         command_list = list(filter(None, get_text(message).split(" ")))
-        reason = get_text(message)[len(command_list[0]):].strip()
-        if reason:
-            text += f"原因：{code(reason)}\n"
+        text = get_text(message)[len(command_list[0]):].strip()
     except Exception as e:
         logging.warning(f"Get reason error: {e}", exc_info=True)
 

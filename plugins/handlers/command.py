@@ -58,7 +58,10 @@ def admin(client, message):
                             and glovar.user_ids[uid]["warn"].get(gid) is None):
                         text = (f"来自用户：{user_mention(uid)}\n"
                                 f"呼叫管理：{get_admin_text(gid)}\n")
-                        text = get_reason(message, text)
+                        reason = get_reason(message)
+                        if reason:
+                            text += f"原因：{code(reason)}\n"
+
                         sent_message = send_message(client, gid, text, None)
                         if sent_message:
                             old_mid = glovar.message_ids.get(gid, 0)
@@ -86,7 +89,9 @@ def ban(client, message):
                 text, markup = ban_user(client, message, uid, aid)
                 if markup:
                     secs = 180
-                    text = get_reason(message, text)
+                    reason = get_reason(message)
+                    if reason:
+                        text += f"原因：{code(reason)}\n"
                 else:
                     secs = 15
 
@@ -254,7 +259,9 @@ def forgive(client, message):
                 save("user_ids")
                 if result:
                     secs = 180
-                    text = get_reason(message, text)
+                    reason = get_reason(message)
+                    if reason:
+                        text += f"原因：{code(reason)}\n"
                 else:
                     secs = 15
 
@@ -288,7 +295,10 @@ def report(client, message):
                     r_message = message.reply_to_message
                     if not r_message.from_user.is_self:
                         text, markup = report_user(gid, uid, rid, re_mid)
-                        text = get_reason(message, text)
+                        reason = get_reason(message)
+                        if reason:
+                            text += f"原因：{code(reason)}\n"
+
                         if r_message.service:
                             name = get_full_name(r_message.from_user)
                             if name:
@@ -391,7 +401,9 @@ def warn(client, message):
                 text, markup = warn_user(client, message, uid, aid)
                 if markup:
                     secs = 180
-                    text = get_reason(message, text)
+                    reason = get_reason(message)
+                    if reason:
+                        text += f"原因：{code(reason)}\n"
                 else:
                     secs = 15
 
