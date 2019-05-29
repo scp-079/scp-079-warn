@@ -188,6 +188,9 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                         thread(delete_message, (client, gid, r_mid))
                     # Warn reporter
                     elif action_type == "spam":
+                        if not rid:
+                            return ""
+
                         message.reply_to_message.from_user.id = rid
                         # Should not let bot forward evidence
                         message.reply_to_message.from_user.is_self = "群管认定滥用举报功能"
