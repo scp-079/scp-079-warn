@@ -40,7 +40,7 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
 
         gid = message.chat.id
         if init_group_id(gid):
-            if uid in glovar.admin_ids.get(gid, set()) or uid in glovar.bot_ids or message.from_user.is_self:
+            if uid in glovar.admin_ids.get(gid, set()) or uid in glovar.bot_ids or update.from_user.is_self:
                 return True
     except Exception as e:
         logger.warning(f"Is class c error: {e}")
