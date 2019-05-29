@@ -299,10 +299,9 @@ def report(client, message):
                         if reason:
                             text += f"原因：{code(reason)}\n"
 
-                        if r_message.service:
-                            name = get_full_name(r_message.from_user)
-                            if name:
-                                text += f"附加信息：{code(name)}\n"
+                        name = get_full_name(r_message.from_user)
+                        if name:
+                            text += f"被举报用户昵称：{code(name)}\n"
 
                         thread(send_message, (client, gid, text, re_mid, markup))
         else:
