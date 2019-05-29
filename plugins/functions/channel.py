@@ -97,7 +97,7 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
                                 text += f"用户昵称：{code(name)}\n"
                                 break
 
-                text += f"附加信息：{code('群管直接回复回报消息')}\n"
+                text += f"附加信息：{code('群管直接回复汇报消息')}\n"
             # User didn't use report function wisely, should not forward evidence
             else:
                 text += f"附加信息：{code(message.from_user.is_self)}"

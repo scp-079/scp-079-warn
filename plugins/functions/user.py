@@ -388,7 +388,7 @@ def unban_user(client: Client, gid: int, uid: int, aid: int) -> str:
                     f"结果：{code('未操作')}\n"
                     f"原因：{code('不在封禁列表中')}\n")
 
-        text += f"管理员：{user_mention(aid)}"
+        text += f"管理员：{code(aid)}"
     except Exception as e:
         logger.warning(f"Unban user error: {e}", exc_info=True)
 
@@ -448,7 +448,7 @@ def unwarn_user(client: Client, gid: int, uid: int, aid: int) -> str:
                     f"结果：{code('未操作')}\n"
                     f"原因：{code('已在封禁列表中')}\n")
 
-        text += f"管理员：{user_mention(aid)}"
+        text += f"管理员：{code(aid)}"
     except Exception as e:
         logger.warning(f"Unwarn user error: {e}", exc_info=True)
 
