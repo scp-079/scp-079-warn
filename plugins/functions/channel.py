@@ -109,6 +109,7 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
                 text += f"用户昵称：{code(name)}\n"
 
             if message.service:
+                text += f"附加信息：{code('群内服务消息')}\n"
                 result = send_message(client, glovar.logging_channel_id, text)
             else:
                 flood_wait = True
