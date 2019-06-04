@@ -136,6 +136,7 @@ def config(client, message):
                     text = get_debug_text(client, message.chat)
                     text += (f"群管理：{code(message.from_user.id)}\n"
                              f"操作：{code('创建设置会话')}\n")
+                    thread(send_message, (client, glovar.debug_channel_id, text))
 
         thread(delete_message, (client, gid, mid))
     except Exception as e:
@@ -154,7 +155,7 @@ def config_warn(client, message):
             success = True
             reason = "已更新"
             new_config = deepcopy(glovar.configs[gid])
-            text = f"管理员：{user_mention(aid)}\n"
+            text = f"管理员：{code(aid)}\n"
             if len(command_list) > 1:
                 now = int(time())
                 if now - new_config["lock"] > 360:
@@ -306,7 +307,7 @@ def report(client, message):
                         thread(send_message, (client, gid, text, re_mid, markup))
         else:
             aid = message.from_user.id
-            text = f"管理员：{user_mention(aid)}\n"
+            text = f"管理员：{code(aid)}\n"
             command_list = list(filter(None, message.command))
             if len(command_list) == 2 and command_list[1] in {"warn", "ban", "cancel", "spam"}:
                 command_type = command_list[1]
@@ -347,7 +348,7 @@ def undo(client, message):
         mid = message.message_id
         if is_class_c(None, message):
             aid = message.from_user.id
-            text = f"管理员：{user_mention(aid)}\n"
+            text = f"管理员：{code(aid)}\n"
             command_list = list(filter(None, message.command))
             if len(command_list) == 1:
                 if message.reply_to_message:
