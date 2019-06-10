@@ -62,7 +62,12 @@ def admin(client, message):
                         if reason:
                             text += f"原因：{code(reason)}\n"
 
-                        sent_message = send_message(client, gid, text, None)
+                        if message.reply_to_message:
+                            rid = message.reply_to_message.message_id
+                        else:
+                            rid = None
+
+                        sent_message = send_message(client, gid, text, rid)
                         if sent_message:
                             old_mid = glovar.message_ids.get(gid, 0)
                             if old_mid:
@@ -70,6 +75,7 @@ def admin(client, message):
 
                             sent_mid = sent_message.message_id
                             glovar.message_ids[gid] = sent_mid
+                            save("message_ids")
 
         thread(delete_message, (client, gid, mid))
     except Exception as e:
