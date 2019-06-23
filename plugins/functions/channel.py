@@ -25,7 +25,7 @@ from pyrogram import Chat, Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, code_block, general_link, get_full_name, get_reason, get_text, message_link, thread
+from .etc import code, code_block, general_link, get_full_name, get_command_type, get_text, message_link, thread
 from .file import crypt_file, delete_file, get_new_path, save
 from .telegram import get_group_info, send_document, send_message
 
@@ -195,7 +195,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
         if message.from_user.is_self:
             text += f"原因：{code('由群管处理的举报')}\n"
         else:
-            reason = get_reason(message)
+            reason = get_command_type(message)
             if reason:
                 text += f"原因：{code(reason)}\n"
 

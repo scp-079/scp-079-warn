@@ -168,6 +168,19 @@ def get_command_context(message: Message) -> (str, str):
     return command_type, command_context
 
 
+def get_command_type(message: Message) -> str:
+    # Get the command type "a" in "/command a"
+    result = ""
+    try:
+        text = get_text(message)
+        command_list = list(filter(None, text.split(" ")))
+        result = text[len(command_list[0]):].strip()
+    except Exception as e:
+        logging.warning(f"Get command type error: {e}", exc_info=True)
+
+    return result
+
+
 def get_full_name(user: User) -> str:
     # Get user's full name
     text = ""
@@ -178,18 +191,6 @@ def get_full_name(user: User) -> str:
                 text += f" {user.last_name}"
     except Exception as e:
         logger.warning(f"Get full name error: {e}", exc_info=True)
-
-    return text
-
-
-def get_reason(message: Message) -> str:
-    # Get the reason text
-    text = ""
-    try:
-        command_list = list(filter(None, get_text(message).split(" ")))
-        text = get_text(message)[len(command_list[0]):].strip()
-    except Exception as e:
-        logging.warning(f"Get reason error: {e}", exc_info=True)
 
     return text
 

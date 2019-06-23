@@ -25,7 +25,7 @@ from pyrogram import Client, Filters
 
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
-from ..functions.etc import bold, code, get_callback_data, get_command_context, get_full_name, get_reason
+from ..functions.etc import bold, code, get_callback_data, get_command_context, get_command_type, get_full_name
 from ..functions.etc import thread, user_mention
 from ..functions.file import save
 from ..functions.filters import is_class_c, test_group
@@ -57,7 +57,7 @@ def admin(client, message):
                             and glovar.user_ids[uid]["warn"].get(gid) is None):
                         text = (f"来自用户：{user_mention(uid)}\n"
                                 f"呼叫管理：{get_admin_text(gid)}\n")
-                        reason = get_reason(message)
+                        reason = get_command_type(message)
                         if reason:
                             text += f"原因：{code(reason)}\n"
 
@@ -94,7 +94,7 @@ def ban(client, message):
                 text, markup = ban_user(client, message, uid, aid)
                 if markup:
                     secs = 180
-                    reason = get_reason(message)
+                    reason = get_command_type(message)
                     if reason:
                         text += f"原因：{code(reason)}\n"
                 else:
@@ -267,7 +267,7 @@ def forgive(client, message):
                 save("user_ids")
                 if result:
                     secs = 180
-                    reason = get_reason(message)
+                    reason = get_command_type(message)
                     if reason:
                         text += f"原因：{code(reason)}\n"
                 else:
@@ -303,7 +303,7 @@ def report(client, message):
                     r_message = message.reply_to_message
                     if not r_message.from_user.is_self:
                         text, markup = report_user(gid, uid, rid, re_mid)
-                        reason = get_reason(message)
+                        reason = get_command_type(message)
                         if reason:
                             text += f"原因：{code(reason)}\n"
 
@@ -408,7 +408,7 @@ def warn(client, message):
                 text, markup = warn_user(client, message, uid, aid)
                 if markup:
                     secs = 180
-                    reason = get_reason(message)
+                    reason = get_command_type(message)
                     if reason:
                         text += f"原因：{code(reason)}\n"
                 else:
