@@ -17,13 +17,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from os import remove
+from os.path import exists
 from pickle import dump
 from shutil import copyfile
 
 from pyAesCrypt import decryptFile, encryptFile
 
 from .. import glovar
-from .etc import thread
+from .etc import random_str, thread
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -43,6 +45,35 @@ def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
         logger.warning(f"Crypt file error: {e}", exc_info=True)
 
     return False
+
+
+def delete_file(path: str) -> bool:
+    # Delete a file
+    try:
+        if path:
+            if exists(path):
+                remove(path)
+
+            return True
+    except Exception as e:
+        logger.warning(f"Delete file error: {e}", exc_info=True)
+
+    return False
+
+
+def get_new_path() -> str:
+    # Get a new path in tmp directory
+    result = ""
+    try:
+        file_path = random_str(8)
+        while exists(f"tmp/{file_path}"):
+            file_path = random_str(8)
+
+        result = f"tmp/{file_path}"
+    except Exception as e:
+        logger.warning(f"Get new path error: {e}", exc_info=True)
+
+    return result
 
 
 def save(file: str) -> bool:

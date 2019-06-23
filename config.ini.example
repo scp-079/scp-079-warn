@@ -22,6 +22,7 @@ prefix = /!
 clean_id = [DATA EXPUNGED]
 captcha_id = [DATA EXPUNGED]
 lang_id = [DATA EXPUNGED]
+long_id = [DATA EXPUNGED]
 noflood_id = [DATA EXPUNGED]
 noporn_id = [DATA EXPUNGED]
 nospam_id = [DATA EXPUNGED]

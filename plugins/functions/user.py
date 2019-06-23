@@ -342,7 +342,6 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                             ]
                         ]
                     )
-                    ask_for_help(client, "delete", gid, uid)
                 else:
                     text = (f"已警告用户：{user_mention(uid)}\n"
                             f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")

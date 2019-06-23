@@ -23,8 +23,8 @@ from copy import deepcopy
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from ..functions.channel import get_debug_text
-from ..functions.etc import code, receive_data, thread, user_mention
+from ..functions.channel import get_debug_text, receive_text_data
+from ..functions.etc import code, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel, new_group
 from ..functions.group import leave_group
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 def exchange_emergency(_, message):
     try:
         # Read basic information
-        data = receive_data(message)
+        data = receive_text_data(message)
         sender = data["from"]
         receivers = data["to"]
         action = data["action"]
@@ -96,7 +96,7 @@ def init_group(client, message):
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def process_data(client, message):
     try:
-        data = receive_data(message)
+        data = receive_text_data(message)
         if data:
             sender = data["from"]
             receivers = data["to"]
@@ -107,7 +107,7 @@ def process_data(client, message):
             # seems like it can be simplified,
             # but this is to ensure that the permissions are clear,
             # so it is intentionally written like this
-            if "WARN" in receivers:
+            if glovar.sender in receivers:
                 if sender == "CONFIG":
 
                     if action == "config":

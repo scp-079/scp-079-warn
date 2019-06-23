@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from json import dumps, loads
 from time import sleep
 from typing import List, Optional, Union
 
@@ -24,8 +25,8 @@ from pyrogram import Chat, Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, format_data, general_link, get_full_name, get_reason, message_link, thread
-from .file import crypt_file, save
+from .etc import code, code_block, general_link, get_full_name, get_reason, get_text, message_link, thread
+from .file import crypt_file, delete_file, get_new_path, save
 from .telegram import get_group_info, send_document, send_message
 
 # Enable logging
@@ -75,6 +76,24 @@ def exchange_to_hide(client: Client) -> bool:
     return False
 
 
+def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
+    # See https://scp-079.org/exchange/
+    text = ""
+    try:
+        data = {
+            "from": sender,
+            "to": receivers,
+            "action": action,
+            "type": action_type,
+            "data": data
+        }
+        text = code_block(dumps(data, indent=4))
+    except Exception as e:
+        logger.warning(f"Format data error: {e}", exc_info=True)
+
+    return text
+
+
 def forward_evidence(client: Client, message: Message, level: str, rule: str) -> Optional[Union[bool, Message]]:
     # Forward the message to logging channel as evidence
     result = None
@@ -109,7 +128,7 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
                 text += f"用户昵称：{code(name)}\n"
 
             if message.service:
-                text += f"附加信息：{code('群内服务消息')}\n"
+                text += f"附加信息：{code('入群消息')}\n"
                 result = send_message(client, glovar.logging_channel_id, text)
             else:
                 flood_wait = True
@@ -137,20 +156,31 @@ def get_debug_text(client: Client, context: Union[int, Chat]) -> str:
     text = ""
     try:
         if isinstance(context, int):
-            info_para = context
-            id_para = context
+            group_id = context
         else:
-            info_para = context
-            id_para = context.id
+            group_id = context.id
 
-        group_name, group_link = get_group_info(client, info_para)
+        group_name, group_link = get_group_info(client, context)
         text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"群组名称：{general_link(group_name, group_link)}\n"
-                f"群组 ID：{code(id_para)}\n")
+                f"群组 ID：{code(group_id)}\n")
     except Exception as e:
         logger.warning(f"Get debug text error: {e}", exc_info=True)
 
     return text
+
+
+def receive_text_data(message: Message) -> dict:
+    # Receive text's data from exchange channel
+    data = {}
+    try:
+        text = get_text(message)
+        if text:
+            data = loads(text)
+    except Exception as e:
+        logger.warning(f"Receive data error: {e}")
+
+    return data
 
 
 def send_debug(client: Client, message: Message, action: str, uid: int, aid: int, em: Message) -> bool:
@@ -177,7 +207,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
 
 
 def share_data(client: Client, receivers: List[str], action: str, action_type: str, data: Union[dict, int, str],
-               file: str = None) -> bool:
+               file: str = None, encrypt: bool = True) -> bool:
     # Use this function to share data in the exchange channel
     try:
         if glovar.sender in receivers:
@@ -196,8 +226,18 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
                 action_type=action_type,
                 data=data
             )
-            crypt_file("encrypt", f"data/{file}", f"tmp/{file}")
-            result = send_document(client, channel_id, f"tmp/{file}", text)
+            if encrypt:
+                # Encrypt the file, save to the tmp directory
+                file_path = get_new_path()
+                crypt_file("encrypt", file, file_path)
+            else:
+                # Send directly
+                file_path = file
+
+            result = send_document(client, channel_id, file_path, text)
+            # Delete the tmp file
+            if result and "tmp/" in file_path:
+                thread(delete_file, (file_path,))
         else:
             text = format_data(
                 sender=glovar.sender,
@@ -208,7 +248,9 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
             )
             result = send_message(client, channel_id, text)
 
+        # Sending failed due to channel issue
         if result is False:
+            # Use hide channel instead
             exchange_to_hide(client)
             thread(share_data, (client, receivers, action, action_type, data, file))
 

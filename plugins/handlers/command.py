@@ -35,7 +35,6 @@ from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d
 from ..functions.user import undo_user, warn_user
 from ..functions.telegram import get_group_info, send_message, send_report_message
 
-
 # Enable logging
 logger = logging.getLogger(__name__)
 
@@ -162,7 +161,9 @@ def config_warn(client, message):
             reason = "已更新"
             new_config = deepcopy(glovar.configs[gid])
             text = f"管理员：{code(aid)}\n"
-            if len(command_list) > 1:
+            # Check command format
+            command_type, command_context = get_command_context(message)
+            if command_type:
                 now = int(time())
                 if now - new_config["lock"] > 360:
                     command_type = list(filter(None, command_list))[1]

@@ -5,7 +5,7 @@ cryptography==2.6.1
 pyaes==1.6.1
 pyAesCrypt==0.4.3
 pycparser==2.19
-Pyrogram==0.13.0
+Pyrogram==0.14.1
 PySocks==1.7.0
 pytz==2019.1
 six==1.12.0

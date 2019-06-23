@@ -96,24 +96,6 @@ def delay(secs: int, target: Callable, args: list) -> bool:
     return False
 
 
-def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
-    # See https://scp-079.org/exchange/
-    text = ""
-    try:
-        data = {
-            "from": sender,
-            "to": receivers,
-            "action": action,
-            "type": action_type,
-            "data": data
-        }
-        text = code_block(dumps(data, indent=4))
-    except Exception as e:
-        logger.warning(f"Format data error: {e}", exc_info=True)
-
-    return text
-
-
 def general_link(text: Union[int, str], link: str) -> str:
     # Get a general markdown link
     result = ""
@@ -165,24 +147,25 @@ def get_callback_data(message: Message) -> List[dict]:
     return callback_data_list
 
 
-def get_command_context(message: Message) -> str:
-    # Get the context "b" in "/command a b"
-    result = ""
+def get_command_context(message: Message) -> (str, str):
+    # Get the type "a" and the context "b" in "/command a b"
+    command_type = ""
+    command_context = ""
     try:
         text = get_text(message)
         command_list = text.split(" ")
-        if len(list(filter(None, command_list))) > 2:
+        if len(list(filter(None, command_list))) > 1:
             i = 1
             command_type = command_list[i]
             while command_type == "" and i < len(command_list):
                 i += 1
                 command_type = command_list[i]
 
-            result = text[1 + len(command_list[0]) + i + len(command_type):].strip()
+            command_context = text[1 + len(command_list[0]) + i + len(command_type):].strip()
     except Exception as e:
         logger.warning(f"Get command context error: {e}", exc_info=True)
 
-    return result
+    return command_type, command_context
 
 
 def get_full_name(user: User) -> str:
@@ -247,19 +230,6 @@ def random_str(i: int) -> str:
         logger.warning(f"Random str error: {e}", exc_info=True)
 
     return text
-
-
-def receive_data(message: Message) -> dict:
-    # Receive data from exchange channel
-    data = {}
-    try:
-        text = get_text(message)
-        if text:
-            data = loads(text)
-    except Exception as e:
-        logger.warning(f"Receive data error: {e}")
-
-    return data
 
 
 def thread(target: Callable, args: tuple) -> bool:

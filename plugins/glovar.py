@@ -74,13 +74,13 @@ report_records: Dict[str, Dict[str, int]] = {}
 #     }
 # }
 
-receivers_status: List[str] = ["CAPTCHA", "CLEAN", "LANG", "NOFLOOD", "NOPORN", "NOSPAM", "MANAGE", "RECHECK"]
+receivers_status: List[str] = ["CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN", "NOSPAM", "MANAGE", "RECHECK"]
 
 sender: str = "WARN"
 
 should_hide: bool = False
 
-version: str = "0.2.4"
+version: str = "0.2.5"
 
 # Read data from config.ini
 
@@ -93,6 +93,7 @@ prefix_str: str = "/!"
 captcha_id: int = 0
 clean_id: int = 0
 lang_id: int = 0
+long_id: int = 0
 noflood_id: int = 0
 noporn_id: int = 0
 nospam_id: int = 0
@@ -127,6 +128,7 @@ try:
     captcha_id = int(config["bots"].get("captcha_id", captcha_id))
     clean_id = int(config["bots"].get("clean_id", clean_id))
     lang_id = int(config["bots"].get("lang_id", lang_id))
+    long_id = int(config["bots"].get("long_id", long_id))
     noflood_id = int(config["bots"].get("noflood_id", noflood_id))
     noporn_id = int(config["bots"].get("noporn_id", noporn_id))
     nospam_id = int(config["bots"].get("nospam_id", nospam_id))
@@ -156,6 +158,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or captcha_id == 0
         or clean_id == 0
         or lang_id == 0
+        or long_id == 0
         or noflood_id == 0
         or noporn_id == 0
         or nospam_id == 0
@@ -175,7 +178,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or password in {"", "[DATA EXPUNGED]"}):
     raise SystemExit('No proper settings')
 
-bot_ids: Set[int] = {captcha_id, clean_id, lang_id, noflood_id, noporn_id, nospam_id, tip_id, user_id, warn_id}
+bot_ids: Set[int] = {captcha_id, clean_id, lang_id, long_id, noflood_id, noporn_id, nospam_id, tip_id, user_id, warn_id}
 
 # Load data from pickle
 

@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import logging
 from typing import Optional
 
@@ -44,10 +43,13 @@ def delete_message(client: Client, gid: int, mid: int) -> bool:
 
 
 def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
-    # Get a message in a group
+    # Get a single message
     result = None
     try:
-        result = get_messages(client, gid, [mid]).messages[0]
+        mids = [mid]
+        result = get_messages(client, gid, mids)
+        if result:
+            result = result.messages[0]
     except Exception as e:
         logger.warning(f"Get message error: {e}", exc_info=True)
 
@@ -57,6 +59,7 @@ def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
 def leave_group(client: Client, gid: int) -> bool:
     # Leave a group, clear it's data
     try:
+        glovar.left_group_ids.add(gid)
         thread(leave_chat, (client, gid))
 
         glovar.admin_ids.pop(gid, None)
