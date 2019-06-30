@@ -42,7 +42,7 @@ def backup_files(client: Client) -> bool:
                     action="backup",
                     action_type="pickle",
                     data=file,
-                    file=file
+                    file=f"data/{file}"
                 )
                 sleep(5)
             except Exception as e:
