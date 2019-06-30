@@ -43,39 +43,45 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
     try:
         gid = message.chat.id
         init_user_id(uid)
-        if gid not in glovar.user_ids[uid]["ban"]:
-            result = forward_evidence(client, message.reply_to_message, "封禁用户", "群管自行操作")
-            if result:
-                thread(kick_chat_member, (client, gid, uid))
-                glovar.user_ids[uid]["ban"].add(gid)
-                glovar.user_ids[uid]["warn"].pop(gid, 0)
-                update_score(client, uid)
-                text = f"已封禁用户：{user_mention(uid)}\n"
-                text += (f"消息存放："
-                         f"{general_link(result.message_id, message_link(result))}\n")
-                data = button_data("undo", "ban", uid)
-                markup = InlineKeyboardMarkup(
-                    [
-                        [
-                            InlineKeyboardButton(
-                                "解禁",
-                                callback_data=data
-                            )
-                        ]
-                    ]
-                )
-                ask_for_help(client, "delete", gid, uid)
-                send_debug(client, message, "封禁", uid, aid, result)
-            else:
-                text += (f"用户：{user_mention(uid)}\n"
-                         f"结果：{code('未操作')}\n"
-                         f"原因：{code('消息已被删除')}\n")
-        else:
-            text += (f"用户：{user_mention(uid)}\n"
-                     f"结果：{code('未操作')}\n"
-                     f"原因：{code('已在封禁列表中')}\n")
+        # Check users' locks
+        if gid not in glovar.user_ids[uid]["locked"]:
+            try:
+                glovar.user_ids[uid]["locked"].add(gid)
+                if gid not in glovar.user_ids[uid]["ban"]:
+                    result = forward_evidence(client, message.reply_to_message, "封禁用户", "群管自行操作")
+                    if result:
+                        thread(kick_chat_member, (client, gid, uid))
+                        glovar.user_ids[uid]["ban"].add(gid)
+                        glovar.user_ids[uid]["warn"].pop(gid, 0)
+                        update_score(client, uid)
+                        text = f"已封禁用户：{user_mention(uid)}\n"
+                        text += (f"消息存放："
+                                 f"{general_link(result.message_id, message_link(result))}\n")
+                        data = button_data("undo", "ban", uid)
+                        markup = InlineKeyboardMarkup(
+                            [
+                                [
+                                    InlineKeyboardButton(
+                                        "解禁",
+                                        callback_data=data
+                                    )
+                                ]
+                            ]
+                        )
+                        ask_for_help(client, "delete", gid, uid)
+                        send_debug(client, message, "封禁", uid, aid, result)
+                    else:
+                        text += (f"用户：{user_mention(uid)}\n"
+                                 f"结果：{code('未操作')}\n"
+                                 f"原因：{code('消息已被删除')}\n")
+                else:
+                    text += (f"用户：{user_mention(uid)}\n"
+                             f"结果：{code('未操作')}\n"
+                             f"原因：{code('已在封禁列表中')}\n")
 
-        text += f"管理员：{code(aid)}\n"
+                text += f"管理员：{code(aid)}\n"
+            finally:
+                glovar.user_ids[uid]["locked"].discard(gid)
     except Exception as e:
         logger.warning(f"Ban user error: {e}", exc_info=True)
 
@@ -88,32 +94,38 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
     result = False
     try:
         init_user_id(uid)
-        if gid not in glovar.user_ids[uid]["ban"]:
-            if glovar.user_ids[uid]["warn"].get(gid, 0):
-                glovar.user_ids[uid]["warn"].pop(gid, 0)
-                text = (f"用户：{user_mention(uid)}\n"
-                        f"结果：{code('已清空警告')}\n")
-                result = True
-            elif gid in glovar.user_ids[uid]["waiting"]:
-                glovar.user_ids[uid]["waiting"].discard(gid)
-                save("user_ids")
-                text = (f"用户：{user_mention(uid)}\n"
-                        f"结果：{code('已重置举报状态')}\n")
-                return text, True
-            else:
-                text = (f"用户：{user_mention(uid)}\n"
-                        f"结果：{code('未操作')}\n"
-                        f"原因：{code('未在记录列表中')}\n")
-                return text, False
-        else:
-            glovar.user_ids[uid]["ban"].discard(gid)
-            thread(unban_chat_member, (client, gid, uid))
-            text = (f"用户：{user_mention(uid)}\n"
-                    f"结果：{code('已解禁')}\n")
-            result = True
+        # Check users' locks
+        if gid not in glovar.user_ids[uid]["locked"]:
+            try:
+                glovar.user_ids[uid]["locked"].add(gid)
+                if gid not in glovar.user_ids[uid]["ban"]:
+                    if glovar.user_ids[uid]["warn"].get(gid, 0):
+                        glovar.user_ids[uid]["warn"].pop(gid, 0)
+                        text = (f"用户：{user_mention(uid)}\n"
+                                f"结果：{code('已清空警告')}\n")
+                        result = True
+                    elif gid in glovar.user_ids[uid]["waiting"]:
+                        glovar.user_ids[uid]["waiting"].discard(gid)
+                        save("user_ids")
+                        text = (f"用户：{user_mention(uid)}\n"
+                                f"结果：{code('已重置举报状态')}\n")
+                        return text, True
+                    else:
+                        text = (f"用户：{user_mention(uid)}\n"
+                                f"结果：{code('未操作')}\n"
+                                f"原因：{code('未在记录列表中')}\n")
+                        return text, False
+                else:
+                    glovar.user_ids[uid]["ban"].discard(gid)
+                    thread(unban_chat_member, (client, gid, uid))
+                    text = (f"用户：{user_mention(uid)}\n"
+                            f"结果：{code('已解禁')}\n")
+                    result = True
 
-        update_score(client, uid)
-        text += f"管理员：{code(aid)}\n"
+                update_score(client, uid)
+                text += f"管理员：{code(aid)}\n"
+            finally:
+                glovar.user_ids[uid]["locked"].discard(gid)
     except Exception as e:
         logger.warning(f"Forgive user error: {e}")
 
@@ -316,60 +328,66 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
     try:
         gid = message.chat.id
         init_user_id(uid)
-        if gid not in glovar.user_ids[uid]["ban"]:
-            result = forward_evidence(client, message.reply_to_message, "警告用户", "群管自行操作")
-            if result:
-                if not glovar.user_ids[uid]["warn"].get(gid, 0):
-                    glovar.user_ids[uid]["warn"][gid] = 1
-                    update_score(client, uid)
+        # Check users' locks
+        if gid not in glovar.user_ids[uid]["locked"]:
+            try:
+                glovar.user_ids[uid]["locked"].add(gid)
+                if gid not in glovar.user_ids[uid]["ban"]:
+                    result = forward_evidence(client, message.reply_to_message, "警告用户", "群管自行操作")
+                    if result:
+                        if not glovar.user_ids[uid]["warn"].get(gid, 0):
+                            glovar.user_ids[uid]["warn"][gid] = 1
+                            update_score(client, uid)
+                        else:
+                            glovar.user_ids[uid]["warn"][gid] += 1
+
+                        warn_count = glovar.user_ids[uid]["warn"][gid]
+                        limit = glovar.configs[gid]["limit"]
+                        if warn_count >= limit:
+                            ban_user(client, message, uid, aid)
+                            text = (f"已封禁用户：{user_mention(uid)}\n"
+                                    f"原因：{code('警告次数达到上限')}\n")
+                            data = button_data("undo", "ban", uid)
+                            markup = InlineKeyboardMarkup(
+                                [
+                                    [
+                                        InlineKeyboardButton(
+                                            "解禁",
+                                            callback_data=data
+                                        )
+                                    ]
+                                ]
+                            )
+                        else:
+                            text = (f"已警告用户：{user_mention(uid)}\n"
+                                    f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
+                            data = button_data("undo", "warn", uid)
+                            markup = InlineKeyboardMarkup(
+                                [
+                                    [
+                                        InlineKeyboardButton(
+                                            "撤销",
+                                            callback_data=data
+                                        )
+                                    ]
+                                ]
+                            )
+
+                        text += (f"消息存放："
+                                 f"{general_link(result.message_id, message_link(result))}\n")
+                        send_debug(client, message, "警告", uid, aid, result)
+                    else:
+                        text += (f"用户：{user_mention(uid)}\n"
+                                 f"结果：{code('未操作')}\n"
+                                 f"原因：{code('消息已被删除')}\n")
                 else:
-                    glovar.user_ids[uid]["warn"][gid] += 1
+                    text += (f"用户：{user_mention(uid)}\n"
+                             f"结果：{code('未操作')}\n"
+                             f"原因：{code('已在封禁列表中')}\n")
 
-                warn_count = glovar.user_ids[uid]["warn"][gid]
-                limit = glovar.configs[gid]["limit"]
-                if warn_count >= limit:
-                    ban_user(client, message, uid, aid)
-                    text = (f"已封禁用户：{user_mention(uid)}\n"
-                            f"原因：{code('警告次数达到上限')}\n")
-                    data = button_data("undo", "ban", uid)
-                    markup = InlineKeyboardMarkup(
-                        [
-                            [
-                                InlineKeyboardButton(
-                                    "解禁",
-                                    callback_data=data
-                                )
-                            ]
-                        ]
-                    )
-                else:
-                    text = (f"已警告用户：{user_mention(uid)}\n"
-                            f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
-                    data = button_data("undo", "warn", uid)
-                    markup = InlineKeyboardMarkup(
-                        [
-                            [
-                                InlineKeyboardButton(
-                                    "撤销",
-                                    callback_data=data
-                                )
-                            ]
-                        ]
-                    )
-
-                text += (f"消息存放："
-                         f"{general_link(result.message_id, message_link(result))}\n")
-                send_debug(client, message, "警告", uid, aid, result)
-            else:
-                text += (f"用户：{user_mention(uid)}\n"
-                         f"结果：{code('未操作')}\n"
-                         f"原因：{code('消息已被删除')}\n")
-        else:
-            text += (f"用户：{user_mention(uid)}\n"
-                     f"结果：{code('未操作')}\n"
-                     f"原因：{code('已在封禁列表中')}\n")
-
-        text += f"管理员：{code(aid)}\n"
+                text += f"管理员：{code(aid)}\n"
+            finally:
+                glovar.user_ids[uid]["locked"].discard(gid)
     except Exception as e:
         logger.warning(f"Warn user error: {e}", exc_info=True)
 
