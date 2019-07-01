@@ -190,8 +190,6 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
             # Check users' locks
             if gid not in glovar.user_ids[uid]["locked"] and gid not in glovar.user_ids[rid]["locked"]:
                 try:
-                    glovar.user_ids[rid]["locked"].add(gid)
-                    glovar.user_ids[uid]["locked"].add(gid)
                     if action_type == "ban":
                         text, markup = ban_user(client, message, uid, aid)
                         thread(delete_message, (client, gid, r_mid))
