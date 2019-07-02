@@ -156,7 +156,6 @@ def config_warn(client: Client, message: Message):
         mid = message.message_id
         if is_class_c(None, message):
             aid = message.from_user.id
-            command_list = message.command
             success = True
             reason = "已更新"
             new_config = deepcopy(glovar.configs[gid])
@@ -166,7 +165,6 @@ def config_warn(client: Client, message: Message):
             if command_type:
                 now = int(time())
                 if now - new_config["lock"] > 360:
-                    command_type = list(filter(None, command_list))[1]
                     if command_type == "show":
                         text += (f"操作：{code('查看设置')}\n"
                                  f"设置：{code((lambda x: '默认' if x else '自定义')(new_config['default']))}\n"
