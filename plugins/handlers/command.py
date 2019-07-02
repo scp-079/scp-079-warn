@@ -21,7 +21,7 @@ import re
 from time import time
 from copy import deepcopy
 
-from pyrogram import Client, Filters
+from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["admin", "admins"], glovar.prefix))
-def admin(client, message):
+def admin(client: Client, message: Message):
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -83,7 +83,7 @@ def admin(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["ban"], glovar.prefix))
-def ban(client, message):
+def ban(client: Client, message: Message):
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -111,7 +111,7 @@ def ban(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["config"], glovar.prefix))
-def config(client, message):
+def config(client: Client, message: Message):
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -150,7 +150,7 @@ def config(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["config_warn"], glovar.prefix))
-def config_warn(client, message):
+def config_warn(client: Client, message: Message):
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -254,7 +254,7 @@ def config_warn(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["forgive"], glovar.prefix))
-def forgive(client, message):
+def forgive(client: Client, message: Message):
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -282,7 +282,7 @@ def forgive(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["report"], glovar.prefix))
-def report(client, message):
+def report(client: Client, message: Message):
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -349,7 +349,7 @@ def report(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["undo"], glovar.prefix))
-def undo(client, message):
+def undo(client: Client, message: Message):
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -383,7 +383,7 @@ def undo(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & test_group
                    & Filters.command(["version"], glovar.prefix))
-def version(client, message):
+def version(client: Client, message: Message):
     try:
         cid = message.chat.id
         aid = message.from_user.id
@@ -397,7 +397,7 @@ def version(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["warn"], glovar.prefix))
-def warn(client, message):
+def warn(client: Client, message: Message):
     try:
         gid = message.chat.id
         mid = message.message_id

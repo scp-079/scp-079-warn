@@ -22,6 +22,7 @@ from typing import Union
 from pyrogram import CallbackQuery, Filters, Message
 
 from .. import glovar
+from .etc import get_id
 from .ids import init_group_id
 
 # Enable logging
@@ -31,14 +32,8 @@ logger = logging.getLogger(__name__)
 def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the user who sent the message is Class C personnel
     try:
-        if update.from_user:
-            if isinstance(update, CallbackQuery):
-                message = update.message
-            else:
-                message = update
-
-            uid = update.from_user.id
-            gid = message.chat.id
+        gid, uid = get_id(update)
+        if gid and uid:
             if init_group_id(gid):
                 if uid in glovar.admin_ids.get(gid, set()) or uid in glovar.bot_ids or update.from_user.is_self:
                     return True

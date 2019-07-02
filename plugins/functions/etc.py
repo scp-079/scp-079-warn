@@ -24,7 +24,7 @@ from threading import Thread, Timer
 from time import sleep
 from typing import Callable, List, Optional, Union
 
-from pyrogram import InlineKeyboardMarkup, Message, User
+from pyrogram import CallbackQuery, InlineKeyboardMarkup, Message, User
 from pyrogram.errors import FloodWait
 
 # Enable logging
@@ -193,6 +193,25 @@ def get_full_name(user: User) -> str:
         logger.warning(f"Get full name error: {e}", exc_info=True)
 
     return text
+
+
+def get_id(update: Union[CallbackQuery, Message]) -> (int, int):
+    # Check update's chat_id and user_id
+    cid = 0
+    uid = 0
+    try:
+        if update.from_user:
+            if isinstance(update, CallbackQuery):
+                message = update.message
+            else:
+                message = update
+
+            cid = message.chat.id
+            uid = update.from_user.id
+    except Exception as e:
+        logger.warning(f"Get id error: {e}", exc_info=True)
+
+    return cid, uid
 
 
 def get_text(message: Message) -> str:
