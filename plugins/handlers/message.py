@@ -89,7 +89,7 @@ def init_group(client, message):
 
         thread(send_message, (client, glovar.debug_channel_id, text))
     except Exception as e:
-        logger.warning(f"Auto report error: {e}", exc_info=True)
+        logger.warning(f"Init group error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.channel & exchange_channel
