@@ -72,4 +72,4 @@ def leave_group(client: Client, gid: int) -> bool:
     except Exception as e:
         logger.warning(f"Leave group error: {e}", exc_info=True)
 
-    return True
+    return False
