@@ -342,6 +342,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                         warn_count = glovar.user_ids[uid]["warn"][gid]
                         limit = glovar.configs[gid]["limit"]
                         if warn_count >= limit:
+                            glovar.user_ids[uid]["locked"].discard(gid)
                             ban_user(client, message, uid, aid)
                             text = (f"已封禁用户：{user_mention(uid)}\n"
                                     f"原因：{code('警告次数达到上限')}\n")
