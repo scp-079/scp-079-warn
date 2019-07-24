@@ -19,8 +19,8 @@ See [this article](https://scp-079.org/warn/).
 
 ## Requirements
 
-- Python 3.6 or higher.
-- `requirements.txt` ： APScheduler pyAesCrypt pyrogram[fast]
+- Python 3.6 or higher
+- pip: `pip install -r requirements.txt` or `pip install -U APScheduler pyAesCrypt pyrogram[fast]`
 
 ## Files
 

@@ -19,7 +19,7 @@
 import logging
 from typing import Iterable, List, Optional, Union
 
-from pyrogram import Chat, ChatMember, Client, InlineKeyboardMarkup, Message, Messages
+from pyrogram import Chat, ChatMember, Client, InlineKeyboardMarkup, Message
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 
 from .. import glovar
@@ -153,7 +153,7 @@ def get_group_info(client: Client, chat: Union[int, Chat]) -> (str, str):
     return group_name, group_link
 
 
-def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[Messages]:
+def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List[Message]]:
     # Get some messages
     result = None
     try:

@@ -49,7 +49,7 @@ def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
         mids = [mid]
         result = get_messages(client, gid, mids)
         if result:
-            result = result.messages[0]
+            result = result[0]
     except Exception as e:
         logger.warning(f"Get message error: {e}", exc_info=True)
 
