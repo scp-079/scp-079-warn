@@ -53,7 +53,7 @@ default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
 
 default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
     "ban": set(),
-    "locked": set(),
+    "lock": set(),
     "score": 0,
     "warn": {},
     "waiting": set()
@@ -80,7 +80,7 @@ sender: str = "WARN"
 
 should_hide: bool = False
 
-version: str = "0.2.6"
+version: str = "0.2.7"
 
 # Read data from config.ini
 
@@ -102,6 +102,7 @@ user_id: int = 0
 warn_id: int = 0
 
 # [channels]
+critical_channel_id: int = 0
 debug_channel_id: int = 0
 exchange_channel_id: int = 0
 hide_channel_id: int = 0
@@ -136,6 +137,7 @@ try:
     user_id = int(config["bots"].get("user_id", user_id))
     warn_id = int(config["bots"].get("warn_id", warn_id))
     # [channels]
+    critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
@@ -165,6 +167,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or tip_id == 0
         or user_id == 0
         or warn_id == 0
+        or critical_channel_id == 0
         or debug_channel_id == 0
         or exchange_channel_id == 0
         or hide_channel_id == 0
@@ -203,7 +206,7 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 # user_ids = {
 #     12345678: {
 #         "ban": {-10012345678},
-#         "locked": {-10012345678},
+#         "lock": {-10012345678},
 #         "score": 1,
 #         "warn": {
 #             -10012345678: 0
@@ -219,7 +222,7 @@ configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 #     -10012345678: {
 #         "default": True,
 #         "limit": 3,
-#         "locked": 0,
+#         "lock": 0,
 #         "mention": False,
 #         "report": {
 #             "auto": False,

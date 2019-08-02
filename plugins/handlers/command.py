@@ -261,7 +261,7 @@ def forgive(client: Client, message: Message):
             uid, _ = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
                 text, result = forgive_user(client, gid, uid, aid)
-                glovar.user_ids[uid]["locked"].discard(gid)
+                glovar.user_ids[uid]["lock"].discard(gid)
                 save("user_ids")
                 if result:
                     secs = 180

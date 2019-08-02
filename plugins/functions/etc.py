@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from html import escape
 from json import dumps, loads
 from random import choice, uniform
 from string import ascii_letters, digits
 from threading import Thread, Timer
 from time import sleep
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 from pyrogram import CallbackQuery, InlineKeyboardMarkup, Message, User
 from pyrogram.errors import FloodWait
@@ -31,12 +32,12 @@ from pyrogram.errors import FloodWait
 logger = logging.getLogger(__name__)
 
 
-def bold(text) -> str:
+def bold(text: Any) -> str:
     # Get a bold text
     try:
         text = str(text)
         if text.strip():
-            return f"**{text}**"
+            return f"<b>{escape(str(text))}</b>"
     except Exception as e:
         logger.warning(f"Bold error: {e}", exc_info=True)
 
@@ -59,24 +60,24 @@ def button_data(action: str, action_type: str = None, data: Union[int, str] = No
     return result
 
 
-def code(text) -> str:
+def code(text: Any) -> str:
     # Get a code text
     try:
         text = str(text)
         if text.strip():
-            return f"`{text}`"
+            return f"<code>{escape(str(text))}</code>"
     except Exception as e:
         logger.warning(f"Code error: {e}", exc_info=True)
 
     return ""
 
 
-def code_block(text) -> str:
+def code_block(text: Any) -> str:
     # Get a code block text
     try:
         text = str(text)
         if text.strip():
-            return f"```{text}```"
+            return f"<pre>{escape(str(text))}</pre>"
     except Exception as e:
         logger.warning(f"Code block error: {e}", exc_info=True)
 
@@ -100,7 +101,7 @@ def general_link(text: Union[int, str], link: str) -> str:
     # Get a general markdown link
     result = ""
     try:
-        result = f"[{text}]({link})"
+        result = f'<a href="{link}">{escape(str(text))}</a>'
     except Exception as e:
         logger.warning(f"General link error: {e}", exc_info=True)
 
@@ -269,7 +270,7 @@ def user_mention(uid: int) -> str:
     # Get a mention text
     text = ""
     try:
-        text = f"[{uid}](tg://user?id={uid})"
+        text = general_link(f"{uid}", f"tg://user?id={uid}")
     except Exception as e:
         logger.warning(f"User mention error: {e}", exc_info=True)
 

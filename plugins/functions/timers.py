@@ -112,7 +112,7 @@ def update_admins(client: Client) -> bool:
                                   f"状态：{code(reason_text)}\n")
                     thread(send_message, (client, glovar.debug_channel_id, debug_text))
         except Exception as e:
-            logger.warning(f"Update admin in {gid} error: {e}")
+            logger.warning(f"Update admin in {gid} error: {e}", exc_info=True)
 
     return True
 
@@ -128,6 +128,6 @@ def update_status(client: Client) -> bool:
         )
         return True
     except Exception as e:
-        logger.warning(f"Update status error: {e}")
+        logger.warning(f"Update status error: {e}", exc_info=True)
 
     return False

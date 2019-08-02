@@ -36,7 +36,7 @@ from .telegram import edit_message_text, kick_chat_member, unban_chat_member
 logger = logging.getLogger(__name__)
 
 
-def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, InlineKeyboardMarkup):
+def ban_user(client: Client, message: Message, uid: int, aid: int, result: int = 0) -> (str, InlineKeyboardMarkup):
     # Ban a user
     text = ""
     markup = None
@@ -44,11 +44,13 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
         gid = message.chat.id
         init_user_id(uid)
         # Check users' locks
-        if gid not in glovar.user_ids[uid]["locked"]:
+        if gid not in glovar.user_ids[uid]["lock"]:
             try:
-                glovar.user_ids[uid]["locked"].add(gid)
+                glovar.user_ids[uid]["lock"].add(gid)
                 if gid not in glovar.user_ids[uid]["ban"]:
-                    result = forward_evidence(client, message.reply_to_message, "封禁用户", "群管自行操作")
+                    if not result:
+                        result = forward_evidence(client, message.reply_to_message, "封禁用户", "群管自行操作")
+
                     if result:
                         thread(kick_chat_member, (client, gid, uid))
                         glovar.user_ids[uid]["ban"].add(gid)
@@ -81,7 +83,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inli
 
                 text += f"管理员：{code(aid)}\n"
             finally:
-                glovar.user_ids[uid]["locked"].discard(gid)
+                glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
         logger.warning(f"Ban user error: {e}", exc_info=True)
 
@@ -95,9 +97,9 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
     try:
         init_user_id(uid)
         # Check users' locks
-        if gid not in glovar.user_ids[uid]["locked"]:
+        if gid not in glovar.user_ids[uid]["lock"]:
             try:
-                glovar.user_ids[uid]["locked"].add(gid)
+                glovar.user_ids[uid]["lock"].add(gid)
                 if gid not in glovar.user_ids[uid]["ban"]:
                     if glovar.user_ids[uid]["warn"].get(gid, 0):
                         glovar.user_ids[uid]["warn"].pop(gid, 0)
@@ -125,7 +127,7 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
                 update_score(client, uid)
                 text += f"管理员：{code(aid)}\n"
             finally:
-                glovar.user_ids[uid]["locked"].discard(gid)
+                glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
         logger.warning(f"Forgive user error: {e}")
 
@@ -188,7 +190,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
             init_user_id(rid)
             init_user_id(uid)
             # Check users' locks
-            if gid not in glovar.user_ids[uid]["locked"] and gid not in glovar.user_ids[rid]["locked"]:
+            if gid not in glovar.user_ids[uid]["lock"] and gid not in glovar.user_ids[rid]["lock"]:
                 try:
                     if action_type == "ban":
                         text, markup = ban_user(client, message, uid, aid)
@@ -228,8 +230,8 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                     delay(secs, delete_message, [client, gid, mid])
                 # Finally, release the lock and reset the report status
                 finally:
-                    glovar.user_ids[uid]["locked"].discard(gid)
-                    glovar.user_ids[rid]["locked"].discard(gid)
+                    glovar.user_ids[uid]["lock"].discard(gid)
+                    glovar.user_ids[rid]["lock"].discard(gid)
                     glovar.user_ids[uid]["waiting"].discard(gid)
                     glovar.user_ids[rid]["waiting"].discard(gid)
                     save("user_ids")
@@ -262,7 +264,7 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
     markup = None
     try:
         glovar.user_ids[uid]["waiting"].add(gid)
-        glovar.user_ids[rid]["waiting"].add(rid)
+        glovar.user_ids[rid]["waiting"].add(gid)
         save("user_ids")
         report_key = random_str(8)
         while glovar.report_records.get(report_key):
@@ -327,9 +329,9 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
         gid = message.chat.id
         init_user_id(uid)
         # Check users' locks
-        if gid not in glovar.user_ids[uid]["locked"]:
+        if gid not in glovar.user_ids[uid]["lock"]:
             try:
-                glovar.user_ids[uid]["locked"].add(gid)
+                glovar.user_ids[uid]["lock"].add(gid)
                 if gid not in glovar.user_ids[uid]["ban"]:
                     result = forward_evidence(client, message.reply_to_message, "警告用户", "群管自行操作")
                     if result:
@@ -342,10 +344,10 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                         warn_count = glovar.user_ids[uid]["warn"][gid]
                         limit = glovar.configs[gid]["limit"]
                         if warn_count >= limit:
-                            glovar.user_ids[uid]["locked"].discard(gid)
-                            ban_user(client, message, uid, aid)
+                            glovar.user_ids[uid]["lock"].discard(gid)
+                            ban_user(client, message, uid, aid, result)
                             text = (f"已封禁用户：{user_mention(uid)}\n"
-                                    f"原因：{code('警告次数达到上限')}\n")
+                                    f"自动封禁原因：{code('警告次数达到上限')}\n")
                             data = button_data("undo", "ban", uid)
                             markup = InlineKeyboardMarkup(
                                 [
@@ -386,7 +388,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
 
                 text += f"管理员：{code(aid)}\n"
             finally:
-                glovar.user_ids[uid]["locked"].discard(gid)
+                glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
         logger.warning(f"Warn user error: {e}", exc_info=True)
 
@@ -419,9 +421,9 @@ def undo_user(client: Client, gid: int, aid: int, uid: int, mid: int, action_typ
     try:
         init_user_id(uid)
         # Check the user's lock
-        if gid not in glovar.user_ids[uid]["locked"]:
+        if gid not in glovar.user_ids[uid]["lock"]:
             try:
-                glovar.user_ids[uid]["locked"].add(gid)
+                glovar.user_ids[uid]["lock"].add(gid)
                 if action_type == "ban":
                     text = unban_user(client, gid, uid, aid)
                 else:
@@ -429,7 +431,7 @@ def undo_user(client: Client, gid: int, aid: int, uid: int, mid: int, action_typ
 
                 thread(edit_message_text, (client, gid, mid, text))
             finally:
-                glovar.user_ids[uid]["locked"].discard(gid)
+                glovar.user_ids[uid]["lock"].discard(gid)
                 save("user_ids")
 
             result = ""

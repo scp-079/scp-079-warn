@@ -29,7 +29,7 @@ from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel, new_group
 from ..functions.group import leave_group
 from ..functions.ids import init_group_id, init_user_id
-from ..functions.telegram import get_admins, leave_chat, send_message, send_report_message
+from ..functions.telegram import get_admins, send_message, send_report_message
 from ..functions.user import report_user
 
 # Enable logging
@@ -64,6 +64,10 @@ def init_group(client, message):
         text = get_debug_text(client, message.chat)
         # Check permission
         if invited_by == glovar.user_id:
+            # Remove the left status
+            if gid in glovar.left_group_ids:
+                glovar.left_group_ids.discard(gid)
+
             # Update group's admin list
             if init_group_id(gid):
                 admin_members = get_admins(client, gid)
@@ -77,12 +81,10 @@ def init_group(client, message):
                     text += (f"状态：{code('已退出群组')}\n"
                              f"原因：{code('获取管理员列表失败')}\n")
         else:
-            thread(leave_chat, (client, gid))
             if gid in glovar.left_group_ids:
-                return
-            else:
-                glovar.left_group_ids.add(gid)
+                return leave_group(client, gid)
 
+            leave_group(client, gid)
             text += (f"状态：{code('已退出群组')}\n"
                      f"原因：{code('未授权使用')}\n"
                      f"邀请人：{user_mention(invited_by)}\n")
