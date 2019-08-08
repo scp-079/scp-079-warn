@@ -345,20 +345,9 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                         limit = glovar.configs[gid]["limit"]
                         if warn_count >= limit:
                             glovar.user_ids[uid]["lock"].discard(gid)
-                            ban_user(client, message, uid, aid, result)
+                            _, markup = ban_user(client, message, uid, aid, result)
                             text = (f"已封禁用户：{user_mention(uid)}\n"
                                     f"自动封禁原因：{code('警告次数达到上限')}\n")
-                            data = button_data("undo", "ban", uid)
-                            markup = InlineKeyboardMarkup(
-                                [
-                                    [
-                                        InlineKeyboardButton(
-                                            "解禁",
-                                            callback_data=data
-                                        )
-                                    ]
-                                ]
-                            )
                         else:
                             text = (f"已警告用户：{user_mention(uid)}\n"
                                     f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
@@ -373,10 +362,10 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                                     ]
                                 ]
                             )
+                            send_debug(client, message, "警告", uid, aid, result)
 
                         text += (f"消息存放："
                                  f"{general_link(result.message_id, message_link(result))}\n")
-                        send_debug(client, message, "警告", uid, aid, result)
                     else:
                         text += (f"用户：{user_mention(uid)}\n"
                                  f"结果：{code('未操作')}\n"
