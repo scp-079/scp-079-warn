@@ -294,6 +294,8 @@ def report(client: Client, message: Message):
                 if (uid
                         and uid != rid
                         and uid not in glovar.admin_ids[gid]
+                        and gid not in glovar.user_ids[rid]["lock"]
+                        and gid not in glovar.user_ids[uid]["lock"]
                         and gid not in glovar.user_ids[rid]["waiting"]
                         and gid not in glovar.user_ids[uid]["waiting"]
                         and gid not in glovar.user_ids[uid]["ban"]):

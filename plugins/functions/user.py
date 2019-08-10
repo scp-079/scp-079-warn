@@ -45,8 +45,8 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
         init_user_id(uid)
         # Check users' locks
         if gid not in glovar.user_ids[uid]["lock"]:
+            glovar.user_ids[uid]["lock"].add(gid)
             try:
-                glovar.user_ids[uid]["lock"].add(gid)
                 if gid not in glovar.user_ids[uid]["ban"]:
                     if not result:
                         result = forward_evidence(client, message.reply_to_message, "封禁用户", "群管自行操作")
@@ -98,8 +98,8 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
         init_user_id(uid)
         # Check users' locks
         if gid not in glovar.user_ids[uid]["lock"]:
+            glovar.user_ids[uid]["lock"].add(gid)
             try:
-                glovar.user_ids[uid]["lock"].add(gid)
                 if gid not in glovar.user_ids[uid]["ban"]:
                     if glovar.user_ids[uid]["warn"].get(gid, 0):
                         glovar.user_ids[uid]["warn"].pop(gid, 0)
@@ -330,8 +330,8 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
         init_user_id(uid)
         # Check users' locks
         if gid not in glovar.user_ids[uid]["lock"]:
+            glovar.user_ids[uid]["lock"].add(gid)
             try:
-                glovar.user_ids[uid]["lock"].add(gid)
                 if gid not in glovar.user_ids[uid]["ban"]:
                     result = forward_evidence(client, message.reply_to_message, "警告用户", "群管自行操作")
                     if result:
@@ -344,6 +344,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                         warn_count = glovar.user_ids[uid]["warn"][gid]
                         limit = glovar.configs[gid]["limit"]
                         if warn_count >= limit:
+                            # Need to unlock the user before banning
                             glovar.user_ids[uid]["lock"].discard(gid)
                             _, markup = ban_user(client, message, uid, aid, result)
                             text = (f"已封禁用户：{user_mention(uid)}\n"
@@ -411,8 +412,8 @@ def undo_user(client: Client, gid: int, aid: int, uid: int, mid: int, action_typ
         init_user_id(uid)
         # Check the user's lock
         if gid not in glovar.user_ids[uid]["lock"]:
+            glovar.user_ids[uid]["lock"].add(gid)
             try:
-                glovar.user_ids[uid]["lock"].add(gid)
                 if action_type == "ban":
                     text = unban_user(client, gid, uid, aid)
                 else:
