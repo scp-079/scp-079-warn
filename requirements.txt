@@ -7,7 +7,7 @@ pyAesCrypt==0.4.3
 pycparser==2.19
 Pyrogram==0.15.1
 PySocks==1.7.0
-pytz==2019.1
+pytz==2019.2
 six==1.12.0
 TgCrypto==1.2.0
-tzlocal==1.5.1
+tzlocal==2.0.0
