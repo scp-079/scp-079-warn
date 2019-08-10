@@ -101,21 +101,22 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
             glovar.user_ids[uid]["lock"].add(gid)
             try:
                 if gid not in glovar.user_ids[uid]["ban"]:
+                    text += f"管理员：{code(aid)}\n"
                     if glovar.user_ids[uid]["warn"].get(gid, 0):
                         glovar.user_ids[uid]["warn"].pop(gid, 0)
                         text = (f"用户：{user_mention(uid)}\n"
-                                f"结果：{code('已清空警告')}\n")
+                                f"结果：{code('已清空警告')}\n") + text
                         result = True
                     elif gid in glovar.user_ids[uid]["waiting"]:
                         glovar.user_ids[uid]["waiting"].discard(gid)
                         save("user_ids")
                         text = (f"用户：{user_mention(uid)}\n"
-                                f"结果：{code('已重置举报状态')}\n")
+                                f"结果：{code('已重置举报状态')}\n") + text
                         return text, True
                     else:
                         text = (f"用户：{user_mention(uid)}\n"
                                 f"结果：{code('未操作')}\n"
-                                f"原因：{code('未在记录列表中')}\n")
+                                f"原因：{code('未在记录列表中')}\n") + text
                         return text, False
                 else:
                     glovar.user_ids[uid]["ban"].discard(gid)
@@ -125,7 +126,6 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
                     result = True
 
                 update_score(client, uid)
-                text += f"管理员：{code(aid)}\n"
             finally:
                 glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
