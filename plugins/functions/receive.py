@@ -103,14 +103,16 @@ def receive_leave_approve(client: Client, data: dict) -> bool:
         admin_id = data["admin_id"]
         the_id = data["group_id"]
         reason = data["reason"]
-        text = get_debug_text(client, the_id)
-        text += (f"项目管理员：{user_mention(admin_id)}\n"
-                 f"状态：{code('已批准退出该群组')}\n")
-        if reason:
-            text += f"原因：{code(reason)}\n"
 
-        leave_group(client, the_id)
-        thread(send_message, (client, glovar.debug_channel_id, text))
+        if glovar.admin_ids.get(the_id, {}):
+            text = get_debug_text(client, the_id)
+            text += (f"项目管理员：{user_mention(admin_id)}\n"
+                     f"状态：{code('已批准退出该群组')}\n")
+            if reason:
+                text += f"原因：{code(reason)}\n"
+
+            leave_group(client, the_id)
+            thread(send_message, (client, glovar.debug_channel_id, text))
 
         return True
     except Exception as e:
