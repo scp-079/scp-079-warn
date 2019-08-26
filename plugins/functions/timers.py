@@ -56,6 +56,22 @@ def backup_files(client: Client) -> bool:
     return False
 
 
+def interval_one_hour() -> bool:
+    # Execute every hour
+    try:
+        user_list = list(glovar.user_ids)
+        for uid in user_list:
+            glovar.user_ids[uid]["waiting"] = {}
+
+        save("user_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Interval one hour error: {e}", exc_info=True)
+
+    return False
+
+
 def reset_data() -> bool:
     # Reset user data every month
     try:
