@@ -75,11 +75,14 @@ def is_hide_channel(_, message: Message) -> bool:
 def is_new_group(_, message: Message) -> bool:
     # Check if the bot joined a new group
     try:
-        new_users = message.new_chat_members
-        if new_users:
-            for user in new_users:
-                if user.is_self:
-                    return True
+        if message.new_chat_members:
+            new_users = message.new_chat_members
+            if new_users:
+                for user in new_users:
+                    if user.is_self:
+                        return True
+        elif message.group_chat_created or message.supergroup_chat_created:
+            return True
     except Exception as e:
         logger.warning(f"Is new group error: {e}", exc_info=True)
 

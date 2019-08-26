@@ -42,6 +42,7 @@ logger = logging.getLogger(__name__)
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["admin", "admins"], glovar.prefix))
 def admin(client: Client, message: Message):
+    # Mention admins
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -84,6 +85,7 @@ def admin(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["ban"], glovar.prefix))
 def ban(client: Client, message: Message):
+    # Ban users
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -112,6 +114,7 @@ def ban(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["config"], glovar.prefix))
 def config(client: Client, message: Message):
+    # Request CONFIG session
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -151,6 +154,7 @@ def config(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["config_warn"], glovar.prefix))
 def config_warn(client: Client, message: Message):
+    # Config the bot directly
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -253,6 +257,7 @@ def config_warn(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["forgive"], glovar.prefix))
 def forgive(client: Client, message: Message):
+    # Forgive users
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -281,6 +286,7 @@ def forgive(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["report"], glovar.prefix))
 def report(client: Client, message: Message):
+    # Report spam messages
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -350,6 +356,7 @@ def report(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["undo"], glovar.prefix))
 def undo(client: Client, message: Message):
+    # Undo operations
     try:
         gid = message.chat.id
         mid = message.message_id
@@ -384,6 +391,7 @@ def undo(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & test_group
                    & Filters.command(["version"], glovar.prefix))
 def version(client: Client, message: Message):
+    # Check the program's version
     try:
         cid = message.chat.id
         aid = message.from_user.id
@@ -398,6 +406,7 @@ def version(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["warn"], glovar.prefix))
 def warn(client: Client, message: Message):
+    # Warn users
     try:
         gid = message.chat.id
         mid = message.message_id

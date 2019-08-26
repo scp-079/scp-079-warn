@@ -28,13 +28,6 @@ from plugins import glovar
 from plugins.functions.timers import backup_files, reset_data, update_admins, update_status
 
 # Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.WARNING,
-    filename='log',
-    filemode='w'
-)
-
 logger = logging.getLogger(__name__)
 
 # Start

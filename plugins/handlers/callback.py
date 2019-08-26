@@ -19,7 +19,7 @@
 import logging
 from json import loads
 
-from pyrogram import Client
+from pyrogram import CallbackQuery, Client
 
 from ..functions.etc import thread
 from ..functions.filters import class_c
@@ -31,7 +31,8 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_callback_query(class_c)
-def answer(client, callback_query):
+def answer(client: Client, callback_query: CallbackQuery):
+    # Answer the callback query
     try:
         # Basic callback data
         gid = callback_query.message.chat.id

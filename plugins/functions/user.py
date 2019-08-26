@@ -20,7 +20,7 @@ import logging
 from random import sample
 from typing import Optional
 
-from pyrogram import Client, Message, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import ask_for_help, forward_evidence, send_debug, update_score

@@ -32,6 +32,7 @@ See [this article](https://scp-079.org/warn/).
         - `filters.py` : Some filters
         - `group.py` : Functions about group
         - `ids.py` : Modify id lists
+        - `receive.py` : Receive data from exchange channel
         - `telegram.py` : Some telegram functions
         - `timers.py` : Timer functions
         - `user.py` : Functions about user

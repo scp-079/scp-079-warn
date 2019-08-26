@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from json import dumps, loads
+from json import dumps
 from time import sleep
 from typing import List, Optional, Union
 
@@ -25,7 +25,7 @@ from pyrogram import Chat, Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, code_block, general_link, get_full_name, get_command_type, get_text, message_link, thread
+from .etc import code, code_block, general_link, get_full_name, get_command_type, message_link, thread
 from .file import crypt_file, delete_file, get_new_path, save
 from .telegram import get_group_info, send_document, send_message
 
@@ -50,6 +50,7 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
             action_type=level,
             data=data
         )
+
         return True
     except Exception as e:
         logger.warning(f"Ask for help error: {e}", exc_info=True)
@@ -72,6 +73,7 @@ def exchange_to_hide(client: Client) -> bool:
                 f"发现状况：{code('数据交换频道失效')}\n"
                 f"自动处理：{code('启用 1 号协议')}\n")
         thread(send_message, (client, glovar.critical_channel_id, text))
+
         return True
     except Exception as e:
         logger.warning(f"Exchange to hide error: {e}", exc_info=True)
@@ -173,19 +175,6 @@ def get_debug_text(client: Client, context: Union[int, Chat]) -> str:
     return text
 
 
-def receive_text_data(message: Message) -> dict:
-    # Receive text's data from exchange channel
-    data = {}
-    try:
-        text = get_text(message)
-        if text:
-            data = loads(text)
-    except Exception as e:
-        logger.warning(f"Receive data error: {e}")
-
-    return data
-
-
 def send_debug(client: Client, message: Message, action: str, uid: int, aid: int, em: Message) -> bool:
     # Send the debug message
     try:
@@ -285,6 +274,7 @@ def update_score(client: Client, uid: int) -> bool:
                 "score": score
             }
         )
+
         return True
     except Exception as e:
         logger.warning(f"Update score error: {e}", exc_info=True)

@@ -16,52 +16,58 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import logging
-from copy import deepcopy
 
-from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.channel import get_debug_text, receive_text_data
+from ..functions.channel import get_debug_text
 from ..functions.etc import code, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel, new_group
 from ..functions.group import leave_group
-from ..functions.ids import init_group_id, init_user_id
-from ..functions.telegram import get_admins, send_message, send_report_message
-from ..functions.user import report_user
+from ..functions.ids import init_group_id
+from ..functions.receive import receive_config_commit, receive_config_reply, receive_help_report, receive_leave_approve
+from ..functions.receive import receive_remove_bad, receive_text_data
+from ..functions.telegram import get_admins, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
-def exchange_emergency(_, message):
+                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
+def exchange_emergency(_: Client, message: Message):
+    # Sent emergency channel transfer request
     try:
         # Read basic information
         data = receive_text_data(message)
-        sender = data["from"]
-        receivers = data["to"]
-        action = data["action"]
-        action_type = data["type"]
-        data = data["data"]
-        if "EMERGENCY" in receivers:
-            if sender == "EMERGENCY":
+        if data:
+            sender = data["from"]
+            receivers = data["to"]
+            action = data["action"]
+            action_type = data["type"]
+            data = data["data"]
+            if "EMERGENCY" in receivers:
                 if action == "backup":
                     if action_type == "hide":
-                        glovar.should_hide = data
+                        if data is True:
+                            glovar.should_hide = data
+                        elif data is False and sender == "MANAGE":
+                            glovar.should_hide = data
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members & new_group)
-def init_group(client, message):
+@Client.on_message(Filters.incoming & Filters.group
+                   & (Filters.new_chat_members | Filters.group_chat_created | Filters.supergroup_chat_created)
+                   & new_group)
+def init_group(client: Client, message: Message):
+    # Initiate new groups
     try:
         gid = message.chat.id
-        invited_by = message.from_user.id
         text = get_debug_text(client, message.chat)
+        invited_by = message.from_user.id
         # Check permission
         if invited_by == glovar.user_id:
             # Remove the left status
@@ -96,7 +102,8 @@ def init_group(client, message):
 
 @Client.on_message(Filters.incoming & Filters.channel & exchange_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def process_data(client, message):
+def process_data(client: Client, message: Message):
+    # Process the data in exchange channel
     try:
         data = receive_text_data(message)
         if data:
@@ -114,62 +121,24 @@ def process_data(client, message):
 
                     if action == "config":
                         if action_type == "commit":
-                            gid = data["group_id"]
-                            config = data["config"]
-                            glovar.configs[gid] = config
-                            save("configs")
+                            receive_config_commit(data)
                         elif action_type == "reply":
-                            gid = data["group_id"]
-                            uid = data["user_id"]
-                            link = data["config_link"]
-                            text = (f"管理员：{user_mention(uid)}\n"
-                                    f"操作：{code('更改设置')}\n"
-                                    f"说明：{code('请点击下方按钮进行设置')}\n")
-                            markup = InlineKeyboardMarkup(
-                                [
-                                    [
-                                        InlineKeyboardButton(
-                                            "前往设置",
-                                            url=link
-                                        )
-                                    ]
-                                ]
-                            )
-                            thread(send_report_message, (180, client, gid, text, None, markup))
+                            receive_config_reply(client, data)
 
                 elif sender == "MANAGE":
 
                     if action == "leave":
-                        the_id = data["group_id"]
-                        reason = data["reason"]
                         if action_type == "approve":
-                            leave_group(client, the_id)
-                            text = get_debug_text(client, the_id)
-                            text += (f"状态：{code('已退出该群组')}\n"
-                                     f"原因：{code(reason)}\n")
-                            thread(send_message, (client, glovar.debug_channel_id, text))
+                            receive_leave_approve(client, data)
 
                     elif action == "remove":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "bad":
-                            if the_type == "user":
-                                if glovar.user_ids.get(the_id):
-                                    glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
-
-                                save("user_ids")
+                            receive_remove_bad(data)
 
                 elif sender == "NOSPAM":
 
                     if action == "help":
                         if action_type == "report":
-                            gid = data["group_id"]
-                            if init_group_id(gid):
-                                if glovar.configs[gid]["report"]["auto"]:
-                                    uid = data["user_id"]
-                                    mid = data["message_id"]
-                                    init_user_id(0)
-                                    text, markup = report_user(gid, uid, 0, mid)
-                                    thread(send_message, (client, gid, text, mid, markup))
+                            receive_help_report(client, data)
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)

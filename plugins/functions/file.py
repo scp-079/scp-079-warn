@@ -80,6 +80,7 @@ def save(file: str) -> bool:
     # Save a global variable to a file
     try:
         thread(save_thread, (file,))
+
         return True
     except Exception as e:
         logger.warning(f"Save error: {e}", exc_info=True)
