@@ -61,7 +61,7 @@ def interval_one_hour() -> bool:
     try:
         user_list = list(glovar.user_ids)
         for uid in user_list:
-            glovar.user_ids[uid]["waiting"] = {}
+            glovar.user_ids[uid]["waiting"] = set()
 
         save("user_ids")
 
