@@ -56,7 +56,7 @@ def backup_files(client: Client) -> bool:
     return False
 
 
-def interval_one_hour() -> bool:
+def interval_hour_one() -> bool:
     # Execute every hour
     try:
         user_list = list(glovar.user_ids)
