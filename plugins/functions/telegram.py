@@ -137,7 +137,7 @@ def get_group_info(client: Client, chat: Union[int, Chat]) -> (str, str):
                     flood_wait = True
                     wait_flood(e)
                 except Exception as e:
-                    logger.warning(f"Get chat {chat} error: {e}")
+                    logger.info(f"Get chat {chat} error: {e}", exc_info=True)
 
             chat = result
 
