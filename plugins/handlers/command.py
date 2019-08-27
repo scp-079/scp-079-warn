@@ -185,7 +185,7 @@ def config_directly(client: Client, message: Message) -> bool:
             command_type, command_context = get_command_context(message)
             if command_type:
                 now = get_now()
-                if now - new_config["lock"] > 360:
+                if now - new_config["lock"] > 310:
                     if command_type == "show":
                         text += (f"操作：{code('查看设置')}\n"
                                  f"设置：{code((lambda x: '默认' if x else '自定义')(new_config['default']))}\n"
