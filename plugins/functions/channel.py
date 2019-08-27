@@ -266,7 +266,7 @@ def update_score(client: Client, uid: int) -> bool:
         save("user_ids")
         share_data(
             client=client,
-            receivers=glovar.receivers_status,
+            receivers=glovar.receivers["score"],
             action="update",
             action_type="score",
             data={

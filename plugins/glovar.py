@@ -81,7 +81,9 @@ report_records: Dict[str, Dict[str, int]] = {}
 #     }
 # }
 
-receivers_status: List[str] = ["CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN", "NOSPAM", "MANAGE", "RECHECK"]
+receivers: Dict[str, List[str]] = {
+    "score": ["CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN", "NOSPAM", "MANAGE", "RECHECK"]
+}
 
 sender: str = "WARN"
 
