@@ -22,7 +22,7 @@ from json import dumps, loads
 from random import choice, uniform
 from string import ascii_letters, digits
 from threading import Thread, Timer
-from time import sleep
+from time import sleep, time
 from typing import Any, Callable, List, Optional, Union
 
 from pyrogram import CallbackQuery, InlineKeyboardMarkup, Message, User
@@ -214,6 +214,17 @@ def get_id(update: Union[CallbackQuery, Message]) -> (int, int):
         logger.warning(f"Get id error: {e}", exc_info=True)
 
     return cid, uid
+
+
+def get_now() -> int:
+    # Get time for now
+    result = 0
+    try:
+        result = int(time())
+    except Exception as e:
+        logger.warning(f"Get now error: {e}", exc_info=True)
+
+    return result
 
 
 def get_text(message: Message) -> str:

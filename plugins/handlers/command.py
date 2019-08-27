@@ -18,7 +18,6 @@
 
 import logging
 import re
-from time import time
 from copy import deepcopy
 
 from pyrogram import Client, Filters, Message
@@ -26,7 +25,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, get_callback_data, get_command_context, get_command_type, get_full_name
-from ..functions.etc import thread, user_mention
+from ..functions.etc import get_now, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import is_class_c, test_group
 from ..functions.group import delete_message, get_message
@@ -121,7 +120,7 @@ def config(client: Client, message: Message):
         if is_class_c(None, message):
             command_list = list(filter(None, message.command))
             if len(command_list) == 2 and re.search("^warn$", command_list[1], re.I):
-                now = int(time())
+                now = get_now()
                 if now - glovar.configs[gid]["lock"] > 360:
                     glovar.configs[gid]["lock"] = now
                     group_name, group_link = get_group_info(client, message.chat)
@@ -167,7 +166,7 @@ def config_warn(client: Client, message: Message):
             # Check command format
             command_type, command_context = get_command_context(message)
             if command_type:
-                now = int(time())
+                now = get_now()
                 if now - new_config["lock"] > 360:
                     if command_type == "show":
                         text += (f"操作：{code('查看设置')}\n"
