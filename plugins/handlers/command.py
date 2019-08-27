@@ -25,7 +25,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, get_callback_data, get_command_context, get_command_type, get_full_name
-from ..functions.etc import get_now, thread, user_mention
+from ..functions.etc import get_int, get_now, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import is_class_c, test_group
 from ..functions.group import delete_message, get_message
@@ -204,15 +204,10 @@ def config_directly(client: Client, message: Message) -> bool:
                         command_context = get_command_context(message)
                         if command_context:
                             if command_type == "limit":
-                                try:
-                                    limit = int(command_context)
-                                    if 2 <= limit <= 5:
-                                        new_config["limit"] = limit
-                                    else:
-                                        success = False
-                                        reason = "数值超过范围"
-                                except Exception as e:
-                                    logger.info(f"Convert limit context error: {e}")
+                                limit = get_int(command_context)
+                                if 2 <= limit <= 5:
+                                    new_config["limit"] = limit
+                                else:
                                     success = False
                                     reason = "错误的数值"
                             elif command_type == "mention":
