@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["admin", "admins"], glovar.prefix))
-def admin(client: Client, message: Message):
+def admin(client: Client, message: Message) -> bool:
     # Mention admins
     try:
         gid = message.chat.id
@@ -77,13 +77,17 @@ def admin(client: Client, message: Message):
                             save("message_ids")
 
         thread(delete_message, (client, gid, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Admin error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["ban"], glovar.prefix))
-def ban(client: Client, message: Message):
+def ban(client: Client, message: Message) -> bool:
     # Ban users
     try:
         gid = message.chat.id
@@ -106,13 +110,17 @@ def ban(client: Client, message: Message):
                     thread(delete_message, (client, gid, re_mid))
 
         thread(delete_message, (client, gid, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Ban error: {e}", exc_info=True)
 
+    return False
 
-@Client.on_message(Filters.incoming & Filters.group
+
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["config"], glovar.prefix))
-def config(client: Client, message: Message):
+def config(client: Client, message: Message) -> bool:
     # Request CONFIG session
     try:
         gid = message.chat.id
@@ -152,13 +160,17 @@ def config(client: Client, message: Message):
                     thread(send_message, (client, glovar.debug_channel_id, text))
 
         thread(delete_message, (client, gid, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["config_warn"], glovar.prefix))
-def config_warn(client: Client, message: Message):
+def config_directly(client: Client, message: Message) -> bool:
     # Config the bot directly
     try:
         gid = message.chat.id
@@ -184,7 +196,7 @@ def config_warn(client: Client, message: Message):
                                  f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}\n")
                         thread(send_report_message, (30, client, gid, text))
                         thread(delete_message, (client, gid, mid))
-                        return
+                        return True
                     elif command_type == "default":
                         if not new_config.get("default"):
                             new_config = deepcopy(glovar.default_config)
@@ -255,13 +267,17 @@ def config_warn(client: Client, message: Message):
             thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
 
         thread(delete_message, (client, gid, mid))
+
+        return True
     except Exception as e:
-        logger.warning(f"Config error: {e}", exc_info=True)
+        logger.warning(f"Config directly error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["forgive"], glovar.prefix))
-def forgive(client: Client, message: Message):
+def forgive(client: Client, message: Message) -> bool:
     # Forgive users
     try:
         gid = message.chat.id
@@ -284,13 +300,17 @@ def forgive(client: Client, message: Message):
                 thread(send_report_message, (secs, client, gid, text, None))
 
         thread(delete_message, (client, gid, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Forgive error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["report"], glovar.prefix))
-def report(client: Client, message: Message):
+def report(client: Client, message: Message) -> bool:
     # Report spam messages
     try:
         gid = message.chat.id
@@ -337,7 +357,7 @@ def report(client: Client, message: Message):
                             report_key = callback_data_list[0]["d"]
                             report_answer(client, r_message, gid, aid, r_message.message_id, command_type, report_key)
                             thread(delete_message, (client, gid, mid))
-                            return
+                            return True
                         else:
                             text += (f"状态：{code('未操作')}\n"
                                      f"原因：{code('来源有误')}\n")
@@ -354,13 +374,17 @@ def report(client: Client, message: Message):
             thread(send_report_message, (15, client, gid, text))
 
         thread(delete_message, (client, gid, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Report error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["undo"], glovar.prefix))
-def undo(client: Client, message: Message):
+def undo(client: Client, message: Message) -> bool:
     # Undo operations
     try:
         gid = message.chat.id
@@ -378,7 +402,7 @@ def undo(client: Client, message: Message):
                         uid = callback_data_list[0]["d"]
                         undo_user(client, gid, aid, uid, r_message.message_id, action_type)
                         thread(delete_message, (client, gid, mid))
-                        return
+                        return True
                     else:
                         text += (f"状态：{code('未操作')}\n"
                                  f"原因：{code('来源有误')}\n")
@@ -389,13 +413,17 @@ def undo(client: Client, message: Message):
                 thread(send_report_message, (15, client, gid, text))
 
         thread(delete_message, (client, gid, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Undo error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & test_group
                    & Filters.command(["version"], glovar.prefix))
-def version(client: Client, message: Message):
+def version(client: Client, message: Message) -> bool:
     # Check the program's version
     try:
         cid = message.chat.id
@@ -404,13 +432,17 @@ def version(client: Client, message: Message):
         text = (f"管理员：{user_mention(aid)}\n\n"
                 f"版本：{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Version error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & Filters.command(["warn"], glovar.prefix))
-def warn(client: Client, message: Message):
+def warn(client: Client, message: Message) -> bool:
     # Warn users
     try:
         gid = message.chat.id
@@ -433,5 +465,9 @@ def warn(client: Client, message: Message):
                     thread(delete_message, (client, gid, re_mid))
 
         thread(delete_message, (client, gid, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Warn error: {e}", exc_info=True)
+
+    return False

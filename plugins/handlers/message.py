@@ -24,7 +24,7 @@ from .. import glovar
 from ..functions.channel import get_debug_text
 from ..functions.etc import code, thread, user_mention
 from ..functions.file import save
-from ..functions.filters import exchange_channel, hide_channel, new_group
+from ..functions.filters import exchange_channel, hide_channel, new_group, test_group
 from ..functions.group import leave_group
 from ..functions.ids import init_group_id
 from ..functions.receive import receive_config_commit, receive_config_reply, receive_help_report, receive_leave_approve
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
-def exchange_emergency(_: Client, message: Message):
+def exchange_emergency(_: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
     try:
         # Read basic information
@@ -55,14 +55,18 @@ def exchange_emergency(_: Client, message: Message):
                             glovar.should_hide = data
                         elif data is False and sender == "MANAGE":
                             glovar.should_hide = data
+
+        return True
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
 
+    return False
 
-@Client.on_message(Filters.incoming & Filters.group
+
+@Client.on_message(Filters.incoming & Filters.group & ~test_group
                    & (Filters.new_chat_members | Filters.group_chat_created | Filters.supergroup_chat_created)
                    & new_group)
-def init_group(client: Client, message: Message):
+def init_group(client: Client, message: Message) -> bool:
     # Initiate new groups
     try:
         gid = message.chat.id
@@ -96,13 +100,17 @@ def init_group(client: Client, message: Message):
                      f"邀请人：{user_mention(invited_by)}\n")
 
         thread(send_message, (client, glovar.debug_channel_id, text))
+
+        return True
     except Exception as e:
         logger.warning(f"Init group error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.channel & exchange_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def process_data(client: Client, message: Message):
+def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel
     try:
         data = receive_text_data(message)
@@ -140,5 +148,9 @@ def process_data(client: Client, message: Message):
                     if action == "help":
                         if action_type == "report":
                             receive_help_report(client, data)
+
+        return True
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)
+
+    return False
