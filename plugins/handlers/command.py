@@ -110,19 +110,24 @@ def ban(client: Client, message: Message):
         logger.warning(f"Ban error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group
                    & Filters.command(["config"], glovar.prefix))
 def config(client: Client, message: Message):
     # Request CONFIG session
     try:
         gid = message.chat.id
         mid = message.message_id
+        # Check permission
         if is_class_c(None, message):
-            command_list = list(filter(None, message.command))
-            if len(command_list) == 2 and re.search("^warn$", command_list[1], re.I):
+            # Check command format
+            command_type = get_command_type(message)
+            if command_type and re.search(f"^{glovar.sender}$", command_type, re.I):
                 now = get_now()
-                if now - glovar.configs[gid]["lock"] > 360:
+                # Check the config lock
+                if now - glovar.configs[gid]["lock"] > 310:
+                    # Set lock
                     glovar.configs[gid]["lock"] = now
+                    # Ask CONFIG generate a config session
                     group_name, group_link = get_group_info(client, message.chat)
                     share_data(
                         client=client,
@@ -140,6 +145,7 @@ def config(client: Client, message: Message):
                             "default": glovar.default_config
                         }
                     )
+                    # Send a report message to debug channel
                     text = get_debug_text(client, message.chat)
                     text += (f"群管理：{code(message.from_user.id)}\n"
                              f"操作：{code('创建设置会话')}\n")
