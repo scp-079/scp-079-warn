@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
-    # Check if the user who sent the message is Class C personnel
+    # Check if the message is Class C object
     try:
         gid, uid = get_id(update)
         if gid and uid:
@@ -44,7 +44,7 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
 
 
 def is_exchange_channel(_, message: Message) -> bool:
-    # Check if the message is sent from the exchange channel
+    # Check if the message is Class D object
     try:
         if message.chat:
             cid = message.chat.id
