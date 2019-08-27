@@ -18,14 +18,13 @@
 
 import logging
 from json import dumps
-from time import sleep
 from typing import List, Optional, Union
 
 from pyrogram import Chat, Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, code_block, general_link, get_full_name, get_command_type, message_link, thread
+from .etc import code, code_block, general_link, get_full_name, get_command_type, message_link, thread, wait_flood
 from .file import crypt_file, delete_file, get_new_path, save
 from .telegram import get_group_info, send_document, send_message
 
@@ -81,7 +80,8 @@ def exchange_to_hide(client: Client) -> bool:
     return False
 
 
-def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
+def format_data(sender: str, receivers: List[str], action: str, action_type: str,
+                data: Union[bool, dict, int, str] = None) -> str:
     # See https://scp-079.org/exchange/
     text = ""
     try:
@@ -143,7 +143,7 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str) ->
                         result = message.forward(glovar.logging_channel_id)
                     except FloodWait as e:
                         flood_wait = True
-                        sleep(e.x + 1)
+                        wait_flood(e)
                     except Exception as e:
                         logger.info(f"Forward evidence message error: {e}", exc_info=True)
                         return False
@@ -198,7 +198,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
     return False
 
 
-def share_data(client: Client, receivers: List[str], action: str, action_type: str, data: Union[dict, int, str],
+def share_data(client: Client, receivers: List[str], action: str, action_type: str, data: Union[bool, dict, int, str],
                file: str = None, encrypt: bool = True) -> bool:
     # Use this function to share data in the exchange channel
     try:
