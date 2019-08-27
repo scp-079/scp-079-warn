@@ -103,6 +103,10 @@ def receive_leave_approve(client: Client, data: dict) -> bool:
         admin_id = data["admin_id"]
         the_id = data["group_id"]
         reason = data["reason"]
+        if reason == "permissions":
+            reason = "权限缺失"
+        elif reason == "user":
+            reason = "缺失 USER"
 
         if glovar.admin_ids.get(the_id, {}):
             text = get_debug_text(client, the_id)
