@@ -202,7 +202,7 @@ def leave_chat(client: Client, cid: int) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Leave chat {cid} error: {e}")
+        logger.warning(f"Leave chat {cid} error: {e}", exc_info=True)
 
     return False
 
