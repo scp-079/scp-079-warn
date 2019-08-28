@@ -63,7 +63,7 @@ def receive_config_reply(client: Client, data: dict) -> bool:
             [
                 [
                     InlineKeyboardButton(
-                        "前往设置",
+                        text="前往设置",
                         url=link
                     )
                 ]
