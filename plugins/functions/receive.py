@@ -58,7 +58,7 @@ def receive_config_reply(client: Client, data: dict) -> bool:
         link = data["config_link"]
         text = (f"管理员：{user_mention(uid)}\n"
                 f"操作：{code('更改设置')}\n"
-                f"说明：{code('请点击下方按钮进行设置')}")
+                f"说明：{code('请点击下方按钮进行设置')}\n")
         markup = InlineKeyboardMarkup(
             [
                 [
