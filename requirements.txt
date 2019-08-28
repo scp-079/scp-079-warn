@@ -1,7 +1,7 @@
 APScheduler==3.6.1
 asn1crypto==0.24.0
 cffi==1.12.3
-cryptography==2.6.1
+cryptography==2.7
 pyaes==1.6.1
 pyAesCrypt==0.4.3
 pycparser==2.19
