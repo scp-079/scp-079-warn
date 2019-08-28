@@ -190,8 +190,7 @@ def config_directly(client: Client, message: Message) -> bool:
                              f"警告上限：{code(new_config['limit'])}\n"
                              f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config['mention']))}\n"
                              f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
-                             f"手动举报："
-                             f"{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}\n")
+                             f"手动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}\n")
                     thread(send_report_message, (30, client, gid, text))
                     thread(delete_message, (client, gid, mid))
                     return True
