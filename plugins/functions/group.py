@@ -68,6 +68,9 @@ def leave_group(client: Client, gid: int) -> bool:
         glovar.configs.pop(gid, None)
         save("configs")
 
+        glovar.message_ids.pop(gid, 0)
+        save("message_ids")
+
         return True
     except Exception as e:
         logger.warning(f"Leave group error: {e}", exc_info=True)
