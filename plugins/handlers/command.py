@@ -24,7 +24,7 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
-from ..functions.etc import bold, code, get_callback_data, get_command_context, get_command_type, get_full_name
+from ..functions.etc import bold, code, delay, get_callback_data, get_command_context, get_command_type, get_full_name
 from ..functions.etc import get_int, get_now, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import is_class_c, test_group
@@ -159,7 +159,7 @@ def config(client: Client, message: Message) -> bool:
                              f"操作：{code('创建设置会话')}\n")
                     thread(send_message, (client, glovar.debug_channel_id, text))
 
-        thread(delete_message, (client, gid, mid))
+        delay(3, delete_message, [client, gid, mid])
 
         return True
     except Exception as e:
