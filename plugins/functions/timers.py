@@ -56,7 +56,7 @@ def backup_files(client: Client) -> bool:
     return False
 
 
-def interval_hour_one() -> bool:
+def interval_hour_01() -> bool:
     # Execute every hour
     try:
         user_list = list(glovar.user_ids)
@@ -67,7 +67,7 @@ def interval_hour_one() -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Interval one hour error: {e}", exc_info=True)
+        logger.warning(f"Interval hour 01 error: {e}", exc_info=True)
 
     return False
 
