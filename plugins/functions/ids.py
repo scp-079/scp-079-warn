@@ -30,10 +30,6 @@ def init_group_id(gid: int) -> bool:
     # Init group data
     try:
         if gid not in glovar.left_group_ids:
-            if glovar.configs.get(gid) is None:
-                glovar.configs[gid] = deepcopy(glovar.default_config)
-                save("configs")
-
             if glovar.admin_ids.get(gid) is None:
                 glovar.admin_ids[gid] = set()
                 save("admin_ids")
@@ -41,6 +37,10 @@ def init_group_id(gid: int) -> bool:
             if glovar.message_ids.get(gid) is None:
                 glovar.message_ids[gid] = 0
                 save("message_ids")
+
+            if glovar.configs.get(gid) is None:
+                glovar.configs[gid] = deepcopy(glovar.default_config)
+                save("configs")
 
             return True
     except Exception as e:
