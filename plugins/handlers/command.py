@@ -209,15 +209,15 @@ def config_directly(client: Client, message: Message) -> bool:
                                     new_config["limit"] = limit
                                 else:
                                     success = False
-                                    reason = "错误的数值"
-                            elif command_type == "mention":
+                                    reason = "命令参数有误"
+                            elif command_type in {"mention"}:
                                 if command_context == "off":
-                                    new_config["mention"] = False
+                                    new_config[command_type] = False
                                 elif command_context == "on":
-                                    new_config["mention"] = True
+                                    new_config[command_type] = True
                                 else:
                                     success = False
-                                    reason = "呼叫选项有误"
+                                    reason = "命令参数有误"
                             elif command_type == "report":
                                 if not new_config.get("report"):
                                     new_config["report"] = {}
@@ -236,13 +236,13 @@ def config_directly(client: Client, message: Message) -> bool:
                                     new_config["report"]["manual"] = True
                                 else:
                                     success = False
-                                    reason = "举报选项有误"
+                                    reason = "命令参数有误"
                             else:
                                 success = False
                                 reason = "命令类别有误"
                         else:
                             success = False
-                            reason = "命令选项缺失"
+                            reason = "命令参数缺失"
 
                         if success:
                             new_config["default"] = False
