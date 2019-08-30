@@ -59,8 +59,8 @@ def backup_files(client: Client) -> bool:
 def interval_hour_01() -> bool:
     # Execute every hour
     try:
-        user_list = list(glovar.user_ids)
-        for uid in user_list:
+        # Clear user's waiting status
+        for uid in list(glovar.user_ids):
             glovar.user_ids[uid]["waiting"] = set()
 
         save("user_ids")
