@@ -38,6 +38,10 @@ def init_group_id(gid: int) -> bool:
                 glovar.admin_ids[gid] = set()
                 save("admin_ids")
 
+            if glovar.message_ids.get(gid) is None:
+                glovar.message_ids[gid] = 0
+                save("message_ids")
+
             return True
     except Exception as e:
         logger.warning(f"Init group id {gid} error: {e}", exc_info=True)

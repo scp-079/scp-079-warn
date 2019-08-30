@@ -67,11 +67,6 @@ default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
 
 left_group_ids: Set[int] = set()
 
-message_ids: Dict[int, int] = {}
-# message_ids = {
-#     -10012345678: 123
-# }
-
 report_records: Dict[str, Dict[str, int]] = {}
 # report_records = {
 #     "random": {
@@ -226,6 +221,11 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 #     }
 # }
 
+message_ids: Dict[int, int] = {}
+# message_ids = {
+#     -10012345678: 123
+# }
+
 # Init data variables
 
 configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
@@ -243,7 +243,7 @@ configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "configs", "user_ids"]
+file_list: List[str] = ["admin_ids", "configs", "message_ids", "user_ids"]
 for file in file_list:
     try:
         try:
