@@ -24,7 +24,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import ask_for_help, forward_evidence, send_debug, update_score
-from .etc import button_data, code, delay, general_link, get_channel_link, get_text, message_link
+from .etc import button_data, code, delay, general_link, get_channel_link, get_int, get_text, message_link
 from .etc import random_str, thread, user_mention
 from .file import save
 from .filters import is_class_c
@@ -168,7 +168,7 @@ def get_class_d_id(message: Message) -> (int, int):
                 uid = r_message.from_user.id
                 mid = r_message.message_id
             elif r_message.from_user.is_self:
-                uid = int(r_message.text.partition("\n")[0].partition("：")[2])
+                uid = get_int(r_message.text.partition("\n")[0].partition("：")[2])
                 if uid in glovar.admin_ids[message.chat.id]:
                     uid = 0
     except Exception as e:
@@ -242,8 +242,8 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                 result = "已被其他管理员处理"
         else:
             message_text = get_text(message)
-            uid = int(message_text.split("\n")[0].split("：")[1])
-            rid = int(message_text.split("\n")[2].split("：")[1])
+            uid = get_int(message_text.split("\n")[0].split("：")[1])
+            rid = get_int(message_text.split("\n")[2].split("：")[1])
             text = (f"管理员：{code(aid)}\n"
                     f"状态：{code('已失效')}\n")
             thread(edit_message_text, (client, gid, mid, text))
