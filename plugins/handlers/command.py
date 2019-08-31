@@ -337,7 +337,9 @@ def report(client: Client, message: Message) -> bool:
 
                         name = get_full_name(r_message.from_user)
                         if name:
-                            text += f"被举报用户昵称：{code(name)}\n"
+                            text = list(text.partition("\n"))
+                            text.insert(2, f"被举报用户昵称：{code(name)}\n")
+                            text = "".join(text)
 
                         thread(send_message, (client, gid, text, re_mid, markup))
         else:
