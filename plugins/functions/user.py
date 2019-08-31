@@ -243,13 +243,11 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
         else:
             message_text = get_text(message)
             uid = get_int(message_text.split("\n")[0].split("：")[1])
-            rid = get_int(message_text.split("\n")[2].split("：")[1])
             text = (f"管理员：{code(aid)}\n"
                     f"状态：{code('已失效')}\n")
             thread(edit_message_text, (client, gid, mid, text))
             delay(15, delete_message, [client, gid, mid])
             glovar.user_ids[uid]["waiting"].discard(gid)
-            glovar.user_ids[rid]["waiting"].discard(gid)
             save("user_ids")
             result = ""
     except Exception as e:
