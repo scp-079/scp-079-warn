@@ -276,7 +276,7 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
             "message": mid
         }
         if not rid:
-            reporter_text = "█████"
+            reporter_text = "████████"
         else:
             reporter_text = code("自动触发")
 
