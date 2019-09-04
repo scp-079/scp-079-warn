@@ -170,7 +170,7 @@ def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List
     return result
 
 
-def kick_chat_member(client: Client, cid: int, uid: int) -> Optional[Union[bool, Message]]:
+def kick_chat_member(client: Client, cid: int, uid: Union[int, str]) -> Optional[Union[bool, Message]]:
     # Kick a chat member in a group
     result = None
     try:
@@ -295,7 +295,7 @@ def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int
     return result
 
 
-def unban_chat_member(client: Client, cid: int, uid: int) -> Optional[bool]:
+def unban_chat_member(client: Client, cid: int, uid: Union[int, str]) -> Optional[bool]:
     result = None
     try:
         flood_wait = True
@@ -307,6 +307,6 @@ def unban_chat_member(client: Client, cid: int, uid: int) -> Optional[bool]:
                 flood_wait = True
                 wait_flood(e)
     except Exception as e:
-        logger.warning(f"Unban chat member {uid} in {cid} error: {e}")
+        logger.warning(f"Unban chat member {uid} in {cid} error: {e}", exc_info=True)
 
     return result
