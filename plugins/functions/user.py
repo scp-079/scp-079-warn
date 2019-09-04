@@ -207,7 +207,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                         # Should not let bot forward evidence
                         message.reply_to_message.from_user.is_self = "群管认定滥用举报功能"
                         text, markup = warn_user(client, message, rid, aid)
-                        text += f"原因：{code('滥用')}\n"
+                        text += f"原因：{code('滥用举报功能')}\n"
                     else:
                         if rid:
                             reporter_text = user_mention(rid)
