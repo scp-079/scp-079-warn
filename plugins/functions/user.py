@@ -138,10 +138,8 @@ def get_admin_text(gid: int) -> str:
     # Get admin mention text
     mention_text = ""
     try:
-        admin_list = list(glovar.admin_ids[gid])
-        if glovar.user_id in admin_list:
-            admin_list.remove(glovar.user_id)
-
+        admin_all_list = list(glovar.admin_ids[gid])
+        admin_list = list(filter(lambda a: a not in glovar.bot_ids, admin_all_list))
         admin_count = len(admin_list)
         mention_style = ["A", "D", "M", "I", "N", "S"]
         mention_count = len(mention_style)
