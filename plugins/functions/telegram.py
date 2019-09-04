@@ -296,6 +296,7 @@ def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int
 
 
 def unban_chat_member(client: Client, cid: int, uid: Union[int, str]) -> Optional[bool]:
+    # Unban a user in a group
     result = None
     try:
         flood_wait = True
