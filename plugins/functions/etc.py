@@ -216,7 +216,7 @@ def get_id(update: Union[CallbackQuery, Message]) -> (int, int):
     return cid, uid
 
 
-def get_int(text: str) -> int:
+def get_int(text: str) -> Optional[int]:
     # Get a int from a string
     result = None
     try:
