@@ -27,7 +27,7 @@ from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, delay, get_callback_data, get_command_context, get_command_type, get_full_name
 from ..functions.etc import get_int, get_now, thread, user_mention
 from ..functions.file import save
-from ..functions.filters import is_class_c, test_group
+from ..functions.filters import from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_message
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, report_answer, report_user
@@ -38,7 +38,7 @@ from ..functions.telegram import get_group_info, send_message, send_report_messa
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["admin", "admins"], glovar.prefix))
 def admin(client: Client, message: Message) -> bool:
     # Mention admins
@@ -85,7 +85,7 @@ def admin(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["ban"], glovar.prefix))
 def ban(client: Client, message: Message) -> bool:
     # Ban users
@@ -118,7 +118,7 @@ def ban(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["config"], glovar.prefix))
 def config(client: Client, message: Message) -> bool:
     # Request CONFIG session
@@ -170,7 +170,7 @@ def config(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["config_warn"], glovar.prefix))
 def config_directly(client: Client, message: Message) -> bool:
     # Config the bot directly
@@ -272,7 +272,7 @@ def config_directly(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["forgive"], glovar.prefix))
 def forgive(client: Client, message: Message) -> bool:
     # Forgive users
@@ -305,7 +305,7 @@ def forgive(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["report"], glovar.prefix))
 def report(client: Client, message: Message) -> bool:
     # Report spam messages
@@ -381,7 +381,7 @@ def report(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["undo"], glovar.prefix))
 def undo(client: Client, message: Message) -> bool:
     # Undo operations
@@ -420,7 +420,7 @@ def undo(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & test_group
+@Client.on_message(Filters.incoming & Filters.group & test_group & from_user
                    & Filters.command(["version"], glovar.prefix))
 def version(client: Client, message: Message) -> bool:
     # Check the program's version
@@ -439,7 +439,7 @@ def version(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["warn"], glovar.prefix))
 def warn(client: Client, message: Message) -> bool:
     # Warn users

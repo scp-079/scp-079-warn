@@ -59,6 +59,17 @@ def is_exchange_channel(_, message: Message) -> bool:
     return False
 
 
+def is_from_user(_, message: Message) -> bool:
+    # Check if the message is sent from a user
+    try:
+        if message.from_user:
+            return True
+    except Exception as e:
+        logger.warning(f"Is from user error: {e}", exc_info=True)
+
+    return False
+
+
 def is_hide_channel(_, message: Message) -> bool:
     # Check if the message is sent from the hide channel
     try:
@@ -110,6 +121,11 @@ class_c = Filters.create(
 exchange_channel = Filters.create(
     func=is_exchange_channel,
     name="Exchange Channel"
+)
+
+from_user = Filters.create(
+    func=is_from_user,
+    name="From User"
 )
 
 hide_channel = Filters.create(

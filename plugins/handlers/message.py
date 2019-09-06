@@ -24,7 +24,7 @@ from .. import glovar
 from ..functions.channel import get_debug_text
 from ..functions.etc import code, thread, user_mention
 from ..functions.file import save
-from ..functions.filters import exchange_channel, hide_channel, new_group, test_group
+from ..functions.filters import exchange_channel, from_user, hide_channel, new_group, test_group
 from ..functions.group import leave_group
 from ..functions.ids import init_group_id
 from ..functions.receive import receive_config_commit, receive_config_reply, receive_help_report, receive_leave_approve
@@ -63,7 +63,7 @@ def exchange_emergency(_: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & (Filters.new_chat_members | Filters.group_chat_created | Filters.supergroup_chat_created)
                    & new_group)
 def init_group(client: Client, message: Message) -> bool:
