@@ -59,9 +59,6 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
                         update_score(client, uid)
                         text = f"已封禁用户：{user_mention(uid)}\n"
                         text += f"消息存放：{general_link(result.message_id, message_link(result))}\n"
-                        if reason:
-                            text += f"原因：{code(reason)}\n"
-
                         data = button_data("undo", "ban", uid)
                         markup = InlineKeyboardMarkup(
                             [
@@ -85,6 +82,8 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
                              f"原因：{code('已在封禁列表中')}\n")
 
                 text += f"管理员：{code(aid)}\n"
+                if markup and reason:
+                    text += f"原因：{code(reason)}\n"
             finally:
                 glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
@@ -366,14 +365,9 @@ def warn_user(client: Client, message: Message, uid: int, aid: int,
                             _, markup = ban_user(client, message, uid, aid, result, reason)
                             text = (f"已封禁用户：{user_mention(uid)}\n"
                                     f"自动封禁原因：{code('警告次数达到上限')}\n")
-                            if reason:
-                                text += f"原因：{code(reason)}\n"
                         else:
                             text = (f"已警告用户：{user_mention(uid)}\n"
                                     f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
-                            if reason:
-                                text += f"原因：{code(reason)}\n"
-
                             data = button_data("undo", "warn", uid)
                             markup = InlineKeyboardMarkup(
                                 [
@@ -399,6 +393,8 @@ def warn_user(client: Client, message: Message, uid: int, aid: int,
                              f"原因：{code('已在封禁列表中')}\n")
 
                 text += f"管理员：{code(aid)}\n"
+                if markup and reason:
+                    text += f"原因：{code(reason)}\n"
             finally:
                 glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
