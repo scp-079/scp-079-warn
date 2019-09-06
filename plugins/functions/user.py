@@ -176,15 +176,19 @@ def get_class_d_id(message: Message) -> (int, int):
 
 
 def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int,
-                  action_type: str, report_key: str) -> Optional[str]:
+                  action_type: str, key: str, reason: str = None) -> Optional[str]:
     # Answer the user's report
     result = None
     try:
-        report_record = glovar.report_records.get(report_key)
+        report_record = glovar.report_records.get(key)
         if report_record:
-            rid = glovar.report_records[report_key]["reporter"]
-            uid = glovar.report_records[report_key]["user"]
-            r_mid = glovar.report_records[report_key]["message"]
+            rid = glovar.report_records[key]["reporter"]
+            uid = glovar.report_records[key]["user"]
+            r_mid = glovar.report_records[key]["message"]
+            record_reason = glovar.report_records[key]["reason"]
+            if not reason:
+                reason = record_reason
+
             init_user_id(rid)
             init_user_id(uid)
             # Check users' locks
@@ -192,9 +196,15 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                 try:
                     if action_type == "ban":
                         text, markup = ban_user(client, message, uid, aid)
+                        if reason:
+                            text += f"原因：{code(reason)}\n"
+
                         thread(delete_message, (client, gid, r_mid))
                     elif action_type == "warn":
                         text, markup = warn_user(client, message, uid, aid)
+                        if reason:
+                            text += f"原因：{code(reason)}\n"
+
                         thread(delete_message, (client, gid, r_mid))
                     # Warn reporter
                     elif action_type == "spam":
@@ -234,7 +244,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                     glovar.user_ids[rid]["waiting"].discard(gid)
                     save("user_ids")
 
-                glovar.report_records.pop(report_key)
+                glovar.report_records.pop(key)
                 result = ""
             else:
                 result = "已被其他管理员处理"
@@ -254,7 +264,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
     return result
 
 
-def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardMarkup):
+def report_user(gid: int, uid: int, rid: int, mid: int, reason: str = None) -> (str, InlineKeyboardMarkup):
     # Report a user
     text = ""
     markup = None
@@ -269,7 +279,8 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
         glovar.report_records[report_key] = {
             "reporter": rid,
             "user": uid,
-            "message": mid
+            "message": mid,
+            "reason": reason
         }
         if rid:
             reporter_text = "██████"
@@ -280,6 +291,9 @@ def report_user(gid: int, uid: int, rid: int, mid: int) -> (str, InlineKeyboardM
                 f"被举报消息：{general_link(mid, f'{get_channel_link(gid)}/{mid}')}\n"
                 f"举报人：{reporter_text}\n"
                 f"呼叫管理：{get_admin_text(gid)}\n")
+        if reason:
+            text += f"原因：{code(reason)}\n"
+
         warn_data = button_data("report", "warn", report_key)
         ban_data = button_data("report", "ban", report_key)
         cancel_data = button_data("report", "cancel", report_key)

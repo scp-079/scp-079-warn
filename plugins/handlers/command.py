@@ -330,11 +330,8 @@ def report(client: Client, message: Message) -> bool:
                     # Reporter cannot report someone by replying WARN's report
                     r_message = message.reply_to_message
                     if not r_message.from_user.is_self:
-                        text, markup = report_user(gid, uid, rid, re_mid)
                         reason = get_command_type(message)
-                        if reason:
-                            text += f"原因：{code(reason)}\n"
-
+                        text, markup = report_user(gid, uid, rid, re_mid, reason)
                         name = get_full_name(r_message.from_user)
                         if name:
                             text = list(text.partition("\n"))
@@ -345,16 +342,24 @@ def report(client: Client, message: Message) -> bool:
         else:
             aid = message.from_user.id
             text = f"管理员：{code(aid)}\n"
-            command_list = list(filter(None, message.command))
-            if len(command_list) == 2 and command_list[1] in {"warn", "ban", "cancel", "spam"}:
-                command_type = command_list[1]
+            action_type, reason = get_command_context(message)
+            if action_type in {"warn", "ban", "cancel", "spam"}:
                 if message.reply_to_message:
                     r_message = get_message(client, gid, message.reply_to_message.message_id)
                     if r_message and r_message.reply_to_message:
                         callback_data_list = get_callback_data(r_message)
                         if callback_data_list and callback_data_list[0]["a"] == "report":
-                            report_key = callback_data_list[0]["d"]
-                            report_answer(client, r_message, gid, aid, r_message.message_id, command_type, report_key)
+                            key = callback_data_list[0]["d"]
+                            report_answer(
+                                client=client,
+                                message=r_message,
+                                gid=gid,
+                                aid=aid,
+                                mid=r_message.message_id,
+                                action_type=action_type,
+                                key=key,
+                                reason=reason
+                            )
                             thread(delete_message, (client, gid, mid))
                             return True
                         else:

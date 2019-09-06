@@ -67,12 +67,13 @@ default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
 
 left_group_ids: Set[int] = set()
 
-report_records: Dict[str, Dict[str, int]] = {}
+report_records: Dict[str, Dict[str, Union[int, str]]] = {}
 # report_records = {
 #     "random": {
 #         "message": 123,
 #         "reporter": 12345678,
-#         "user": 12345679
+#         "user": 12345679,
+#         "reason": None
 #     }
 # }
 
