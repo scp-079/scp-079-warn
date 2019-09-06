@@ -96,12 +96,10 @@ def ban(client: Client, message: Message) -> bool:
             uid, re_mid = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
                 aid = message.from_user.id
-                text, markup = ban_user(client, message, uid, aid)
+                reason = get_command_type(message)
+                text, markup = ban_user(client, message, uid, aid, 0, reason)
                 if markup:
                     secs = 180
-                    reason = get_command_type(message)
-                    if reason:
-                        text += f"原因：{code(reason)}\n"
                 else:
                     secs = 15
 
@@ -283,14 +281,12 @@ def forgive(client: Client, message: Message) -> bool:
             aid = message.from_user.id
             uid, _ = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
-                text, result = forgive_user(client, gid, uid, aid)
+                reason = get_command_type(message)
+                text, result = forgive_user(client, gid, uid, aid, reason)
                 glovar.user_ids[uid]["lock"].discard(gid)
                 save("user_ids")
                 if result:
                     secs = 180
-                    reason = get_command_type(message)
-                    if reason:
-                        text += f"原因：{code(reason)}\n"
                 else:
                     secs = 15
 
@@ -455,12 +451,10 @@ def warn(client: Client, message: Message) -> bool:
             aid = message.from_user.id
             uid, re_mid = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
-                text, markup = warn_user(client, message, uid, aid)
+                reason = get_command_type(message)
+                text, markup = warn_user(client, message, uid, aid, reason)
                 if markup:
                     secs = 180
-                    reason = get_command_type(message)
-                    if reason:
-                        text += f"原因：{code(reason)}\n"
                 else:
                     secs = 15
 

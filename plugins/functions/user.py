@@ -36,7 +36,8 @@ from .telegram import edit_message_text, kick_chat_member, unban_chat_member
 logger = logging.getLogger(__name__)
 
 
-def ban_user(client: Client, message: Message, uid: int, aid: int, result: int = 0) -> (str, InlineKeyboardMarkup):
+def ban_user(client: Client, message: Message, uid: int, aid: int, result: int = 0,
+             reason: str = None) -> (str, InlineKeyboardMarkup):
     # Ban a user
     text = ""
     markup = None
@@ -57,8 +58,10 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
                         glovar.user_ids[uid]["warn"].pop(gid, 0)
                         update_score(client, uid)
                         text = f"已封禁用户：{user_mention(uid)}\n"
-                        text += (f"消息存放："
-                                 f"{general_link(result.message_id, message_link(result))}\n")
+                        text += f"消息存放：{general_link(result.message_id, message_link(result))}\n"
+                        if reason:
+                            text += f"原因：{code(reason)}\n"
+
                         data = button_data("undo", "ban", uid)
                         markup = InlineKeyboardMarkup(
                             [
@@ -71,7 +74,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
                             ]
                         )
                         ask_for_help(client, "delete", gid, uid)
-                        send_debug(client, message, "封禁", uid, aid, result)
+                        send_debug(client, message, "封禁", uid, aid, result, reason)
                     else:
                         text += (f"用户：{user_mention(uid)}\n"
                                  f"结果：{code('未操作')}\n"
@@ -90,7 +93,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
     return text, markup
 
 
-def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
+def forgive_user(client: Client, gid: int, uid: int, aid: int, reason: str = None) -> (str, bool):
     # Forgive user
     text = ""
     result = False
@@ -106,12 +109,18 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
                         glovar.user_ids[uid]["warn"].pop(gid, 0)
                         text = (f"用户：{user_mention(uid)}\n"
                                 f"结果：{code('已清空警告')}\n") + text
+                        if reason:
+                            text += f"原因：{code(reason)}\n"
+
                         result = True
                     elif gid in glovar.user_ids[uid]["waiting"]:
                         glovar.user_ids[uid]["waiting"].discard(gid)
                         save("user_ids")
                         text = (f"用户：{user_mention(uid)}\n"
                                 f"结果：{code('已重置举报状态')}\n") + text
+                        if reason:
+                            text += f"原因：{code(reason)}\n"
+
                         return text, True
                     else:
                         text = (f"用户：{user_mention(uid)}\n"
@@ -123,6 +132,9 @@ def forgive_user(client: Client, gid: int, uid: int, aid: int) -> (str, bool):
                     thread(unban_chat_member, (client, gid, uid))
                     text = (f"用户：{user_mention(uid)}\n"
                             f"结果：{code('已解禁')}\n")
+                    if reason:
+                        text += f"原因：{code(reason)}\n"
+
                     result = True
 
                 update_score(client, uid)
@@ -195,16 +207,10 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
             if gid not in glovar.user_ids[uid]["lock"] and gid not in glovar.user_ids[rid]["lock"]:
                 try:
                     if action_type == "ban":
-                        text, markup = ban_user(client, message, uid, aid)
-                        if reason:
-                            text += f"原因：{code(reason)}\n"
-
+                        text, markup = ban_user(client, message, uid, aid, 0, reason)
                         thread(delete_message, (client, gid, r_mid))
                     elif action_type == "warn":
-                        text, markup = warn_user(client, message, uid, aid)
-                        if reason:
-                            text += f"原因：{code(reason)}\n"
-
+                        text, markup = warn_user(client, message, uid, aid, reason)
                         thread(delete_message, (client, gid, r_mid))
                     # Warn reporter
                     elif action_type == "spam":
@@ -331,7 +337,8 @@ def report_user(gid: int, uid: int, rid: int, mid: int, reason: str = None) -> (
     return text, markup
 
 
-def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, InlineKeyboardMarkup):
+def warn_user(client: Client, message: Message, uid: int, aid: int,
+              reason: str = None) -> (str, InlineKeyboardMarkup):
     # Warn a user
     text = ""
     markup = None
@@ -356,12 +363,17 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                         if warn_count >= limit:
                             # Need to unlock the user before banning
                             glovar.user_ids[uid]["lock"].discard(gid)
-                            _, markup = ban_user(client, message, uid, aid, result)
+                            _, markup = ban_user(client, message, uid, aid, result, reason)
                             text = (f"已封禁用户：{user_mention(uid)}\n"
                                     f"自动封禁原因：{code('警告次数达到上限')}\n")
+                            if reason:
+                                text += f"原因：{code(reason)}\n"
                         else:
                             text = (f"已警告用户：{user_mention(uid)}\n"
                                     f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
+                            if reason:
+                                text += f"原因：{code(reason)}\n"
+
                             data = button_data("undo", "warn", uid)
                             markup = InlineKeyboardMarkup(
                                 [
@@ -373,7 +385,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int) -> (str, Inl
                                     ]
                                 ]
                             )
-                            send_debug(client, message, "警告", uid, aid, result)
+                            send_debug(client, message, "警告", uid, aid, result, reason)
 
                         text += (f"消息存放："
                                  f"{general_link(result.message_id, message_link(result))}\n")
