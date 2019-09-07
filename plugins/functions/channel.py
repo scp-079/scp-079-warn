@@ -142,7 +142,7 @@ def forward_evidence(client: Client, message: Message, level: str, rule: str,
 
         if message.contact or message.location or message.venue or message.video_note or message.voice:
             text += f"附加信息：{code('可能涉及隐私而未转发')}\n"
-        elif message.game:
+        elif message.game or message.service:
             text += f"附加信息：{code('此类消息无法转发至频道')}\n"
         elif more:
             text += f"附加信息：{code(more)}\n"
