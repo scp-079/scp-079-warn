@@ -30,6 +30,7 @@ from ..functions.ids import init_group_id
 from ..functions.receive import receive_config_commit, receive_config_reply, receive_help_report, receive_leave_approve
 from ..functions.receive import receive_remove_bad, receive_text_data
 from ..functions.telegram import get_admins, send_message
+from ..functions.timers import update_admins
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -145,6 +146,11 @@ def process_data(client: Client, message: Message) -> bool:
                     elif action == "remove":
                         if action_type == "bad":
                             receive_remove_bad(data)
+
+                    elif action_type == "update":
+                        if action_type == "admin":
+                            if data == "demand":
+                                update_admins(client)
 
                 elif sender == "NOSPAM":
 
