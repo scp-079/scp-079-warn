@@ -21,6 +21,7 @@ from os import remove
 from os.path import exists
 from pickle import dump
 from shutil import copyfile
+from typing import Any
 
 from pyAesCrypt import decryptFile, encryptFile
 
@@ -45,6 +46,20 @@ def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
         logger.warning(f"Crypt file error: {e}", exc_info=True)
 
     return False
+
+
+def data_to_file(data: Any) -> str:
+    # Save data to a file in tmp directory
+    try:
+        file_path = get_new_path()
+        with open(file_path, "wb") as f:
+            dump(data, f)
+
+        return file_path
+    except Exception as e:
+        logger.warning(f"Data to file error: {e}", exc_info=True)
+
+    return ""
 
 
 def delete_file(path: str) -> bool:

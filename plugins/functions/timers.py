@@ -151,7 +151,29 @@ def update_admins(client: Client) -> bool:
     return True
 
 
+def update_report_ids(client: Client) -> bool:
+    # Update report group ids
+    try:
+        report_ids = {gid for gid in list(glovar.configs) if glovar.configs[gid]["report"]["auto"]}
+        file = data_to_file(report_ids)
+        share_data(
+            client=client,
+            receivers=["NOSPAM"],
+            action="help",
+            action_type="report",
+            data="update",
+            file=file
+        )
+
+        return True
+    except Exception as e:
+        logger.warning(f"Update report ids error: {e}", exc_info=True)
+
+    return False
+
+
 def update_status(client: Client) -> bool:
+    # Update running status to BACKUP
     try:
         share_data(
             client=client,
