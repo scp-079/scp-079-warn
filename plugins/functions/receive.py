@@ -26,7 +26,7 @@ from .. import glovar
 from .channel import get_debug_text
 from .etc import code, get_text, thread, user_mention
 from .file import save
-from .group import leave_group
+from .group import get_message, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
 from .user import report_user
@@ -82,13 +82,15 @@ def receive_help_report(client: Client, data: dict) -> bool:
     # Receive help report requests
     try:
         gid = data["group_id"]
+        uid = data["user_id"]
+        mid = data["message_id"]
         if init_group_id(gid):
             if glovar.configs[gid]["report"]["auto"]:
-                uid = data["user_id"]
-                mid = data["message_id"]
-                init_user_id(0)
-                text, markup = report_user(gid, uid, 0, mid)
-                thread(send_message, (client, gid, text, mid, markup))
+                if init_user_id(0):
+                    the_message = get_message(client, gid, mid)
+                    if the_message:
+                        text, markup = report_user(gid, uid, 0, mid)
+                        thread(send_message, (client, gid, text, mid, markup))
 
         return True
     except Exception as e:

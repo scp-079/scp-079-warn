@@ -85,7 +85,7 @@ sender: str = "WARN"
 
 should_hide: bool = False
 
-version: str = "0.2.7"
+version: str = "0.2.8"
 
 # Read data from config.ini
 

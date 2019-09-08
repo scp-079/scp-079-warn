@@ -24,7 +24,7 @@ from pyrogram import Client
 from .. import glovar
 from .channel import share_data
 from .etc import code, general_link, thread
-from .file import save
+from .file import data_to_file, save
 from .group import leave_group
 from .telegram import get_admins, get_group_info, send_message
 

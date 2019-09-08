@@ -22,7 +22,7 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.channel import get_debug_text
-from ..functions.etc import code, thread, user_mention
+from ..functions.etc import code, delay, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, from_user, hide_channel, new_group, test_group
 from ..functions.group import leave_group
@@ -156,7 +156,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                     if action == "help":
                         if action_type == "report":
-                            receive_help_report(client, data)
+                            delay(10, receive_help_report, [client, data])
 
         return True
     except Exception as e:
