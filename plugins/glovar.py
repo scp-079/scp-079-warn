@@ -22,6 +22,7 @@ from configparser import RawConfigParser
 from os import mkdir
 from os.path import exists
 from shutil import rmtree
+from threading import Lock
 from typing import Dict, List, Set, Union
 
 # Enable logging
@@ -66,6 +67,10 @@ default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
 }
 
 left_group_ids: Set[int] = set()
+
+locks: Dict[str, Lock] = {
+    "admin": Lock()
+}
 
 report_records: Dict[str, Dict[str, Union[int, str]]] = {}
 # report_records = {
