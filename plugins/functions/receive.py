@@ -84,7 +84,7 @@ def receive_help_report(client: Client, data: dict) -> bool:
         gid = data["group_id"]
         uid = data["user_id"]
         mid = data["message_id"]
-        if init_group_id(gid):
+        if gid in glovar.admin_ids and init_group_id(gid):
             if glovar.configs[gid]["report"]["auto"]:
                 if init_user_id(0):
                     the_message = get_message(client, gid, mid)
