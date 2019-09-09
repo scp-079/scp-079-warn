@@ -164,8 +164,8 @@ def update_report_ids(client: Client) -> bool:
             client=client,
             receivers=["NOSPAM"],
             action="help",
-            action_type="report",
-            data="update",
+            action_type="list",
+            data="report",
             file=file
         )
 
