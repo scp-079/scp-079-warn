@@ -24,11 +24,12 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import get_debug_text
-from .etc import code, get_text, thread, user_mention
+from .etc import code, general_link, get_text, thread, user_mention
 from .file import save
 from .group import get_message, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
+from .timers import update_admins
 from .user import report_user
 
 # Enable logging
@@ -123,6 +124,23 @@ def receive_leave_approve(client: Client, data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Receive leave approve error: {e}", exc_info=True)
+
+    return False
+
+
+def receive_refresh(client: Client, data: int) -> bool:
+    # Receive refresh
+    try:
+        aid = data
+        update_admins(client)
+        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"项目管理员：{user_mention(aid)}\n"
+                f"执行操作：{code('刷新群管列表')}\n")
+        thread(send_message, (client, glovar.debug_channel_id, text))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive refresh error: {e}", exc_info=True)
 
     return False
 
