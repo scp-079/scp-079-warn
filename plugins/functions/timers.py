@@ -130,6 +130,8 @@ def update_admins(client: Client) -> bool:
                                           f"群组 ID：{code(gid)}\n"
                                           f"状态：{code(reason)}\n")
                             thread(send_message, (client, glovar.debug_channel_id, debug_text))
+                        else:
+                            save("admin_ids")
                     elif admin_members is False or any([admin.user.is_self for admin in admin_members]) is False:
                         # Bot is not in the chat, leave automatically without approve
                         group_name, group_link = get_group_info(client, gid)
