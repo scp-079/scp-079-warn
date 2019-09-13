@@ -183,6 +183,8 @@ def config_directly(client: Client, message: Message) -> bool:
             text = f"管理员：{code(aid)}\n"
             # Check command format
             command_type, command_context = get_command_context(message)
+            logger.warning(command_type)
+            logger.warning(command_context)
             if command_type:
                 if command_type == "show":
                     text += (f"操作：{code('查看设置')}\n"
