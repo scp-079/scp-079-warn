@@ -151,10 +151,12 @@ def update_admins(client: Client) -> bool:
                         thread(send_message, (client, glovar.debug_channel_id, debug_text))
                 except Exception as e:
                     logger.warning(f"Update admin in {gid} error: {e}", exc_info=True)
+
+            return True
         finally:
             glovar.locks["admin"].release()
 
-    return True
+    return False
 
 
 def update_report_ids(client: Client) -> bool:
