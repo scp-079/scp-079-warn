@@ -50,11 +50,12 @@ all_commands: List[str] = [
 default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
     "default": True,
     "lock": 0,
+    "delete": True,
     "limit": 3,
-    "mention": False,
+    "mention": True,
     "report": {
         "auto": False,
-        "manual": False
+        "manual": True
     }
 }
 
@@ -91,7 +92,7 @@ sender: str = "WARN"
 
 should_hide: bool = False
 
-version: str = "0.2.8"
+version: str = "0.2.9"
 
 # Read data from config.ini
 

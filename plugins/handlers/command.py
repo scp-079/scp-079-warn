@@ -188,6 +188,7 @@ def config_directly(client: Client, message: Message) -> bool:
                     text += (f"操作：{code('查看设置')}\n"
                              f"设置：{code((lambda x: '默认' if x else '自定义')(new_config['default']))}\n"
                              f"警告上限：{code(new_config['limit'])}\n"
+                             f"协助删除：{code((lambda x: '启用' if x else '禁用')(new_config['delete']))}\n"
                              f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config['mention']))}\n"
                              f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
                              f"手动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}\n")

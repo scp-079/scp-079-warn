@@ -70,7 +70,9 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
                                 ]
                             ]
                         )
-                        ask_for_help(client, "delete", gid, uid)
+                        if glovar.configs[gid]["delete"]:
+                            ask_for_help(client, "delete", gid, uid)
+
                         send_debug(client, message, "封禁", uid, aid, result, reason)
                     else:
                         text += (f"用户：{user_mention(uid)}\n"
