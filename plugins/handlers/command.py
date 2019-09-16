@@ -185,13 +185,15 @@ def config_directly(client: Client, message: Message) -> bool:
             command_type, command_context = get_command_context(message)
             if command_type:
                 if command_type == "show":
+                    auto_report = new_config.get('report') and new_config['report'].get('auto')
+                    manual_report = new_config.get('report') and new_config['report'].get('auto')
                     text += (f"操作：{code('查看设置')}\n"
-                             f"设置：{code((lambda x: '默认' if x else '自定义')(new_config['default']))}\n"
+                             f"设置：{code((lambda x: '默认' if x else '自定义')(new_config.get('default')))}\n"
                              f"警告上限：{code(new_config['limit'])}\n"
-                             f"协助删除：{code((lambda x: '启用' if x else '禁用')(new_config['delete']))}\n"
-                             f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config['mention']))}\n"
-                             f"自动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['auto']))}\n"
-                             f"手动举报：{code((lambda x: '启用' if x else '禁用')(new_config['report']['manual']))}\n")
+                             f"协助删除：{code((lambda x: '启用' if x else '禁用')(new_config.get('delete')))}\n"
+                             f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config.get('mention')))}\n"
+                             f"自动举报：{code((lambda x: '启用' if x else '禁用')(auto_report))}\n"
+                             f"手动举报：{code((lambda x: '启用' if x else '禁用')(manual_report))}\n")
                     thread(send_report_message, (30, client, gid, text))
                     thread(delete_message, (client, gid, mid))
                     return True
