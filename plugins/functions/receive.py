@@ -87,7 +87,10 @@ def receive_help_report(client: Client, data: dict) -> bool:
         mid = data["message_id"]
         if gid in glovar.admin_ids and init_group_id(gid):
             if glovar.configs[gid]["report"]["auto"]:
-                if init_user_id(0):
+                if (init_user_id(0) and init_user_id(uid)
+                        and gid not in glovar.user_ids[uid]["lock"]
+                        and gid not in glovar.user_ids[uid]["waiting"]
+                        and gid not in glovar.user_ids[uid]["ban"]):
                     the_message = get_message(client, gid, mid)
                     if the_message:
                         text, markup = report_user(gid, uid, 0, mid)

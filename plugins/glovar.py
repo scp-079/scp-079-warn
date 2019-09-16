@@ -70,7 +70,8 @@ default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
 left_group_ids: Set[int] = set()
 
 locks: Dict[str, Lock] = {
-    "admin": Lock()
+    "admin": Lock(),
+    "receive": Lock()
 }
 
 report_records: Dict[str, Dict[str, Union[int, str]]] = {}

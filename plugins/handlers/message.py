@@ -120,49 +120,52 @@ def init_group(client: Client, message: Message) -> bool:
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel
-    try:
-        data = receive_text_data(message)
-        if data:
-            sender = data["from"]
-            receivers = data["to"]
-            action = data["action"]
-            action_type = data["type"]
-            data = data["data"]
-            # This will look awkward,
-            # seems like it can be simplified,
-            # but this is to ensure that the permissions are clear,
-            # so it is intentionally written like this
-            if glovar.sender in receivers:
-                if sender == "CONFIG":
+    if glovar.locks["receive"].acquire():
+        try:
+            data = receive_text_data(message)
+            if data:
+                sender = data["from"]
+                receivers = data["to"]
+                action = data["action"]
+                action_type = data["type"]
+                data = data["data"]
+                # This will look awkward,
+                # seems like it can be simplified,
+                # but this is to ensure that the permissions are clear,
+                # so it is intentionally written like this
+                if glovar.sender in receivers:
+                    if sender == "CONFIG":
 
-                    if action == "config":
-                        if action_type == "commit":
-                            receive_config_commit(data)
-                        elif action_type == "reply":
-                            receive_config_reply(client, data)
+                        if action == "config":
+                            if action_type == "commit":
+                                receive_config_commit(data)
+                            elif action_type == "reply":
+                                receive_config_reply(client, data)
 
-                elif sender == "MANAGE":
+                    elif sender == "MANAGE":
 
-                    if action == "leave":
-                        if action_type == "approve":
-                            receive_leave_approve(client, data)
+                        if action == "leave":
+                            if action_type == "approve":
+                                receive_leave_approve(client, data)
 
-                    elif action == "remove":
-                        if action_type == "bad":
-                            receive_remove_bad(data)
+                        elif action == "remove":
+                            if action_type == "bad":
+                                receive_remove_bad(data)
 
-                    elif action == "update":
-                        if action_type == "refresh":
-                            receive_refresh(client, data)
+                        elif action == "update":
+                            if action_type == "refresh":
+                                receive_refresh(client, data)
 
-                elif sender == "NOSPAM":
+                    elif sender == "NOSPAM":
 
-                    if action == "help":
-                        if action_type == "report":
-                            delay(10, receive_help_report, [client, data])
+                        if action == "help":
+                            if action_type == "report":
+                                delay(10, receive_help_report, [client, data])
 
-        return True
-    except Exception as e:
-        logger.warning(f"Process data error: {e}", exc_info=True)
+            return True
+        except Exception as e:
+            logger.warning(f"Process data error: {e}", exc_info=True)
+        finally:
+            glovar.locks["receive"].release()
 
     return False
