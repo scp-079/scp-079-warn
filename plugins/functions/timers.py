@@ -86,7 +86,7 @@ def interval_hour_01(client: Client) -> bool:
 
 
 def reset_data() -> bool:
-    # Reset user data every month
+    # Reset data every month
     try:
         glovar.user_ids = {}
         save("user_ids")
