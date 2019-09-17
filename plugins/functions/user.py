@@ -24,7 +24,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import ask_for_help, forward_evidence, send_debug, update_score
-from .etc import button_data, code, delay, general_link, get_channel_link, get_int, get_text, message_link
+from .etc import button_data, code, delay, general_link, get_channel_link, get_int, get_now, get_text, message_link
 from .etc import random_str, thread, user_mention
 from .file import save
 from .filters import is_class_c
@@ -193,19 +193,25 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
     # Answer the user's report
     result = None
     try:
-        report_record = glovar.report_records.get(key)
+        report_record = glovar.reports.get(key)
         if report_record:
-            rid = glovar.report_records[key]["reporter"]
-            uid = glovar.report_records[key]["user"]
-            r_mid = glovar.report_records[key]["message"]
-            record_reason = glovar.report_records[key]["reason"]
+            if not report_record["time"]:
+                return ""
+
+            rid = report_record["reporter_id"]
+            uid = report_record["user_id"]
+            r_mid = report_record["message_id"]
+            record_reason = report_record["reason"]
             if not reason:
                 reason = record_reason
 
-            init_user_id(rid)
-            init_user_id(uid)
+            if not init_user_id(rid) and init_user_id(uid):
+                return ""
+
             # Check users' locks
             if gid not in glovar.user_ids[uid]["lock"] and gid not in glovar.user_ids[rid]["lock"]:
+                # Lock the report
+                glovar.reports[key]["time"] = 0
                 try:
                     if action_type == "ban":
                         text, markup = ban_user(client, message, uid, aid, 0, reason)
@@ -251,7 +257,6 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                     glovar.user_ids[rid]["waiting"].discard(gid)
                     save("user_ids")
 
-                glovar.report_records.pop(key)
                 result = ""
             else:
                 result = "已被其他管理员处理"
@@ -271,22 +276,26 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
     return result
 
 
-def report_user(gid: int, uid: int, rid: int, mid: int, reason: str = None) -> (str, InlineKeyboardMarkup):
+def report_user(gid: int, uid: int, rid: int, mid: int, reason: str = None) -> (str, InlineKeyboardMarkup, str):
     # Report a user
     text = ""
     markup = None
+    key = ""
     try:
         glovar.user_ids[uid]["waiting"].add(gid)
         glovar.user_ids[rid]["waiting"].add(gid)
         save("user_ids")
-        report_key = random_str(8)
-        while glovar.report_records.get(report_key):
-            report_key = random_str(8)
+        key = random_str(8)
+        while glovar.reports.get(key):
+            key = random_str(8)
 
-        glovar.report_records[report_key] = {
-            "reporter": rid,
-            "user": uid,
-            "message": mid,
+        glovar.reports[key] = {
+            "time": get_now(),
+            "group_id": gid,
+            "reporter_id": rid,
+            "user_id": uid,
+            "message_id": mid,
+            "report_id": 0,
             "reason": reason
         }
         if rid:
@@ -301,9 +310,9 @@ def report_user(gid: int, uid: int, rid: int, mid: int, reason: str = None) -> (
         if reason:
             text += f"原因：{code(reason)}\n"
 
-        warn_data = button_data("report", "warn", report_key)
-        ban_data = button_data("report", "ban", report_key)
-        cancel_data = button_data("report", "cancel", report_key)
+        warn_data = button_data("report", "warn", key)
+        ban_data = button_data("report", "ban", key)
+        cancel_data = button_data("report", "cancel", key)
         markup_list = [
             [
                 InlineKeyboardButton(
@@ -323,7 +332,7 @@ def report_user(gid: int, uid: int, rid: int, mid: int, reason: str = None) -> (
             ]
         ]
         if rid:
-            warn_reporter_data = button_data("report", "spam", report_key)
+            warn_reporter_data = button_data("report", "spam", key)
             markup_list[1].append(
                 InlineKeyboardButton(
                     "滥用",
@@ -335,7 +344,7 @@ def report_user(gid: int, uid: int, rid: int, mid: int, reason: str = None) -> (
     except Exception as e:
         logger.warning(f"Report user error: {e}", exc_info=True)
 
-    return text, markup
+    return text, markup, key
 
 
 def warn_user(client: Client, message: Message, uid: int, aid: int,

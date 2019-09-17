@@ -23,9 +23,9 @@ from pyrogram import Client
 
 from .. import glovar
 from .channel import share_data
-from .etc import code, general_link, thread
+from .etc import code, general_link, get_now, thread
 from .file import data_to_file, save
-from .group import leave_group
+from .group import delete_message, leave_group
 from .telegram import get_admins, get_group_info, send_message
 
 # Enable logging
@@ -56,9 +56,22 @@ def backup_files(client: Client) -> bool:
     return False
 
 
-def interval_hour_01() -> bool:
+def interval_hour_01(client: Client) -> bool:
     # Execute every hour
     try:
+        # Clear old reports
+        for key in list(glovar.reports):
+            report_record = glovar.reports[key]
+            now = get_now()
+            time = report_record["time"]
+            if now - time > 86400:
+                gid = report_record["group_id"]
+                mid = report_record["report_id"]
+                thread(delete_message, (client, gid, mid))
+                glovar.reports.pop(key, {})
+
+        save("reports")
+
         # Clear user's waiting status
         for uid in list(glovar.user_ids):
             glovar.user_ids[uid]["waiting"] = set()

@@ -74,16 +74,6 @@ locks: Dict[str, Lock] = {
     "receive": Lock()
 }
 
-report_records: Dict[str, Dict[str, Union[int, str]]] = {}
-# report_records = {
-#     "random": {
-#         "message": 123,
-#         "reporter": 12345678,
-#         "user": 12345679,
-#         "reason": None
-#     }
-# }
-
 receivers: Dict[str, List[str]] = {
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
               "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"]
@@ -93,7 +83,7 @@ sender: str = "WARN"
 
 should_hide: bool = False
 
-version: str = "0.2.9"
+version: str = "0.3.0"
 
 # Read data from config.ini
 
@@ -254,8 +244,21 @@ configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
 #     }
 # }
 
+reports: Dict[str, Dict[str, Union[int, str]]] = {}
+# reports = {
+#     "random": {
+#         "time": 1512345678
+#         "group_id": -10012345678,
+#         "reporter_id": 12345678,
+#         "user_id": 12345679,
+#         "message_id": 123,
+#         "report_id": 124,
+#         "reason": None
+#     }
+# }
+
 # Load data
-file_list: List[str] = ["admin_ids", "message_ids", "user_ids", "configs"]
+file_list: List[str] = ["admin_ids", "message_ids", "user_ids", "configs", "reports"]
 for file in file_list:
     try:
         try:

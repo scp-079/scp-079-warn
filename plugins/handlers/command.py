@@ -329,14 +329,17 @@ def report(client: Client, message: Message) -> bool:
                     r_message = message.reply_to_message
                     if not r_message.from_user.is_self:
                         reason = get_command_type(message)
-                        text, markup = report_user(gid, uid, rid, re_mid, reason)
+                        text, markup, key = report_user(gid, uid, rid, re_mid, reason)
                         name = get_full_name(r_message.from_user)
                         if name:
                             text = list(text.partition("\n"))
                             text.insert(2, f"被举报用户昵称：{code(name)}\n")
                             text = "".join(text)
 
-                        thread(send_message, (client, gid, text, re_mid, markup))
+                        result = send_message(client, gid, text, re_mid, markup)
+                        if result:
+                            glovar.reports[key]["report_id"] = result.message_id
+                            save("reports")
         else:
             aid = message.from_user.id
             text = f"管理员：{code(aid)}\n"

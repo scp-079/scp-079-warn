@@ -93,8 +93,11 @@ def receive_help_report(client: Client, data: dict) -> bool:
                         and gid not in glovar.user_ids[uid]["ban"]):
                     the_message = get_message(client, gid, mid)
                     if the_message:
-                        text, markup = report_user(gid, uid, 0, mid)
-                        thread(send_message, (client, gid, text, mid, markup))
+                        text, markup, key = report_user(gid, uid, 0, mid)
+                        result = send_message(client, gid, text, mid, markup)
+                        if result:
+                            glovar.reports[key]["report_id"] = result.message_id
+                            save("reports")
 
         return True
     except Exception as e:
