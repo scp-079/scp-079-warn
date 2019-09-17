@@ -39,7 +39,7 @@ app = Client(
 
 # Timer
 scheduler = BackgroundScheduler()
-scheduler.add_job(interval_hour_01, "interval", hours=1)
+scheduler.add_job(interval_hour_01, "interval", [app], hours=1)
 scheduler.add_job(update_status, "cron", [app], minute=30)
 scheduler.add_job(backup_files, "cron", [app], hour=20)
 scheduler.add_job(update_report_ids, "cron", [app], hour=21, minute=30)
