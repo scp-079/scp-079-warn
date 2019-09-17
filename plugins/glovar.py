@@ -34,57 +34,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Init
-all_commands: List[str] = [
-    "admin",
-    "admins",
-    "ban",
-    "config",
-    "config_warn",
-    "forgive",
-    "report",
-    "version",
-    "warn"
-]
-
-default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
-    "default": True,
-    "lock": 0,
-    "delete": True,
-    "limit": 3,
-    "mention": True,
-    "report": {
-        "auto": False,
-        "manual": True
-    }
-}
-
-default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
-    "ban": set(),
-    "lock": set(),
-    "score": 0,
-    "warn": {},
-    "waiting": set()
-}
-
-left_group_ids: Set[int] = set()
-
-locks: Dict[str, Lock] = {
-    "admin": Lock(),
-    "receive": Lock()
-}
-
-receivers: Dict[str, List[str]] = {
-    "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
-              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"]
-}
-
-sender: str = "WARN"
-
-should_hide: bool = False
-
-version: str = "0.3.0"
-
 # Read data from config.ini
 
 # [basic]
@@ -190,6 +139,58 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
 
 bot_ids: Set[int] = {avatar_id, captcha_id, clean_id, lang_id, long_id,
                      noflood_id, noporn_id, nospam_id, recheck_id, tip_id, user_id, warn_id}
+
+# Init
+
+all_commands: List[str] = [
+    "admin",
+    "admins",
+    "ban",
+    "config",
+    "config_warn",
+    "forgive",
+    "report",
+    "version",
+    "warn"
+]
+
+default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
+    "default": True,
+    "lock": 0,
+    "delete": True,
+    "limit": 3,
+    "mention": True,
+    "report": {
+        "auto": False,
+        "manual": True
+    }
+}
+
+default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
+    "ban": set(),
+    "lock": set(),
+    "score": 0,
+    "warn": {},
+    "waiting": set()
+}
+
+left_group_ids: Set[int] = set()
+
+locks: Dict[str, Lock] = {
+    "admin": Lock(),
+    "receive": Lock()
+}
+
+receivers: Dict[str, List[str]] = {
+    "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
+              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"]
+}
+
+sender: str = "WARN"
+
+should_hide: bool = False
+
+version: str = "0.3.0"
 
 # Load data from pickle
 
