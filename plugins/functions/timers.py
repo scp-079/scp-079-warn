@@ -60,9 +60,9 @@ def interval_hour_01(client: Client) -> bool:
     # Execute every hour
     try:
         # Clear old reports
+        now = get_now()
         for key in list(glovar.reports):
             report_record = glovar.reports[key]
-            now = get_now()
             time = report_record["time"]
             if now - time > 86400:
                 gid = report_record["group_id"]
@@ -90,6 +90,9 @@ def reset_data() -> bool:
     try:
         glovar.user_ids = {}
         save("user_ids")
+
+        glovar.reports = {}
+        save("reports")
 
         return True
     except Exception as e:
