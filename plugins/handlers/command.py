@@ -186,7 +186,7 @@ def config_directly(client: Client, message: Message) -> bool:
             if command_type:
                 if command_type == "show":
                     report_auto = new_config.get("report") and new_config["report"].get("auto")
-                    report_manual = new_config.get("report") and new_config["report"].get("auto")
+                    report_manual = new_config.get("report") and new_config["report"].get("manual")
                     text += (f"操作：{code('查看设置')}\n"
                              f"设置：{code((lambda x: '默认' if x else '自定义')(new_config.get('default')))}\n"
                              f"警告上限：{code(new_config['limit'])}\n"
