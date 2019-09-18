@@ -27,7 +27,7 @@ from .channel import ask_for_help, forward_evidence, send_debug, update_score
 from .etc import button_data, code, delay, general_link, get_channel_link, get_int, get_now, get_text, message_link
 from .etc import random_str, thread, user_mention
 from .file import save
-from .filters import is_class_c
+from .filters import is_class_c, is_from_user
 from .group import delete_message
 from .ids import init_user_id
 from .telegram import edit_message_text, kick_chat_member, unban_chat_member
@@ -174,7 +174,7 @@ def get_class_d_id(message: Message) -> (int, int):
     uid, mid = (0, 0)
     try:
         r_message = message.reply_to_message
-        if r_message:
+        if r_message and is_from_user(None, r_message):
             if not is_class_c(None, r_message):
                 uid = r_message.from_user.id
                 mid = r_message.message_id
