@@ -133,6 +133,7 @@ def config(client: Client, message: Message) -> bool:
                 if now - glovar.configs[gid]["lock"] > 310:
                     # Set lock
                     glovar.configs[gid]["lock"] = now
+                    save("configs")
                     # Ask CONFIG generate a config session
                     group_name, group_link = get_group_info(client, message.chat)
                     share_data(
