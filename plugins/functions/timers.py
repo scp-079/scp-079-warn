@@ -64,11 +64,12 @@ def interval_hour_01(client: Client) -> bool:
         for key in list(glovar.reports):
             report_record = glovar.reports[key]
             time = report_record["time"]
-            if time and now - time > 86400:
-                gid = report_record["group_id"]
-                mid = report_record["report_id"]
-                thread(delete_message, (client, gid, mid))
-                glovar.reports.pop(key, {})
+            if time:
+                if now - time > 86400:
+                    gid = report_record["group_id"]
+                    mid = report_record["report_id"]
+                    thread(delete_message, (client, gid, mid))
+                    glovar.reports.pop(key, {})
             else:
                 glovar.reports.pop(key, {})
 
