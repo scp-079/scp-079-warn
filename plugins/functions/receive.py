@@ -97,7 +97,10 @@ def receive_help_report(client: Client, data: dict) -> bool:
                         result = send_message(client, gid, text, mid, markup)
                         if result:
                             glovar.reports[key]["report_id"] = result.message_id
-                            save("reports")
+                        else:
+                            glovar.reports[key].pop(key, {})
+
+                        save("reports")
 
         return True
     except Exception as e:

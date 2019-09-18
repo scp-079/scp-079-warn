@@ -339,7 +339,10 @@ def report(client: Client, message: Message) -> bool:
                         result = send_message(client, gid, text, re_mid, markup)
                         if result:
                             glovar.reports[key]["report_id"] = result.message_id
-                            save("reports")
+                        else:
+                            glovar.reports.pop(key, {})
+
+                        save("reports")
         else:
             aid = message.from_user.id
             text = f"管理员：{code(aid)}\n"
