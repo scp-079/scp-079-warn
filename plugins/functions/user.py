@@ -205,7 +205,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
             if not reason:
                 reason = record_reason
 
-            if not init_user_id(rid) and init_user_id(uid):
+            if not (init_user_id(rid) and init_user_id(uid)):
                 return ""
 
             # Check users' locks
