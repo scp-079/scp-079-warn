@@ -24,7 +24,7 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
-from ..functions.etc import bold, code, delay, get_callback_data, get_command_context, get_command_type, get_full_name
+from ..functions.etc import bold, code, delay, get_callback_data, get_command_context, get_command_type
 from ..functions.etc import get_int, get_now, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import from_user, is_class_c, test_group
@@ -330,13 +330,7 @@ def report(client: Client, message: Message) -> bool:
                     r_message = message.reply_to_message
                     if not r_message.from_user.is_self:
                         reason = get_command_type(message)
-                        text, markup, key = report_user(gid, uid, rid, re_mid, reason)
-                        name = get_full_name(r_message.from_user)
-                        if name:
-                            text = list(text.partition("\n"))
-                            text.insert(2, f"被举报用户昵称：{code(name)}\n")
-                            text = "".join(text)
-
+                        text, markup, key = report_user(gid, r_message.from_user, rid, re_mid, reason)
                         result = send_message(client, gid, text, re_mid, markup)
                         if result:
                             glovar.reports[key]["report_id"] = result.message_id

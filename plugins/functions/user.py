@@ -20,7 +20,7 @@ import logging
 from random import sample
 from typing import Optional
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
 from .channel import ask_for_help, forward_evidence, send_debug, update_score
@@ -276,12 +276,17 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
     return result
 
 
-def report_user(gid: int, uid: int, rid: int, mid: int, reason: str = None) -> (str, InlineKeyboardMarkup, str):
+def report_user(gid: int, user: User, rid: int, mid: int, reason: str = None) -> (str, InlineKeyboardMarkup, str):
     # Report a user
     text = ""
     markup = None
     key = ""
     try:
+        if user:
+            uid = user.id
+        else:
+            return "", None
+
         glovar.user_ids[uid]["waiting"].add(gid)
         glovar.user_ids[rid]["waiting"].add(gid)
         save("user_ids")
@@ -375,7 +380,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int,
                             glovar.user_ids[uid]["lock"].discard(gid)
                             _, markup = ban_user(client, message, uid, aid, result, reason)
                             text = (f"已封禁用户：{user_mention(uid)}\n"
-                                    f"自动封禁原因：{code('警告次数达到上限')}\n")
+                                    f"封禁原因：{code('警告次数达到上限')}\n")
                         else:
                             text = (f"已警告用户：{user_mention(uid)}\n"
                                     f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
