@@ -196,15 +196,17 @@ def get_debug_text(client: Client, context: Union[int, Chat]) -> str:
     return text
 
 
-def send_debug(client: Client, message: Message, action: str, uid: int, aid: int, em: Message,
+def send_debug(client: Client, message: Message, action: str, uid: int, aid: int, em: Message = None,
                reason: str = None) -> bool:
     # Send the debug message
     try:
         text = get_debug_text(client, message.chat)
         text += (f"用户 ID：{code(uid)}\n"
-                 f"执行操作：{code(f'{action}用户')}\n"
-                 f"群管理：{code(aid)}\n"
-                 f"消息存放：{general_link(em.message_id, message_link(em))}\n")
+                 f"执行操作：{code(action)}\n"
+                 f"群管理：{code(aid)}\n")
+        if em:
+            text += f"消息存放：{general_link(em.message_id, message_link(em))}\n"
+
         # If the message is a report callback message
         if reason:
             text += f"原因：{code(reason)}\n"

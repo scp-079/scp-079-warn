@@ -43,7 +43,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         action_type = callback_data["t"]
         if action == "undo":
             uid = callback_data["d"]
-            text = undo_user(client, gid, aid, uid, mid, action_type)
+            text = undo_user(client, callback_query.message, aid, uid, action_type)
             thread(answer_callback, (client, callback_query.id, text))
         elif action == "report":
             report_key = callback_data["d"]

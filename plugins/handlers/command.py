@@ -281,11 +281,10 @@ def forgive(client: Client, message: Message) -> bool:
         gid = message.chat.id
         mid = message.message_id
         if is_class_c(None, message):
-            aid = message.from_user.id
             uid, _ = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
                 reason = get_command_type(message)
-                text, success = forgive_user(client, gid, uid, aid, reason)
+                text, success = forgive_user(client, message, uid, reason)
                 glovar.user_ids[uid]["lock"].discard(gid)
                 save("user_ids")
                 if success:
@@ -470,7 +469,7 @@ def undo(client: Client, message: Message) -> bool:
                 if r_message.from_user.is_self and callback_data_list and callback_data_list[0]["a"] == "undo":
                     action_type = callback_data_list[0]["t"]
                     uid = callback_data_list[0]["d"]
-                    undo_user(client, gid, aid, uid, r_message.message_id, action_type)
+                    undo_user(client, r_message, aid, uid, action_type)
                     thread(delete_message, (client, gid, mid))
                     return True
                 else:
