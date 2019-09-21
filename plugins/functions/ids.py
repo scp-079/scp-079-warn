@@ -35,7 +35,7 @@ def init_group_id(gid: int) -> bool:
                 save("admin_ids")
 
             if glovar.message_ids.get(gid) is None:
-                glovar.message_ids[gid] = 0
+                glovar.message_ids[gid] = (0, 0)
                 save("message_ids")
 
             if glovar.configs.get(gid) is None:

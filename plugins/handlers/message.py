@@ -46,8 +46,9 @@ def check_join(client: Client, message: Message) -> bool:
                 if not glovar.user_ids.get(uid, {}):
                     continue
 
-                if gid in glovar.user_ids[uid]["ban"]:
+                if gid in glovar.user_ids[uid]["ban"] or gid in glovar.user_ids[uid]["kick"]:
                     glovar.user_ids[uid]["ban"].discard(gid)
+                    glovar.user_ids[uid]["kick"].discard(gid)
                     save("user_ids")
                     update_score(client, uid)
 

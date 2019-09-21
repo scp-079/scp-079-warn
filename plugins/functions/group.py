@@ -65,7 +65,7 @@ def leave_group(client: Client, gid: int) -> bool:
         glovar.admin_ids.pop(gid, None)
         save("admin_ids")
 
-        glovar.message_ids.pop(gid, 0)
+        glovar.message_ids.pop(gid, (0, 0))
         save("message_ids")
 
         glovar.configs.pop(gid, None)

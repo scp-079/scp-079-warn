@@ -59,6 +59,17 @@ def backup_files(client: Client) -> bool:
 def interval_hour_01(client: Client) -> bool:
     # Execute every hour
     try:
+        # Clear old calling messages
+        now = get_now()
+        for gid in list(glovar.message_ids):
+            mid, time = glovar.message_ids[gid]
+            if time:
+                if now - time > 86400:
+                    glovar.message_ids[gid] = (0, 0)
+                    thread(delete_message, (client, gid, mid))
+
+        save("message_ids")
+
         # Clear old reports
         now = get_now()
         for key in list(glovar.reports):

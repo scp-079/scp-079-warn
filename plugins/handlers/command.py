@@ -30,8 +30,8 @@ from ..functions.file import save
 from ..functions.filters import from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_message
 from ..functions.ids import init_user_id
-from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, report_answer, report_user
-from ..functions.user import unban_user, undo_user, warn_user
+from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, kick_user
+from ..functions.user import report_answer, report_user, unban_user, undo_user, warn_user
 from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
 
 # Enable logging
@@ -66,14 +66,14 @@ def admin(client: Client, message: Message) -> bool:
                         else:
                             rid = None
 
-                        sent_message = send_message(client, gid, text, rid)
-                        if sent_message:
-                            old_mid = glovar.message_ids.get(gid, 0)
+                        result = send_message(client, gid, text, rid)
+                        if result:
+                            old_mid, _ = glovar.message_ids.get(gid, (0, 0))
                             if old_mid:
                                 thread(delete_message, (client, gid, old_mid))
 
-                            sent_mid = sent_message.message_id
-                            glovar.message_ids[gid] = sent_mid
+                            sent_mid = result.message_id
+                            glovar.message_ids[gid] = (sent_mid, get_now())
                             save("message_ids")
 
         thread(delete_message, (client, gid, mid))
@@ -285,10 +285,10 @@ def forgive(client: Client, message: Message) -> bool:
             uid, _ = get_class_d_id(message)
             if uid and uid not in glovar.admin_ids[gid]:
                 reason = get_command_type(message)
-                text, result = forgive_user(client, gid, uid, aid, reason)
+                text, success = forgive_user(client, gid, uid, aid, reason)
                 glovar.user_ids[uid]["lock"].discard(gid)
                 save("user_ids")
-                if result:
+                if success:
                     secs = 180
                 else:
                     secs = 15
@@ -300,6 +300,37 @@ def forgive(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Forgive error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
+                   & Filters.command(["kick"], glovar.prefix))
+def kick(client: Client, message: Message) -> bool:
+    # Kick users
+    try:
+        gid = message.chat.id
+        mid = message.message_id
+        if is_class_c(None, message):
+            uid, re_mid = get_class_d_id(message)
+            if uid and uid not in glovar.admin_ids[gid]:
+                aid = message.from_user.id
+                reason = get_command_type(message)
+                text, success = kick_user(client, message, uid, aid, reason)
+                if success:
+                    secs = 180
+                else:
+                    secs = 15
+
+                thread(send_report_message, (secs, client, gid, text))
+                if re_mid:
+                    thread(delete_message, (client, gid, re_mid))
+
+        thread(delete_message, (client, gid, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Kick error: {e}", exc_info=True)
 
     return False
 

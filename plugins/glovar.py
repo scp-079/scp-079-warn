@@ -23,7 +23,7 @@ from os import mkdir
 from os.path import exists
 from shutil import rmtree
 from threading import Lock
-from typing import Dict, List, Set, Union
+from typing import Dict, List, Set, Tuple, Union
 
 # Enable logging
 logging.basicConfig(
@@ -171,6 +171,7 @@ default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
 
 default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
     "ban": set(),
+    "kick": set(),
     "lock": set(),
     "score": 0,
     "warn": {},
@@ -194,7 +195,7 @@ sender: str = "WARN"
 
 should_hide: bool = False
 
-version: str = "0.3.2"
+version: str = "0.3.3"
 
 # Load data from pickle
 
@@ -219,6 +220,7 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 # user_ids = {
 #     12345678: {
 #         "ban": {-10012345678},
+#         "kick": {-10012345678},
 #         "lock": {-10012345678},
 #         "score": 1,
 #         "warn": {
@@ -228,9 +230,9 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
 #     }
 # }
 
-message_ids: Dict[int, int] = {}
+message_ids: Dict[int, Tuple[int, int]] = {}
 # message_ids = {
-#     -10012345678: 123
+#     -10012345678: (123, 1512345678)
 # }
 
 # Init data variables
