@@ -31,8 +31,8 @@ from ..functions.filters import from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_message
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, report_answer, report_user
-from ..functions.user import undo_user, warn_user
-from ..functions.telegram import get_group_info, send_message, send_report_message
+from ..functions.user import unban_user, undo_user, warn_user
+from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -386,6 +386,44 @@ def report(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
+                   & Filters.command(["unban"], glovar.prefix))
+def unban(client: Client, message: Message) -> bool:
+    # Unban a user
+    try:
+        gid = message.chat.id
+        mid = message.message_id
+        if is_class_c(None, message):
+            aid = message.from_user.id
+            text = f"管理员：{code(aid)}\n"
+            command_type, command_context = get_command_context(message)
+            if command_type:
+                uid = get_int(command_context)
+                if not uid:
+                    peer_type, peer_id = resolve_username(client, command_type)
+                    if peer_type == "user" and peer_id:
+                        uid = peer_id
+
+                if uid:
+                    text = unban_user(client, gid, uid, aid)
+                else:
+                    text += (f"状态：{code('未操作')}\n"
+                             f"原因：{code('命令参数有误')}\n")
+            else:
+                text += (f"状态：{code('未操作')}\n"
+                         f"原因：{code('用法有误')}\n")
+
+            thread(send_report_message, (15, client, gid, text))
+
+        thread(delete_message, (client, gid, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Unban error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
                    & Filters.command(["undo"], glovar.prefix))
 def undo(client: Client, message: Message) -> bool:
     # Undo operations
@@ -395,25 +433,23 @@ def undo(client: Client, message: Message) -> bool:
         if is_class_c(None, message):
             aid = message.from_user.id
             text = f"管理员：{code(aid)}\n"
-            command_list = list(filter(None, message.command))
-            if len(command_list) == 1:
-                if message.reply_to_message:
-                    r_message = message.reply_to_message
-                    callback_data_list = get_callback_data(r_message)
-                    if r_message.from_user.is_self and callback_data_list and callback_data_list[0]["a"] == "undo":
-                        action_type = callback_data_list[0]["t"]
-                        uid = callback_data_list[0]["d"]
-                        undo_user(client, gid, aid, uid, r_message.message_id, action_type)
-                        thread(delete_message, (client, gid, mid))
-                        return True
-                    else:
-                        text += (f"状态：{code('未操作')}\n"
-                                 f"原因：{code('来源有误')}\n")
+            if message.reply_to_message:
+                r_message = message.reply_to_message
+                callback_data_list = get_callback_data(r_message)
+                if r_message.from_user.is_self and callback_data_list and callback_data_list[0]["a"] == "undo":
+                    action_type = callback_data_list[0]["t"]
+                    uid = callback_data_list[0]["d"]
+                    undo_user(client, gid, aid, uid, r_message.message_id, action_type)
+                    thread(delete_message, (client, gid, mid))
+                    return True
                 else:
                     text += (f"状态：{code('未操作')}\n"
-                             f"原因：{code('用法有误')}\n")
+                             f"原因：{code('来源有误')}\n")
+            else:
+                text += (f"状态：{code('未操作')}\n"
+                         f"原因：{code('用法有误')}\n")
 
-                thread(send_report_message, (15, client, gid, text))
+            thread(send_report_message, (15, client, gid, text))
 
         thread(delete_message, (client, gid, mid))
 

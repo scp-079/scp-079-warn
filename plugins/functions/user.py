@@ -433,7 +433,7 @@ def unban_user(client: Client, gid: int, uid: int, aid: int) -> str:
                     f"结果：{code('未操作')}\n"
                     f"原因：{code('不在封禁列表中')}\n")
 
-        text += f"管理员：{code(aid)}"
+        text += f"管理员：{code(aid)}\n"
     except Exception as e:
         logger.warning(f"Unban user error: {e}", exc_info=True)
 
@@ -443,7 +443,9 @@ def unban_user(client: Client, gid: int, uid: int, aid: int) -> str:
 def undo_user(client: Client, gid: int, aid: int, uid: int, mid: int, action_type: str) -> Optional[str]:
     result = None
     try:
-        init_user_id(uid)
+        if not init_user_id(uid):
+            return None
+
         # Check the user's lock
         if gid not in glovar.user_ids[uid]["lock"]:
             glovar.user_ids[uid]["lock"].add(gid)
@@ -493,7 +495,7 @@ def unwarn_user(client: Client, gid: int, uid: int, aid: int) -> str:
                     f"结果：{code('未操作')}\n"
                     f"原因：{code('已在封禁列表中')}\n")
 
-        text += f"管理员：{code(aid)}"
+        text += f"管理员：{code(aid)}\n"
     except Exception as e:
         logger.warning(f"Unwarn user error: {e}", exc_info=True)
 

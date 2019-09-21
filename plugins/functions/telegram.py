@@ -20,10 +20,12 @@ import logging
 from typing import Iterable, List, Optional, Union
 
 from pyrogram import Chat, ChatMember, Client, InlineKeyboardMarkup, Message
+from pyrogram.api.types import InputPeerUser, InputPeerChannel
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
+from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
 from .. import glovar
-from .etc import delay, wait_flood
+from .etc import delay, get_int, wait_flood
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -205,6 +207,47 @@ def leave_chat(client: Client, cid: int) -> bool:
         logger.warning(f"Leave chat {cid} error: {e}", exc_info=True)
 
     return False
+
+
+def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[bool, InputPeerChannel, InputPeerUser]]:
+    # Get an input peer by id
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.resolve_peer(pid)
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+            except (PeerIdInvalid, UsernameInvalid, UsernameNotOccupied):
+                return False
+    except Exception as e:
+        logger.warning(f"Resolve peer error: {e}", exc_info=True)
+
+    return result
+
+
+def resolve_username(client: Client, username: str) -> (str, int):
+    # Resolve peer by username
+    peer_type = ""
+    peer_id = 0
+    try:
+        if username:
+            result = resolve_peer(client, username)
+            if result:
+                if isinstance(result, InputPeerChannel):
+                    peer_type = "channel"
+                    peer_id = result.channel_id
+                    peer_id = get_int(f"-100{peer_id}")
+                elif isinstance(result, InputPeerUser):
+                    peer_type = "user"
+                    peer_id = result.user_id
+    except Exception as e:
+        logger.warning(f"Resolve username error: {e}", exc_info=True)
+
+    return peer_type, peer_id
 
 
 def send_document(client: Client, cid: int, file: str, text: str = None, mid: int = None,

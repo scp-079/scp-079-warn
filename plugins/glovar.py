@@ -149,7 +149,10 @@ all_commands: List[str] = [
     "config",
     "config_warn",
     "forgive",
+    "kick",
     "report",
+    "unban",
+    "undo",
     "version",
     "warn"
 ]
@@ -178,6 +181,7 @@ left_group_ids: Set[int] = set()
 
 locks: Dict[str, Lock] = {
     "admin": Lock(),
+    "message": Lock(),
     "receive": Lock()
 }
 
@@ -190,7 +194,7 @@ sender: str = "WARN"
 
 should_hide: bool = False
 
-version: str = "0.3.1"
+version: str = "0.3.2"
 
 # Load data from pickle
 

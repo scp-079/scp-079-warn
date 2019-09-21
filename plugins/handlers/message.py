@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.channel import get_debug_text
+from ..functions.channel import get_debug_text, update_score
 from ..functions.etc import code, delay, general_link, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, from_user, hide_channel, new_group, test_group
@@ -33,6 +33,31 @@ from ..functions.telegram import get_admins, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user & Filters.new_chat_members & ~new_group)
+def check_join(client: Client, message: Message) -> bool:
+    # Check new joined user
+    if glovar.locks["message"].acquire():
+        try:
+            gid = message.chat.id
+            for new in message.new_chat_members:
+                uid = new.id
+                if not glovar.user_ids.get(uid, {}):
+                    continue
+
+                if gid in glovar.user_ids[uid]["ban"]:
+                    glovar.user_ids[uid]["ban"].discard(gid)
+                    save("user_ids")
+                    update_score(client, uid)
+
+            return True
+        except Exception as e:
+            logger.warning(f"Check join error: {e}", exc_info=True)
+        finally:
+            glovar.locks["message"].release()
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
