@@ -210,7 +210,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
         # If the message is a report callback message
         if reason:
             text += f"原因：{code(reason)}\n"
-        elif message.from_user.is_self and action != "解禁用户":
+        elif message.from_user.is_self and action not in {"清空警告", "解禁用户"}:
             text += f"原因：{code('由群管处理的举报')}\n"
         else:
             reason = get_command_type(message)
