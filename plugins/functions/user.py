@@ -427,7 +427,7 @@ def unban_user(client: Client, message: Message, uid: int, aid: int) -> str:
     try:
         gid = message.chat.id
         if gid in glovar.user_ids[uid]["ban"]:
-            thread(unban_chat_member, (client, gid, uid))
+            unban_chat_member(client, gid, uid)
             glovar.user_ids[uid]["ban"].discard(gid)
             update_score(client, uid)
             text = f"已解禁用户：{user_mention(uid)}\n"
