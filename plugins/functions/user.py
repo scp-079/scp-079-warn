@@ -84,7 +84,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
                              f"结果：{code('未操作')}\n"
                              f"原因：{code('已在封禁列表中')}\n")
 
-                text += f"管理员：{code(aid)}\n"
+                text += f"说明：{code('此操作由本群组的管理员执行')}\n"
                 if markup and reason:
                     text += f"原因：{code(reason)}\n"
             finally:
@@ -133,7 +133,7 @@ def forgive_user(client: Client, message: Message, uid: int, reason: str = None)
                              f"结果：{code('已解禁')}\n")
                     success = True
 
-                text += f"管理员：{code(aid)}\n"
+                text += f"说明：{code('此操作由本群组的管理员执行')}\n"
                 if success:
                     save("user_ids")
                     if reason:
@@ -240,7 +240,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                         text = (f"被举报用户：{user_mention(uid)}\n"
                                 f"被举报消息：{general_link(r_mid, f'{get_channel_link(message)}/{r_mid}')}\n"
                                 f"举报人：{reporter_text}\n"
-                                f"管理员：{code(aid)}\n"
+                                f"说明：{code('此操作由本群组的管理员执行')}\n"
                                 f"状态：{code('已取消')}\n")
                         markup = None
 
@@ -265,7 +265,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
         else:
             message_text = get_text(message)
             uid = get_int(message_text.split("\n")[0].split("：")[1])
-            text = (f"管理员：{code(aid)}\n"
+            text = (f"说明：{code('此操作由本群组的管理员执行')}\n"
                     f"状态：{code('已失效')}\n")
             thread(edit_message_text, (client, gid, mid, text))
             delay(15, delete_message, [client, gid, mid])
@@ -410,7 +410,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int,
                              f"结果：{code('未操作')}\n"
                              f"原因：{code('已在封禁列表中')}\n")
 
-                text += f"管理员：{code(aid)}\n"
+                text += f"说明：{code('此操作由本群组的管理员执行')}\n"
                 if markup and reason:
                     text += f"原因：{code(reason)}\n"
             finally:
@@ -437,7 +437,7 @@ def unban_user(client: Client, message: Message, uid: int, aid: int) -> str:
                     f"结果：{code('未操作')}\n"
                     f"原因：{code('不在封禁列表中')}\n")
 
-        text += f"管理员：{code(aid)}\n"
+        text += f"说明：{code('此操作由本群组的管理员执行')}\n"
     except Exception as e:
         logger.warning(f"Unban user error: {e}", exc_info=True)
 
@@ -517,7 +517,7 @@ def kick_user(client: Client, message: Message, uid: int, aid: int,
                              f"结果：{code('未操作')}\n"
                              f"原因：{code('已在封禁列表中')}\n")
 
-                text += f"管理员：{code(aid)}\n"
+                text += f"说明：{code('此操作由本群组的管理员执行')}\n"
                 if success and reason:
                     text += f"原因：{code(reason)}\n"
             finally:
@@ -556,7 +556,7 @@ def unwarn_user(client: Client, message: Message, uid: int, aid: int) -> str:
                     f"结果：{code('未操作')}\n"
                     f"原因：{code('已在封禁列表中')}\n")
 
-        text += f"管理员：{code(aid)}\n"
+        text += f"说明：{code('此操作由本群组的管理员执行')}\n"
     except Exception as e:
         logger.warning(f"Unwarn user error: {e}", exc_info=True)
 
