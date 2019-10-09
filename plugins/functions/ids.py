@@ -42,6 +42,9 @@ def init_group_id(gid: int) -> bool:
                 glovar.configs[gid] = deepcopy(glovar.default_config)
                 save("configs")
 
+            if glovar.counts.get(gid) is None:
+                glovar.counts[gid] = {}
+
             return True
     except Exception as e:
         logger.warning(f"Init group id {gid} error: {e}", exc_info=True)

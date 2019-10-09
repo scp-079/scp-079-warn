@@ -36,6 +36,9 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
         if gid and uid:
             if init_group_id(gid):
                 if uid in glovar.admin_ids[gid] or uid in glovar.bot_ids or update.from_user.is_self:
+                    if glovar.counts[gid].get(uid) is None:
+                        glovar.counts[gid][uid] = 0
+
                     return True
     except Exception as e:
         logger.warning(f"Is class c error: {e}")
@@ -142,3 +145,20 @@ test_group = Filters.create(
     func=is_test_group,
     name="Test Group"
 )
+
+
+def is_limited_admin(gid: int, uid: int) -> bool:
+    # Check if the user is a limited admin
+    try:
+        if not glovar.counts.get(gid):
+            return False
+
+        if not glovar.counts[gid].get(uid):
+            return False
+
+        if glovar.counts[gid][uid] > 50:
+            return True
+    except Exception as e:
+        logger.warning(f"Is limited admin error: {e}", exc_info=True)
+
+    return False

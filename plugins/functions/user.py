@@ -28,7 +28,7 @@ from .channel import ask_for_help, forward_evidence, send_debug, update_score
 from .etc import button_data, code, delay, general_link, get_channel_link, get_int, get_now, get_text, message_link
 from .etc import random_str, thread, user_mention
 from .file import save
-from .filters import is_class_c, is_from_user
+from .filters import is_class_c, is_from_user, is_limited_admin
 from .group import delete_message
 from .ids import init_user_id
 from .telegram import edit_message_text, kick_chat_member, unban_chat_member
@@ -44,6 +44,10 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
     markup = None
     try:
         gid = message.chat.id
+
+        if is_limited_admin(gid, aid):
+            return True
+
         init_user_id(uid)
         # Check users' locks
         if gid not in glovar.user_ids[uid]["lock"]:
@@ -54,6 +58,8 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
                         result = forward_evidence(client, message.reply_to_message, "封禁用户", "群管自行操作")
 
                     if result:
+                        glovar.counts[gid][aid] += 1
+
                         thread(kick_chat_member, (client, gid, uid))
                         glovar.user_ids[uid]["ban"].add(gid)
                         glovar.user_ids[uid]["warn"].pop(gid, 0)
@@ -483,6 +489,10 @@ def kick_user(client: Client, message: Message, uid: int, aid: int,
     success = False
     try:
         gid = message.chat.id
+
+        if is_limited_admin(gid, aid):
+            return True
+
         init_user_id(uid)
         # Check users' locks
         if gid not in glovar.user_ids[uid]["lock"]:
@@ -491,6 +501,8 @@ def kick_user(client: Client, message: Message, uid: int, aid: int,
                 if gid not in glovar.user_ids[uid]["ban"]:
                     result = forward_evidence(client, message.reply_to_message, "移除用户", "群管自行操作")
                     if result:
+                        glovar.counts[gid][aid] += 1
+
                         # Kick the user
                         kick_chat_member(client, gid, uid)
                         sleep(3)

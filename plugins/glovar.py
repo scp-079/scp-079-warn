@@ -157,6 +157,13 @@ all_commands: List[str] = [
     "warn"
 ]
 
+counts: Dict[int, Dict[int, int]] = {}
+# counts = {
+#     -10012345678: {
+#         12345678: 1
+#     }
+# }
+
 default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
     "default": True,
     "lock": 0,
