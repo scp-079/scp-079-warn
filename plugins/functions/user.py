@@ -46,7 +46,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
         gid = message.chat.id
 
         if is_limited_admin(gid, aid):
-            return True
+            return "", None
 
         init_user_id(uid)
         # Check users' locks
@@ -491,7 +491,7 @@ def kick_user(client: Client, message: Message, uid: int, aid: int,
         gid = message.chat.id
 
         if is_limited_admin(gid, aid):
-            return True
+            return "", False
 
         init_user_id(uid)
         # Check users' locks
