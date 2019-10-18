@@ -156,7 +156,7 @@ def is_limited_admin(gid: int, uid: int) -> bool:
         if not glovar.counts[gid].get(uid):
             return False
 
-        if glovar.counts[gid][uid] > 50:
+        if glovar.counts[gid][uid] > 2000:
             return True
     except Exception as e:
         logger.warning(f"Is limited admin error: {e}", exc_info=True)
