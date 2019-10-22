@@ -213,7 +213,7 @@ def config_directly(client: Client, message: Message) -> bool:
                                 else:
                                     success = False
                                     reason = "命令参数有误"
-                            elif command_type in {"mention"}:
+                            elif command_type in {"delete", "mention"}:
                                 if command_context == "off":
                                     new_config[command_type] = False
                                 elif command_context == "on":
