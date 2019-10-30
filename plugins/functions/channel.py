@@ -39,8 +39,13 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
                 "group_id": gid,
                 "user_id": uid
         }
-        if level == "delete":
+
+        if level == "ban":
+            data["type"] = (glovar.configs[gid].get("restrict") and "restrict") or "ban"
+        elif level == "delete":
             data["type"] = group
+
+        data["delete"] = glovar.configs[gid].get("delete")
 
         share_data(
             client=client,
