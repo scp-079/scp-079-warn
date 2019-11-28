@@ -34,21 +34,34 @@ logger = logging.getLogger(__name__)
 def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     try:
-        # Basic callback data
+        # Basic data
         gid = callback_query.message.chat.id
         aid = callback_query.from_user.id
         mid = callback_query.message.message_id
         callback_data = loads(callback_query.data)
         action = callback_data["a"]
         action_type = callback_data["t"]
+        data = callback_data["d"]
+
+        # Undo
         if action == "undo":
-            uid = callback_data["d"]
+            uid = data
             text = undo_user(client, callback_query.message, aid, uid, action_type)
             thread(answer_callback, (client, callback_query.id, text))
+
+        # Mention abuse
+        elif action == "mention":
+            text = ""
+
+        # Answer report
         elif action == "report":
-            report_key = callback_data["d"]
-            text = report_answer(client, callback_query.message, gid, aid, mid, action_type, report_key)
-            thread(answer_callback, (client, callback_query.id, text))
+            key = data
+            text = report_answer(client, callback_query.message, gid, aid, mid, action_type, key)
+
+        else:
+            text = ""
+
+        thread(answer_callback, (client, callback_query.id, text))
 
         return True
     except Exception as e:

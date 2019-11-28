@@ -383,7 +383,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.3.4"
+version: str = "0.3.5"
 
 # Load data from pickle
 
