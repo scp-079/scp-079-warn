@@ -24,9 +24,11 @@ from shutil import copyfile
 from typing import Any
 
 from pyAesCrypt import decryptFile, encryptFile
+from pyrogram import Client
 
 from .. import glovar
 from .etc import random_str, thread
+from .telegram import download_media
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -35,6 +37,9 @@ logger = logging.getLogger(__name__)
 def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
     # Encrypt or decrypt a file
     try:
+        if not file_in or not file_out:
+            return True
+
         buffer = 64 * 1024
         if operation == "decrypt":
             decryptFile(file_in, file_out, glovar.password, buffer)
@@ -52,6 +57,7 @@ def data_to_file(data: Any) -> str:
     # Save data to a file in tmp directory
     try:
         file_path = get_new_path()
+
         with open(file_path, "wb") as f:
             dump(data, f)
 
@@ -75,15 +81,31 @@ def delete_file(path: str) -> bool:
     return False
 
 
-def get_new_path() -> str:
+def get_downloaded_path(client: Client, file_id: str, file_ref: str) -> str:
+    # Download file, get it's path on local machine
+    final_path = ""
+    try:
+        if not file_id:
+            return ""
+
+        file_path = get_new_path()
+        final_path = download_media(client, file_id, file_ref, file_path)
+    except Exception as e:
+        logger.warning(f"Get downloaded path error: {e}", exc_info=True)
+
+    return final_path
+
+
+def get_new_path(extension: str = "") -> str:
     # Get a new path in tmp directory
     result = ""
     try:
         file_path = random_str(8)
-        while exists(f"tmp/{file_path}"):
+
+        while exists(f"tmp/{file_path}{extension}"):
             file_path = random_str(8)
 
-        result = f"tmp/{file_path}"
+        result = f"tmp/{file_path}{extension}"
     except Exception as e:
         logger.warning(f"Get new path error: {e}", exc_info=True)
 
@@ -103,16 +125,18 @@ def save(file: str) -> bool:
 
 
 def save_thread(file: str) -> bool:
-    # Save function's thread
+    # Save thread
     try:
-        if glovar:
-            with open(f"data/.{file}", "wb") as f:
-                dump(eval(f"glovar.{file}"), f)
+        if not glovar:
+            return True
 
-            copyfile(f"data/.{file}", f"data/{file}")
+        with open(f"data/.{file}", "wb") as f:
+            dump(eval(f"glovar.{file}"), f)
+
+        copyfile(f"data/.{file}", f"data/{file}")
 
         return True
     except Exception as e:
-        logger.error(f"Save data error: {e}", exc_info=True)
+        logger.error(f"Save thread error: {e}", exc_info=True)
 
     return False
