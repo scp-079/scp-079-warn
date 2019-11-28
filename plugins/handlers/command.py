@@ -372,7 +372,7 @@ def report(client: Client, message: Message) -> bool:
             aid = message.from_user.id
             text = f"管理员：{code(aid)}\n"
             action_type, reason = get_command_context(message)
-            if action_type in {"warn", "ban", "cancel", "spam"}:
+            if action_type in {"warn", "ban", "cancel", "abuse"}:
                 if message.reply_to_message:
                     r_message = get_message(client, gid, message.reply_to_message.message_id)
                     if r_message and r_message.reply_to_message:

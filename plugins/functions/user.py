@@ -291,7 +291,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
             elif action_type == "warn":
                 text, markup = warn_user(client, message, uid, aid, reason)
                 thread(delete_message, (client, gid, r_mid))
-            elif action_type == "spam":
+            elif action_type == "abuse":
                 if not rid:
                     return ""
 
@@ -347,7 +347,9 @@ def report_user(gid: int, user: User, rid: int, mid: int, reason: str = None) ->
         glovar.user_ids[uid]["waiting"].add(gid)
         glovar.user_ids[rid]["waiting"].add(gid)
         save("user_ids")
+
         key = random_str(8)
+
         while glovar.reports.get(key):
             key = random_str(8)
 
@@ -360,17 +362,19 @@ def report_user(gid: int, user: User, rid: int, mid: int, reason: str = None) ->
             "report_id": 0,
             "reason": reason
         }
-        if rid:
-            reporter_text = "██████"
-        else:
-            reporter_text = code("自动触发")
 
-        text = (f"被举报用户：{mention_id(uid)}\n"
-                f"被举报消息：{general_link(mid, f'{get_channel_link(gid)}/{mid}')}\n"
-                f"举报人：{reporter_text}\n"
-                f"呼叫管理：{get_admin_text(gid)}\n")
+        if rid:
+            reporter_text = code("██████")
+        else:
+            reporter_text = code(lang("auto_triggered"))
+
+        text = (f"{lang('reported_user')}{lang('colon')}{mention_id(uid)}\n"
+                f"{lang('reported_message')}{lang('colon')}{general_link(mid, f'{get_channel_link(gid)}/{mid}')}\n"
+                f"{lang('reporter')}{lang('colon')}{reporter_text}\n"
+                f"{lang('mention_admins')}{lang('colon')}{get_admin_text(gid)}\n")
+
         if reason:
-            text += f"原因：{code(reason)}\n"
+            text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
 
         warn_data = button_data("report", "warn", key)
         ban_data = button_data("report", "ban", key)
@@ -378,27 +382,28 @@ def report_user(gid: int, user: User, rid: int, mid: int, reason: str = None) ->
         markup_list = [
             [
                 InlineKeyboardButton(
-                    "警告",
+                    text=lang("warn"),
                     callback_data=warn_data
                 ),
                 InlineKeyboardButton(
-                    "封禁",
+                    text=lang("ban"),
                     callback_data=ban_data
                 )
             ],
             [
                 InlineKeyboardButton(
-                    "取消",
+                    text=lang("cancel"),
                     callback_data=cancel_data
                 )
             ]
         ]
+
         if rid:
-            warn_reporter_data = button_data("report", "spam", key)
+            abuse_data = button_data("report", "abuse", key)
             markup_list[1].append(
                 InlineKeyboardButton(
-                    "滥用",
-                    callback_data=warn_reporter_data
+                    text=lang("abuse"),
+                    callback_data=abuse_data
                 )
             )
 
