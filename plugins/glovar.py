@@ -239,7 +239,13 @@ lang: Dict[str, str] = {
     "contact": (zh_cn and "联系方式") or "Contact Info",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
-
+    "ban_undo": (zh_cn and "解禁用户") or "Undo Ban",
+    "from_self": (zh_cn and "群管直接回复汇报消息") or "The Group Admin Directly Replied to the Report Message",
+    "rule_admin": (zh_cn and "群管自行操作") or "Group Admin's Command",
+    "stored_message": (zh_cn and "消息存放") or "Stored Message",
+    "warn_clear": (zh_cn and "清空警告") or "Clear Warns",
+    "warn_undo": (zh_cn and "撤销警告") or "Undo Warn",
+    "by_report": (zh_cn and "由群管处理的举报") or "Report Handled by Group Admin",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
     "auto_delete": (zh_cn and "自动删除") or "Auto Delete",
