@@ -25,6 +25,7 @@ from threading import Thread, Timer
 from time import sleep, time
 from typing import Any, Callable, List, Optional, Union
 
+from cryptography.fernet import Fernet
 from pyrogram import CallbackQuery, InlineKeyboardMarkup, Message, User
 from pyrogram.errors import FloodWait
 
@@ -84,6 +85,25 @@ def code_block(text: Any) -> str:
         logger.warning(f"Code block error: {e}", exc_info=True)
 
     return ""
+
+
+def crypt_str(operation: str, text: str, key: str) -> str:
+    # Encrypt or decrypt a string
+    result = ""
+    try:
+        f = Fernet(key)
+        text = text.encode("utf-8")
+
+        if operation == "decrypt":
+            result = f.decrypt(text)
+        else:
+            result = f.encrypt(text)
+
+        result = result.decode("utf-8")
+    except Exception as e:
+        logger.warning(f"Crypt str error: {e}", exc_info=True)
+
+    return result
 
 
 def delay(secs: int, target: Callable, args: list) -> bool:

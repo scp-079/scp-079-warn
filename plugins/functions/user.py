@@ -58,6 +58,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
         if gid in glovar.user_ids[uid]["lock"]:
             return "", None
 
+        # Proceed
         glovar.user_ids[uid]["lock"].add(gid)
         try:
             if gid not in glovar.user_ids[uid]["ban"]:
@@ -132,49 +133,66 @@ def forgive_user(client: Client, message: Message, uid: int, reason: str = None)
     text = ""
     success = False
     try:
-        if not init_user_id(uid):
-            return "", False
-
+        # Basic data
         gid = message.chat.id
         aid = message.from_user.id
 
+        # Init user data
+        if not init_user_id(uid):
+            return "", False
+
         # Check users' locks
-        if gid not in glovar.user_ids[uid]["lock"]:
-            glovar.user_ids[uid]["lock"].add(gid)
-            try:
-                if gid not in glovar.user_ids[uid]["ban"]:
-                    if glovar.user_ids[uid]["warn"].get(gid, 0):
-                        glovar.user_ids[uid]["warn"].pop(gid, 0)
-                        text += (f"用户：{mention_id(uid)}\n"
-                                 f"结果：{code('已清空警告')}\n")
-                        success = True
-                    elif gid in glovar.user_ids[uid]["waiting"]:
-                        glovar.user_ids[uid]["waiting"].discard(gid)
-                        text += (f"用户：{mention_id(uid)}\n"
-                                 f"结果：{code('已重置举报状态')}\n")
-                        success = True
-                    else:
-                        text += (f"用户：{mention_id(uid)}\n"
-                                 f"结果：{code('未操作')}\n"
-                                 f"原因：{code('未在记录列表中')}\n")
-                        success = False
-                else:
-                    glovar.user_ids[uid]["ban"].discard(gid)
-                    thread(unban_chat_member, (client, gid, uid))
-                    text += (f"用户：{mention_id(uid)}\n"
-                             f"结果：{code('已解禁')}\n")
-                    success = True
+        if gid in glovar.user_ids[uid]["lock"]:
+            return "", False
 
-                text += f"说明：{code('此操作由本群管理员执行')}\n"
-                if success:
-                    save("user_ids")
-                    if reason:
-                        text += f"原因：{code(reason)}\n"
+        # Proceed
+        glovar.user_ids[uid]["lock"].add(gid)
+        try:
+            # Text prefix
+            text += f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
 
-                    update_score(client, uid)
-                    send_debug(client, message, "重置用户", uid, aid)
-            finally:
-                glovar.user_ids[uid]["lock"].discard(gid)
+            if gid in glovar.user_ids[uid]["ban"]:
+                glovar.user_ids[uid]["ban"].discard(gid)
+                thread(unban_chat_member, (client, gid, uid))
+                text += (f"{lang('action')}{lang('colon')}{code(lang('action_unban'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+                success = True
+            elif glovar.user_ids[uid]["warn"].get(gid, 0):
+                glovar.user_ids[uid]["warn"].pop(gid, 0)
+                text += (f"{lang('action')}{lang('colon')}{code(lang('action_unwarn'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+                success = True
+            elif gid in glovar.user_ids[uid]["waiting"]:
+                glovar.user_ids[uid]["waiting"].discard(gid)
+                text += (f"{lang('action')}{lang('colon')}{code(lang('action_unwait'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+                success = True
+            else:
+                text += (f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+                success = False
+
+            text += f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
+
+            if not success:
+                return text, success
+
+            save("user_ids")
+
+            if reason:
+                text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
+            update_score(client, uid)
+            send_debug(
+                client=client,
+                message=message,
+                action=lang("action_forgive"),
+                uid=uid,
+                aid=aid
+            )
+        finally:
+            glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
         logger.warning(f"Forgive user error: {e}")
 
@@ -183,24 +201,26 @@ def forgive_user(client: Client, message: Message, uid: int, reason: str = None)
 
 def get_admin_text(gid: int) -> str:
     # Get admin mention text
-    mention_text = ""
+    result = ""
     try:
         admin_all_list = list(glovar.admin_ids[gid])
         admin_list = list(filter(lambda a: a not in glovar.bot_ids, admin_all_list))
         admin_count = len(admin_list)
         mention_style = ["A", "D", "M", "I", "N", "S"]
         mention_count = len(mention_style)
+
         if admin_count < mention_count:
             admin_list += [admin_list[0]] * (mention_count - admin_count)
 
         mention_list = sample(admin_list, mention_count)
-        mention_text = ""
+        result = ""
+
         for i in range(mention_count):
-            mention_text += f"{general_link(mention_style[i], f'tg://user?id={mention_list[i]}')}"
+            result += f"{general_link(mention_style[i], f'tg://user?id={mention_list[i]}')}"
     except Exception as e:
         logging.warning(f"Get admin text error: {e}", exc_info=True)
 
-    return mention_text
+    return result
 
 
 def get_class_d_id(message: Message) -> (int, int):

@@ -26,7 +26,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import get_debug_text, share_data
-from .etc import code, general_link, get_text, lang, mention_id, thread
+from .etc import code, crypt_str, general_link, get_int, get_text, lang, mention_id, thread
 from .file import crypt_file, data_to_file, delete_file, get_downloaded_path, get_new_path, save
 from .filters import is_declared_message_id
 from .group import get_config_text, get_message, leave_group
@@ -55,6 +55,58 @@ def receive_add_bad(data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Receive add bad error: {e}", exc_info=True)
+
+    return False
+
+
+def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
+    # Receive clear data command
+    glovar.locks["message"].acquire()
+    try:
+        # Basic data
+        aid = data["admin_id"]
+        the_type = data["type"]
+
+        # Clear bad data
+        if data_type == "bad":
+            if the_type == "channels":
+                glovar.bad_ids["channels"] = set()
+            elif the_type == "users":
+                glovar.bad_ids["users"] = set()
+
+            save("bad_ids")
+
+        # Clear user data
+        if data_type == "user":
+            if the_type == "all":
+                glovar.user_ids = {}
+
+            save("user_ids")
+
+        # Clear watch data
+        if data_type == "watch":
+            if the_type == "all":
+                glovar.watch_ids = {
+                    "ban": {},
+                    "delete": {}
+                }
+            elif the_type == "ban":
+                glovar.watch_ids["ban"] = {}
+            elif the_type == "delete":
+                glovar.watch_ids["delete"] = {}
+
+            save("watch_ids")
+
+        # Send debug message
+        text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
+                f"{lang('more')}{lang('colon')}{code(f'{data_type} {the_type}')}\n")
+        thread(send_message, (client, glovar.debug_channel_id, text))
+    except Exception as e:
+        logger.warning(f"Receive clear data: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 
@@ -315,6 +367,9 @@ def receive_remove_bad(data: dict) -> bool:
         # Remove bad user
         if the_type == "user":
             glovar.bad_ids["users"].discard(the_id)
+            glovar.watch_ids["ban"].pop(the_id, {})
+            glovar.watch_ids["delete"].pop(the_id, {})
+            save("watch_ids")
             glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
             save("user_ids")
 
@@ -323,6 +378,26 @@ def receive_remove_bad(data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Receive remove bad error: {e}", exc_info=True)
+
+    return False
+
+
+def receive_remove_watch(data: dict) -> bool:
+    # Receive removed watching users
+    try:
+        # Basic data
+        uid = data["id"]
+        the_type = data["type"]
+
+        if the_type == "all":
+            glovar.watch_ids["ban"].pop(uid, 0)
+            glovar.watch_ids["delete"].pop(uid, 0)
+
+        save("watch_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive remove watch error: {e}", exc_info=True)
 
     return False
 
@@ -367,3 +442,32 @@ def receive_text_data(message: Message) -> dict:
         logger.warning(f"Receive text data error: {e}")
 
     return data
+
+
+def receive_watch_user(data: dict) -> bool:
+    # Receive watch users that other bots shared
+    try:
+        # Basic data
+        the_type = data["type"]
+        uid = data["id"]
+        until = data["until"]
+
+        # Decrypt the data
+        until = crypt_str("decrypt", until, glovar.key)
+        until = get_int(until)
+
+        # Add to list
+        if the_type == "ban":
+            glovar.watch_ids["ban"][uid] = until
+        elif the_type == "delete":
+            glovar.watch_ids["delete"][uid] = until
+        else:
+            return False
+
+        save("watch_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive watch user error: {e}", exc_info=True)
+
+    return False

@@ -113,7 +113,7 @@ def interval_hour_01(client: Client) -> bool:
     return False
 
 
-def reset_data() -> bool:
+def reset_data(client: Client) -> bool:
     # Reset data every month
     try:
         glovar.bad_ids = {
@@ -127,8 +127,19 @@ def reset_data() -> bool:
         glovar.user_ids = {}
         save("user_ids")
 
+        glovar.watch_ids = {
+            "ban": {},
+            "delete": {}
+        }
+        save("watch_ids")
+
         glovar.reports = {}
         save("reports")
+
+        # Send debug message
+        text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('reset'))}\n")
+        thread(send_message, (client, glovar.debug_channel_id, text))
 
         return True
     except Exception as e:

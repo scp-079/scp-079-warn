@@ -50,4 +50,5 @@ project_name = SCP-079-WARN
 zh_cn = [DATA EXPUNGED]
 
 [encrypt]
+key = [DATA EXPUNGED]
 password = [DATA EXPUNGED]

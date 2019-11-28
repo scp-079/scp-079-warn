@@ -75,6 +75,7 @@ project_name: str = ""
 zh_cn: Union[bool, str] = ""
 
 # [encrypt]
+key: Union[bytes, str] = ""
 password: str = ""
 
 try:
@@ -114,6 +115,8 @@ try:
     zh_cn = config["custom"].get("zh_cn", zh_cn)
     zh_cn = eval(zh_cn)
     # [encrypt]
+    key = config["encrypt"].get("key", key)
+    key = key.encode("utf-8")
     password = config["encrypt"].get("password", password)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}", exc_info=True)
@@ -146,6 +149,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or zh_cn not in {False, True}
+        or key in {b"", b"[DATA EXPUNGED]", "", "[DATA EXPUNGED]"}
         or password in {"", "[DATA EXPUNGED]"}):
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")
@@ -242,7 +246,9 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "action_ban": (zh_cn and "封禁用户") or "Ban User",
+    "action_forgive": (zh_cn and "重置用户状态") or "Forgive User",
     "action_unban": (zh_cn and "解禁用户") or "Undo Ban",
+    "action_unwait": (zh_cn and "重置举报状态") or "Reset Report Status",
     "action_unwarn": (zh_cn and "清空警告") or "Clear Warns",
     "by_report": (zh_cn and "由群管处理的举报") or "Report Handled by Group Admin",
     "description_by_admin": (zh_cn and "此操作由本群管理员执行") or "This Operation is Performed by the Group Admin",
@@ -423,6 +429,19 @@ user_ids: Dict[int, Dict[str, Union[float, Dict[Union[int, str], Union[float, in
 #     }
 # }
 
+watch_ids: Dict[str, Dict[int, int]] = {
+    "ban": {},
+    "delete": {}
+}
+# watch_ids = {
+#     "ban": {
+#         12345678: 1512345678
+#     },
+#     "delete": {
+#         12345678: 1512345678
+#     }
+# }
+
 # Init data variables
 
 configs: Dict[int, Dict[str, Union[bool, int, Dict[str, bool]]]] = {}
@@ -453,7 +472,7 @@ reports: Dict[str, Dict[str, Union[int, str]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "left_group_ids", "message_ids", "user_ids",
+file_list: List[str] = ["admin_ids", "bad_ids", "left_group_ids", "message_ids", "user_ids", "watch_ids",
                         "configs", "reports"]
 for file in file_list:
     try:

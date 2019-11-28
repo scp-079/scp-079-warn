@@ -171,6 +171,11 @@ def is_test_group(_, update: Union[CallbackQuery, Message]) -> bool:
     return False
 
 
+authorized_group = Filters.create(
+    func=is_authorized_group,
+    name="Authorized Group"
+)
+
 class_c = Filters.create(
     func=is_class_c,
     name="Class C"
@@ -294,5 +299,21 @@ def is_limited_admin(gid: int, uid: int) -> bool:
             return True
     except Exception as e:
         logger.warning(f"Is limited admin error: {e}", exc_info=True)
+
+    return False
+
+
+def is_watch_user(user: User, the_type: str, now: int) -> bool:
+    # Check if the message is sent by a watch user
+    try:
+        if is_class_e_user(user):
+            return False
+
+        uid = user.id
+        until = glovar.watch_ids[the_type].get(uid, 0)
+        if now < until:
+            return True
+    except Exception as e:
+        logger.warning(f"Is watch user error: {e}", exc_info=True)
 
     return False
