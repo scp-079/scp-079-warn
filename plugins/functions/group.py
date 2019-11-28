@@ -33,8 +33,12 @@ logger = logging.getLogger(__name__)
 def delete_message(client: Client, gid: int, mid: int) -> bool:
     # Delete a single message
     try:
+        if not gid or not mid:
+            return True
+
         mids = [mid]
         thread(delete_messages, (client, gid, mids))
+
         return True
     except Exception as e:
         logger.warning(f"Delete message error: {e}", exc_info=True)
@@ -60,6 +64,7 @@ def leave_group(client: Client, gid: int) -> bool:
     # Leave a group, clear it's data
     try:
         glovar.left_group_ids.add(gid)
+        save("left_group_ids")
         thread(leave_chat, (client, gid))
 
         glovar.admin_ids.pop(gid, None)
