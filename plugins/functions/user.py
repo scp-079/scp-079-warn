@@ -598,6 +598,7 @@ def unwarn_user(client: Client, message: Message, uid: int, aid: int) -> str:
     # Unwarn a user
     text = ""
     try:
+        # Basic data
         gid = message.chat.id
         if gid not in glovar.user_ids[uid]["ban"]:
             if not glovar.user_ids[uid]["warn"].get(gid, 0):
@@ -622,7 +623,7 @@ def unwarn_user(client: Client, message: Message, uid: int, aid: int) -> str:
                     f"结果：{code('未操作')}\n"
                     f"原因：{code('已在封禁列表中')}\n")
 
-        text += f"说明：{code('此操作由本群管理员执行')}\n"
+        text += f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
     except Exception as e:
         logger.warning(f"Unwarn user error: {e}", exc_info=True)
 
