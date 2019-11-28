@@ -25,6 +25,8 @@ from shutil import rmtree
 from threading import Lock
 from typing import Dict, List, Set, Tuple, Union
 
+from pyrogram import Chat
+
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -186,10 +188,10 @@ lang: Dict[str, str] = {
     "custom": (zh_cn and "自定义") or "Custom",
     "default": (zh_cn and "默认") or "Default",
     "delete": (zh_cn and "协助删除") or "Help Delete",
-    "restrict": (zh_cn and "禁言模式") or "Restriction Mode",
-    "friend": (zh_cn and "放行友链") or "Ignore Friend Links",
-    "filter": (zh_cn and "过滤") or "Filter",
-    "ignore": (zh_cn and "忽略") or "Ignore",
+    "limit": (zh_cn and "警告上限") or "Warn Limit",
+    "mention": (zh_cn and "呼叫管理") or "Mention Admins",
+    "report_auto": (zh_cn and "自动举报") or "Auto Report",
+    "report_manual": (zh_cn and "手动举报") or "Manual Report",
     # Debug
     "triggered_by": (zh_cn and "触发消息") or "Triggered By",
     # Emergency
@@ -284,6 +286,11 @@ all_commands: List[str] = [
 bot_ids: Set[int] = {avatar_id, captcha_id, clean_id, lang_id, long_id, noflood_id,
                      noporn_id, nospam_id, recheck_id, tip_id, user_id, warn_id}
 
+chats: Dict[int, Chat] = {}
+# chats = {
+#     -10012345678: Chat
+# }
+
 counts: Dict[int, Dict[int, int]] = {}
 # counts = {
 #     -10012345678: {
@@ -303,11 +310,21 @@ default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {
     }
 }
 
-default_user_status: Dict[str, Union[float, Dict[int, int], Set[int]]] = {
+default_user_status: Dict[str, Union[float, Dict[Union[int, str], Union[float, int]], Set[int]]] = {
     "ban": set(),
     "kick": set(),
     "lock": set(),
-    "score": 0,
+    "score": {
+        "captcha": 0.0,
+        "clean": 0.0,
+        "lang": 0.0,
+        "long": 0.0,
+        "noflood": 0.0,
+        "noporn": 0.0,
+        "nospam": 0.0,
+        "recheck": 0.0,
+        "warn": 0.0
+    },
     "warn": {},
     "waiting": set()
 }
@@ -326,6 +343,14 @@ receivers: Dict[str, List[str]] = {
 sender: str = "WARN"
 
 should_hide: bool = False
+
+usernames: Dict[str, Dict[str, Union[int, str]]] = {}
+# usernames = {
+#     "SCP_079": {
+#         "peer_type": "channel",
+#         "peer_id": -1001196128009
+#     }
+# }
 
 version: str = "0.3.4"
 
@@ -348,6 +373,13 @@ admin_ids: Dict[int, Set[int]] = {}
 #     -10012345678: {12345678}
 # }
 
+bad_ids: Dict[str, Set[int]] = {
+    "users": set()
+}
+# bad_ids = {
+#     "users": {12345678}
+# }
+
 left_group_ids: Set[int] = set()
 # left_group_ids = {-10012345678}
 
@@ -356,13 +388,23 @@ message_ids: Dict[int, Tuple[int, int]] = {}
 #     -10012345678: (123, 1512345678)
 # }
 
-user_ids: Dict[int, Dict[str, Union[float, Dict[int, int], Set[int]]]] = {}
+user_ids: Dict[int, Dict[str, Union[float, Dict[Union[int, str], Union[float, int]], Set[int]]]] = {}
 # user_ids = {
 #     12345678: {
 #         "ban": {-10012345675},
 #         "kick": {-10012345676},
 #         "lock": {-10012345677},
-#         "score": 1.7,
+#         "score": {
+#             "captcha": 0.0,
+#             "clean": 0.0,
+#             "lang": 0.0,
+#             "long": 0.0,
+#             "noflood": 0.0,
+#             "noporn": 0.0,
+#             "nospam": 0.0,
+#             "recheck": 0.0,
+#             "warn": 1.7
+#         }
 #         "warn": {
 #             -10012345678: 0
 #         },
@@ -400,7 +442,7 @@ reports: Dict[str, Dict[str, Union[int, str]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "left_group_ids", "message_ids", "user_ids",
+file_list: List[str] = ["admin_ids", "bad_ids", "left_group_ids", "message_ids", "user_ids",
                         "configs", "reports"]
 for file in file_list:
     try:

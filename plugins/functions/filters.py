@@ -19,7 +19,7 @@
 import logging
 from typing import Union
 
-from pyrogram import CallbackQuery, Filters, Message
+from pyrogram import CallbackQuery, Filters, Message, User
 
 from .. import glovar
 from .etc import get_id
@@ -66,6 +66,30 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
             return True
     except Exception as e:
         logger.warning(f"Is class c error: {e}", exc_info=True)
+
+    return False
+
+
+def is_class_d(_, message: Message) -> bool:
+    # Check if the message is Class D object
+    try:
+        if message.from_user:
+            if is_class_d_user(message.from_user):
+                return True
+    except Exception as e:
+        logger.warning(f"Is class d error: {e}", exc_info=True)
+
+    return False
+
+
+def is_class_e(_, message: Message, test: bool = False) -> bool:
+    # Check if the message is Class E object
+    try:
+        if message.from_user and not test:
+            if is_class_e_user(message.from_user):
+                return True
+    except Exception as e:
+        logger.warning(f"Is class e error: {e}", exc_info=True)
 
     return False
 
@@ -152,6 +176,16 @@ class_c = Filters.create(
     name="Class C"
 )
 
+class_d = Filters.create(
+    func=is_class_d,
+    name="Class D"
+)
+
+class_e = Filters.create(
+    func=is_class_e,
+    name="Class E"
+)
+
 exchange_channel = Filters.create(
     func=is_exchange_channel,
     name="Exchange Channel"
@@ -176,6 +210,64 @@ test_group = Filters.create(
     func=is_test_group,
     name="Test Group"
 )
+
+
+def is_class_d_user(user: Union[int, User]) -> bool:
+    # Check if the user is a Class D personnel
+    try:
+        if isinstance(user, int):
+            uid = user
+        else:
+            uid = user.id
+
+        if uid in glovar.bad_ids["users"]:
+            return True
+    except Exception as e:
+        logger.warning(f"Is class d user error: {e}", exc_info=True)
+
+    return False
+
+
+def is_class_e_user(user: Union[int, User]) -> bool:
+    # Check if the user is a Class E personnel
+    try:
+        if isinstance(user, int):
+            uid = user
+        else:
+            uid = user.id
+
+        if uid in glovar.bot_ids:
+            return True
+
+        group_list = list(glovar.admin_ids)
+        for gid in group_list:
+            if uid in glovar.admin_ids.get(gid, set()):
+                return True
+    except Exception as e:
+        logger.warning(f"Is class e user error: {e}", exc_info=True)
+
+    return False
+
+
+def is_high_score_user(user: User) -> float:
+    # Check if the message is sent by a high score user
+    try:
+        if is_class_e_user(user):
+            return 0.0
+
+        uid = user.id
+        user_status = glovar.user_ids.get(uid, {})
+
+        if not user_status:
+            return 0.0
+
+        score = sum(user_status["score"].values())
+        if score >= 3.0:
+            return score
+    except Exception as e:
+        logger.warning(f"Is high score user error: {e}", exc_info=True)
+
+    return 0.0
 
 
 def is_limited_admin(gid: int, uid: int) -> bool:

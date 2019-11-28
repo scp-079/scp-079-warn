@@ -344,7 +344,7 @@ def update_score(client: Client, uid: int) -> bool:
         kick_count = len(glovar.user_ids[uid]["kick"])
         warn_count = len(glovar.user_ids[uid]["warn"])
         score = ban_count * 1 + kick_count * 0.3 + warn_count * 0.4
-        glovar.user_ids[uid]["score"] = score
+        glovar.user_ids[uid]["score"][glovar.sender.lower()] = score
         save("user_ids")
         share_data(
             client=client,

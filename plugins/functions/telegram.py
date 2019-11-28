@@ -21,7 +21,7 @@ from typing import Iterable, List, Optional, Union
 
 from pyrogram import Chat, ChatMember, Client, InlineKeyboardMarkup, Message
 from pyrogram.api.types import InputPeerUser, InputPeerChannel
-from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
+from pyrogram.errors import ButtonDataInvalid, ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid, QueryIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
 from .. import glovar
@@ -31,7 +31,7 @@ from .etc import delay, get_int, wait_flood
 logger = logging.getLogger(__name__)
 
 
-def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
+def answer_callback(client: Client, callback_query_id: str, text: str, show_alert: bool = False) -> Optional[bool]:
     # Answer the callback
     result = None
     try:
@@ -40,14 +40,17 @@ def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
             flood_wait = False
             try:
                 result = client.answer_callback_query(
-                    callback_query_id=query_id,
-                    text=text
+                    callback_query_id=callback_query_id,
+                    text=text,
+                    show_alert=show_alert
                 )
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except QueryIdInvalid:
+                return False
     except Exception as e:
-        logger.warning(f"Answer query to {query_id} error: {e}", exc_info=True)
+        logger.warning(f"Answer query to {callback_query_id} error: {e}", exc_info=True)
 
     return result
 
@@ -57,24 +60,28 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
     # Edit the message's text
     result = None
     try:
-        if text.strip():
-            flood_wait = True
-            while flood_wait:
-                flood_wait = False
-                try:
-                    result = client.edit_message_text(
-                        chat_id=cid,
-                        message_id=mid,
-                        text=text,
-                        parse_mode="html",
-                        disable_web_page_preview=True,
-                        reply_markup=markup
-                    )
-                except FloodWait as e:
-                    flood_wait = True
-                    wait_flood(e)
+        if not text.strip():
+            return None
+
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.edit_message_text(
+                    chat_id=cid,
+                    message_id=mid,
+                    text=text,
+                    parse_mode="html",
+                    disable_web_page_preview=True,
+                    reply_markup=markup
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+            except ButtonDataInvalid:
+                logger.warning(f"Edit message {mid} text in {cid} - invalid markup: {markup}")
     except Exception as e:
-        logger.warning(f"Edit message in {cid} error: {e}", exc_info=True)
+        logger.warning(f"Edit message {mid} in {cid} error: {e}", exc_info=True)
 
     return result
 
@@ -96,9 +103,27 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
                         flood_wait = True
                         wait_flood(e)
             except Exception as e:
-                logger.warning(f"Delete message in {cid} for loop error: {e}", exc_info=True)
+                logger.warning(f"Delete message {mids} in {cid} for loop error: {e}", exc_info=True)
     except Exception as e:
         logger.warning(f"Delete messages in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+def download_media(client: Client, file_id: str, file_ref: str, file_path: str):
+    # Download a media file
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.download_media(message=file_id, file_ref=file_ref, file_name=file_path)
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Download media {file_id} to {file_path} error: {e}", exc_info=True)
 
     return result
 
@@ -118,30 +143,48 @@ def get_admins(client: Client, cid: int) -> Optional[Union[bool, List[ChatMember
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
     except Exception as e:
-        logger.warning(f"Get admin ids in {cid} error: {e}", exc_info=True)
+        logger.warning(f"Get admins in {cid} error: {e}", exc_info=True)
 
     return result
 
 
-def get_group_info(client: Client, chat: Union[int, Chat]) -> (str, str):
+def get_chat(client: Client, cid: Union[int, str]) -> Optional[Chat]:
+    # Get a chat
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.get_chat(chat_id=cid)
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Get chat {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+def get_group_info(client: Client, chat: Union[int, Chat], cache: bool = True) -> (str, str):
     # Get a group's name and link
     group_name = "Unknown Group"
     group_link = glovar.default_group_link
     try:
         if isinstance(chat, int):
-            result = None
-            flood_wait = True
-            while flood_wait:
-                flood_wait = False
-                try:
-                    result = client.get_chat(chat_id=chat)
-                except FloodWait as e:
-                    flood_wait = True
-                    wait_flood(e)
-                except Exception as e:
-                    logger.info(f"Get chat {chat} error: {e}", exc_info=True)
+            the_cache = glovar.chats.get(chat)
+            if the_cache:
+                chat = the_cache
+            else:
+                result = get_chat(client, chat)
 
-            chat = result
+                if cache and result:
+                    glovar.chats[chat] = result
+
+                chat = result
+
+        if not chat:
+            return group_name, group_link
 
         if chat.title:
             group_name = chat.title
@@ -149,7 +192,7 @@ def get_group_info(client: Client, chat: Union[int, Chat]) -> (str, str):
         if chat.username:
             group_link = "https://t.me/" + chat.username
     except Exception as e:
-        logger.info(f"Get group info error: {e}", exc_info=True)
+        logger.info(f"Get group {chat} info error: {e}", exc_info=True)
 
     return group_name, group_link
 
@@ -167,7 +210,7 @@ def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List
                 flood_wait = True
                 wait_flood(e)
     except Exception as e:
-        logger.warning(f"Get messages error: {e}", exc_info=True)
+        logger.warning(f"Get messages {mids} in {cid} error: {e}", exc_info=True)
 
     return result
 
@@ -190,14 +233,14 @@ def kick_chat_member(client: Client, cid: int, uid: Union[int, str]) -> Optional
     return result
 
 
-def leave_chat(client: Client, cid: int) -> bool:
+def leave_chat(client: Client, cid: int, delete: bool = False) -> bool:
     # Leave a channel
     try:
         flood_wait = True
         while flood_wait:
             flood_wait = False
             try:
-                client.leave_chat(chat_id=cid)
+                client.leave_chat(chat_id=cid, delete=delete)
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
@@ -224,33 +267,45 @@ def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[bool, I
             except (PeerIdInvalid, UsernameInvalid, UsernameNotOccupied):
                 return False
     except Exception as e:
-        logger.warning(f"Resolve peer error: {e}", exc_info=True)
+        logger.warning(f"Resolve peer {pid} error: {e}", exc_info=True)
 
     return result
 
 
-def resolve_username(client: Client, username: str) -> (str, int):
+def resolve_username(client: Client, username: str, cache: bool = True) -> (str, int):
     # Resolve peer by username
     peer_type = ""
     peer_id = 0
     try:
-        if username:
-            result = resolve_peer(client, username)
-            if result:
-                if isinstance(result, InputPeerChannel):
-                    peer_type = "channel"
-                    peer_id = result.channel_id
-                    peer_id = get_int(f"-100{peer_id}")
-                elif isinstance(result, InputPeerUser):
-                    peer_type = "user"
-                    peer_id = result.user_id
+        username = username.strip("@")
+        if not username:
+            return "", 0
+
+        result = glovar.usernames.get(username)
+        if result and cache:
+            return result["peer_type"], result["peer_id"]
+
+        result = resolve_peer(client, username)
+        if result:
+            if isinstance(result, InputPeerChannel):
+                peer_type = "channel"
+                peer_id = result.channel_id
+                peer_id = get_int(f"-100{peer_id}")
+            elif isinstance(result, InputPeerUser):
+                peer_type = "user"
+                peer_id = result.user_id
+
+        glovar.usernames[username] = {
+            "peer_type": peer_type,
+            "peer_id": peer_id
+        }
     except Exception as e:
-        logger.warning(f"Resolve username error: {e}", exc_info=True)
+        logger.warning(f"Resolve username {username} error: {e}", exc_info=True)
 
     return peer_type, peer_id
 
 
-def send_document(client: Client, cid: int, file: str, text: str = None, mid: int = None,
+def send_document(client: Client, cid: int, document: str, file_ref: str = None, caption: str = "", mid: int = None,
                   markup: InlineKeyboardMarkup = None) -> Optional[Union[bool, Message]]:
     # Send a document to a chat
     result = None
@@ -261,8 +316,9 @@ def send_document(client: Client, cid: int, file: str, text: str = None, mid: in
             try:
                 result = client.send_document(
                     chat_id=cid,
-                    document=file,
-                    caption=text,
+                    document=document,
+                    file_ref=file_ref,
+                    caption=caption,
                     parse_mode="html",
                     reply_to_message_id=mid,
                     reply_markup=markup
@@ -272,8 +328,10 @@ def send_document(client: Client, cid: int, file: str, text: str = None, mid: in
                 wait_flood(e)
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
+            except ButtonDataInvalid:
+                logger.warning(f"Send document {document} to {cid} - invalid markup: {markup}")
     except Exception as e:
-        logger.warning(f"Send document to {cid} error: {e}", exec_info=True)
+        logger.warning(f"Send document {document} to {cid} error: {e}", exec_info=True)
 
     return result
 
@@ -283,24 +341,28 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
     # Send a message to a chat
     result = None
     try:
-        if text.strip():
-            flood_wait = True
-            while flood_wait:
-                flood_wait = False
-                try:
-                    result = client.send_message(
-                        chat_id=cid,
-                        text=text,
-                        parse_mode="html",
-                        disable_web_page_preview=True,
-                        reply_to_message_id=mid,
-                        reply_markup=markup
-                    )
-                except FloodWait as e:
-                    flood_wait = True
-                    wait_flood(e)
-                except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
-                    return False
+        if not text.strip():
+            return None
+
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.send_message(
+                    chat_id=cid,
+                    text=text,
+                    parse_mode="html",
+                    disable_web_page_preview=True,
+                    reply_to_message_id=mid,
+                    reply_markup=markup
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+            except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                return False
+            except ButtonDataInvalid:
+                logger.warning(f"Send message to {cid} - invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
 
@@ -312,28 +374,35 @@ def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int
     # Send a message that will be auto deleted to a chat
     result = None
     try:
-        if text.strip():
-            flood_wait = True
-            while flood_wait:
-                flood_wait = False
-                try:
-                    result = client.send_message(
-                        chat_id=cid,
-                        text=text,
-                        parse_mode="html",
-                        disable_web_page_preview=True,
-                        reply_to_message_id=mid,
-                        reply_markup=markup
-                    )
-                except FloodWait as e:
-                    flood_wait = True
-                    wait_flood(e)
+        if not text.strip():
+            return None
 
-            mid = result.message_id
-            mids = [mid]
-            delay(secs, delete_messages, [client, cid, mids])
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.send_message(
+                    chat_id=cid,
+                    text=text,
+                    parse_mode="html",
+                    disable_web_page_preview=True,
+                    reply_to_message_id=mid,
+                    reply_markup=markup
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+            except ButtonDataInvalid:
+                logger.warning(f"Send report message to {cid} - invalid markup: {markup}")
+
+        if not result:
+            return None
+
+        mid = result.message_id
+        mids = [mid]
+        delay(secs, delete_messages, [client, cid, mids])
     except Exception as e:
-        logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
+        logger.warning(f"Send report message to {cid} error: {e}", exc_info=True)
 
     return result
 
