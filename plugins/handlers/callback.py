@@ -22,7 +22,7 @@ from json import loads
 from pyrogram import CallbackQuery, Client
 
 from ..functions.etc import thread
-from ..functions.filters import class_c
+from ..functions.filters import authorized_group, class_c
 from ..functions.telegram import answer_callback
 from ..functions.user import report_answer, undo_user
 
@@ -30,7 +30,7 @@ from ..functions.user import report_answer, undo_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_callback_query(class_c)
+@Client.on_callback_query(authorized_group & class_c)
 def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     try:
