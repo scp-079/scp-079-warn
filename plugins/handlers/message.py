@@ -22,7 +22,7 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.channel import get_debug_text, update_score
-from ..functions.etc import code, delay, general_link, thread, user_mention
+from ..functions.etc import code, delay, general_link, mention_id, thread
 from ..functions.file import save
 from ..functions.filters import exchange_channel, from_user, hide_channel, new_group, test_group
 from ..functions.group import leave_group
@@ -129,7 +129,7 @@ def init_group(client: Client, message: Message) -> bool:
             text += (f"状态：{code('已退出群组')}\n"
                      f"原因：{code('未授权使用')}\n")
             if message.from_user.username:
-                text += f"邀请人：{user_mention(invited_by)}\n"
+                text += f"邀请人：{mention_id(invited_by)}\n"
             else:
                 text += f"邀请人：{code(invited_by)}\n"
 

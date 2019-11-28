@@ -25,7 +25,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, delay, get_callback_data, get_command_context, get_command_type
-from ..functions.etc import get_int, get_now, thread, user_mention
+from ..functions.etc import get_int, get_now, mention_id, thread
 from ..functions.file import save
 from ..functions.filters import from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_message
@@ -55,7 +55,7 @@ def admin(client: Client, message: Message) -> bool:
                     if (gid not in glovar.user_ids[uid]["waiting"]
                             and gid not in glovar.user_ids[uid]["ban"]
                             and glovar.user_ids[uid]["warn"].get(gid) is None):
-                        text = (f"来自用户：{user_mention(uid)}\n"
+                        text = (f"来自用户：{mention_id(uid)}\n"
                                 f"呼叫管理：{get_admin_text(gid)}\n")
                         reason = get_command_type(message)
                         if reason:
@@ -498,7 +498,7 @@ def version(client: Client, message: Message) -> bool:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        text = (f"管理员：{user_mention(aid)}\n\n"
+        text = (f"管理员：{mention_id(aid)}\n\n"
                 f"版本：{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
 

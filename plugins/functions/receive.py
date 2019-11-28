@@ -24,7 +24,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import get_debug_text
-from .etc import code, general_link, get_text, thread, user_mention
+from .etc import code, general_link, get_text, mention_id, thread
 from .file import save
 from .group import get_message, leave_group
 from .ids import init_group_id, init_user_id
@@ -122,7 +122,7 @@ def receive_leave_approve(client: Client, data: dict) -> bool:
 
         if glovar.admin_ids.get(the_id, {}):
             text = get_debug_text(client, the_id)
-            text += (f"项目管理员：{user_mention(admin_id)}\n"
+            text += (f"项目管理员：{mention_id(admin_id)}\n"
                      f"状态：{code('已批准退出该群组')}\n")
             if reason:
                 text += f"原因：{code(reason)}\n"
@@ -143,7 +143,7 @@ def receive_refresh(client: Client, data: int) -> bool:
         aid = data
         update_admins(client)
         text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"项目管理员：{user_mention(aid)}\n"
+                f"项目管理员：{mention_id(aid)}\n"
                 f"执行操作：{code('刷新群管列表')}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
 
