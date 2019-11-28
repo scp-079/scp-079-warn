@@ -225,17 +225,21 @@ def get_admin_text(gid: int) -> str:
 
 def get_class_d_id(message: Message) -> (int, int):
     # Get Class D personnel's id
-    uid, mid = (0, 0)
+    uid = 0
+    mid = 0
     try:
         r_message = message.reply_to_message
-        if r_message and is_from_user(None, r_message):
-            if not is_class_c(None, r_message):
-                uid = r_message.from_user.id
-                mid = r_message.message_id
-            elif r_message.from_user.is_self:
-                uid = get_int(r_message.text.split("\n")[0].split("：")[1])
-                if uid in glovar.admin_ids[message.chat.id]:
-                    uid = 0
+
+        if not r_message or not is_from_user(None, r_message):
+            return 0, 0
+
+        if not is_class_c(None, r_message):
+            uid = r_message.from_user.id
+            mid = r_message.message_id
+        elif r_message.from_user.is_self:
+            uid = get_int(r_message.text.split("\n")[0].split(lang("colon"))[1])
+            if uid in glovar.admin_ids[message.chat.id]:
+                uid = 0
     except Exception as e:
         logger.warning(f"Get class d id error: {e}", exc_info=True)
 
