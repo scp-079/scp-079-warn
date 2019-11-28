@@ -249,6 +249,17 @@ def is_class_e_user(user: Union[int, User]) -> bool:
     return False
 
 
+def is_declared_message_id(gid: int, mid: int) -> bool:
+    # Check if the message's ID is declared by other bots
+    try:
+        if mid in glovar.declared_message_ids.get(gid, set()):
+            return True
+    except Exception as e:
+        logger.warning(f"Is declared message id error: {e}", exc_info=True)
+
+    return False
+
+
 def is_high_score_user(user: User) -> float:
     # Check if the message is sent by a high score user
     try:

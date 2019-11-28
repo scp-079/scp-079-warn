@@ -28,6 +28,7 @@ from .. import glovar
 from .channel import get_debug_text, share_data
 from .etc import code, general_link, get_text, lang, mention_id, thread
 from .file import crypt_file, data_to_file, delete_file, get_downloaded_path, get_new_path, save
+from .filters import is_declared_message_id
 from .group import get_config_text, get_message, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
@@ -146,6 +147,26 @@ def receive_config_show(client: Client, data: dict) -> bool:
     return False
 
 
+def receive_declared_message(data: dict) -> bool:
+    # Update declared message's id
+    try:
+        # Basic data
+        gid = data["group_id"]
+        mid = data["message_id"]
+
+        if not glovar.admin_ids.get(gid):
+            return True
+
+        if init_group_id(gid):
+            glovar.declared_message_ids[gid].add(mid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive declared message error: {e}", exc_info=True)
+
+    return False
+
+
 def receive_file_data(client: Client, message: Message, decrypt: bool = True) -> Any:
     # Receive file's data from exchange channel
     data = None
@@ -188,6 +209,10 @@ def receive_help_report(client: Client, data: dict) -> bool:
         gid = data["group_id"]
         uid = data["user_id"]
         mid = data["message_id"]
+
+        # Check declared status
+        if is_declared_message_id(gid, mid):
+            return True
 
         # Check group
         if gid not in glovar.admin_ids:

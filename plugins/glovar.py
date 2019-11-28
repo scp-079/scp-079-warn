@@ -241,13 +241,19 @@ lang: Dict[str, str] = {
     "contact": (zh_cn and "联系方式") or "Contact Info",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
-    "ban_undo": (zh_cn and "解禁用户") or "Undo Ban",
+    "action_ban": (zh_cn and "封禁用户") or "Ban User",
+    "action_unban": (zh_cn and "解禁用户") or "Undo Ban",
+    "action_unwarn": (zh_cn and "清空警告") or "Clear Warns",
+    "by_report": (zh_cn and "由群管处理的举报") or "Report Handled by Group Admin",
+    "description_by_admin": (zh_cn and "此操作由本群管理员执行") or "This Operation is Performed by the Group Admin",
     "from_self": (zh_cn and "群管直接回复汇报消息") or "The Group Admin Directly Replied to the Report Message",
+    "reason_deleted": (zh_cn and "消息已被删除") or "Message Has Been Deleted",
+    "reason_banned": (zh_cn and "已在封禁列表中") or "Already in the Banned List",
     "rule_admin": (zh_cn and "群管自行操作") or "Group Admin's Command",
     "stored_message": (zh_cn and "消息存放") or "Stored Message",
-    "warn_clear": (zh_cn and "清空警告") or "Clear Warns",
     "warn_undo": (zh_cn and "撤销警告") or "Undo Warn",
-    "by_report": (zh_cn and "由群管处理的举报") or "Report Handled by Group Admin",
+    "unban": (zh_cn and "解禁") or "Unban",
+    "user_banned": (zh_cn and "已封禁用户") or "Banned User",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
     "auto_delete": (zh_cn and "自动删除") or "Auto Delete",
@@ -296,6 +302,11 @@ counts: Dict[int, Dict[int, int]] = {}
 #     -10012345678: {
 #         12345678: 1
 #     }
+# }
+
+declared_message_ids: Dict[int, Set[int]] = {}
+# declared_message_ids = {
+#     -10012345678: {123}
 # }
 
 default_config: Dict[str, Union[bool, int, Dict[str, bool]]] = {

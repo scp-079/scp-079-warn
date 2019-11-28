@@ -246,7 +246,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
         # If the message is a report callback message
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
-        elif message.from_user.is_self and action not in {lang("ban_undo"), lang("warn_clear")}:
+        elif message.from_user.is_self and action not in {lang("action_unban"), lang("action_unwarn")}:
             text += f"{lang('reason')}{lang('colon')}{code(lang('by_report'))}\n"
         else:
             reason = get_command_type(message)
