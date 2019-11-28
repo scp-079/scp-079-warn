@@ -247,91 +247,90 @@ def get_class_d_id(message: Message) -> (int, int):
 
 
 def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int,
-                  action_type: str, key: str, reason: str = None) -> Optional[str]:
+                  action_type: str, key: str, reason: str = None) -> str:
     # Answer the user's report
-    result = None
     try:
         report_record = glovar.reports.get(key)
-        if report_record:
-            if not report_record["time"]:
-                return ""
 
-            rid = report_record["reporter_id"]
-            uid = report_record["user_id"]
-            r_mid = report_record["message_id"]
-            record_reason = report_record["reason"]
-            if not reason:
-                reason = record_reason
-
-            if not (init_user_id(rid) and init_user_id(uid)):
-                return ""
-
-            # Check users' locks
-            if gid not in glovar.user_ids[uid]["lock"] and gid not in glovar.user_ids[rid]["lock"]:
-                # Lock the report
-                glovar.reports[key]["time"] = 0
-                try:
-                    if action_type == "ban":
-                        text, markup = ban_user(client, message, uid, aid, 0, reason)
-                        thread(delete_message, (client, gid, r_mid))
-                    elif action_type == "warn":
-                        text, markup = warn_user(client, message, uid, aid, reason)
-                        thread(delete_message, (client, gid, r_mid))
-                    # Warn reporter
-                    elif action_type == "spam":
-                        if not rid:
-                            return ""
-
-                        message.reply_to_message.from_user.id = rid
-                        # Should not let bot forward evidence
-                        message.reply_to_message.from_user.is_self = "群管认定滥用举报功能"
-                        text, markup = warn_user(client, message, rid, aid)
-                        text += f"原因：{code('滥用举报功能')}\n"
-                    else:
-                        if rid:
-                            reporter_text = mention_id(rid)
-                        else:
-                            reporter_text = code("自动触发")
-
-                        text = (f"被举报用户：{mention_id(uid)}\n"
-                                f"被举报消息：{general_link(r_mid, f'{get_channel_link(message)}/{r_mid}')}\n"
-                                f"举报人：{reporter_text}\n"
-                                f"说明：{code('此操作由本群管理员执行')}\n"
-                                f"状态：{code('已取消')}\n")
-                        markup = None
-
-                    if markup:
-                        secs = 180
-                    else:
-                        secs = 15
-
-                    thread(edit_message_text, (client, gid, mid, text, markup))
-                    delay(secs, delete_message, [client, gid, mid])
-                # Finally, release the lock and reset the report status
-                finally:
-                    glovar.user_ids[uid]["lock"].discard(gid)
-                    glovar.user_ids[rid]["lock"].discard(gid)
-                    glovar.user_ids[uid]["waiting"].discard(gid)
-                    glovar.user_ids[rid]["waiting"].discard(gid)
-                    save("user_ids")
-
-                result = ""
-            else:
-                result = "已被其他管理员处理"
-        else:
+        if not report_record:
             message_text = get_text(message)
-            uid = get_int(message_text.split("\n")[0].split("：")[1])
-            text = (f"说明：{code('此操作由本群管理员执行')}\n"
-                    f"状态：{code('已失效')}\n")
+            uid = get_int(message_text.split("\n")[0].split(lang("colon"))[1])
+            text = (f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('expired'))}\n")
             thread(edit_message_text, (client, gid, mid, text))
             delay(15, delete_message, [client, gid, mid])
             glovar.user_ids[uid]["waiting"].discard(gid)
             save("user_ids")
-            result = ""
+            return ""
+
+        if not report_record["time"]:
+            return ""
+
+        rid = report_record["reporter_id"]
+        uid = report_record["user_id"]
+        r_mid = report_record["message_id"]
+        record_reason = report_record["reason"]
+
+        if not reason:
+            reason = record_reason
+
+        if not (init_user_id(rid) and init_user_id(uid)):
+            return ""
+
+        # Check users' locks
+        if gid in glovar.user_ids[uid]["lock"] or gid in glovar.user_ids[rid]["lock"]:
+            return lang("answer_processed")
+
+        # Lock the report status
+        glovar.reports[key]["time"] = 0
+        try:
+            if action_type == "ban":
+                text, markup = ban_user(client, message, uid, aid, 0, reason)
+                thread(delete_message, (client, gid, r_mid))
+            elif action_type == "warn":
+                text, markup = warn_user(client, message, uid, aid, reason)
+                thread(delete_message, (client, gid, r_mid))
+            elif action_type == "spam":
+                if not rid:
+                    return ""
+
+                message.reply_to_message.from_user.id = rid
+                message.reply_to_message.from_user.is_self = lang("more_abuse")
+                text, markup = warn_user(client, message, rid, aid)
+                text += f"{lang('reason')}{lang('colon')}{code(lang('reason_abuse'))}\n"
+            else:
+                reported_link = general_link(r_mid, f'{get_channel_link(message)}/{r_mid}')
+
+                if rid:
+                    reporter_text = mention_id(rid)
+                else:
+                    reporter_text = code(lang("auto_triggered"))
+
+                text = (f"{lang('reported_user')}{lang('colon')}{mention_id(uid)}\n"
+                        f"{lang('reported_message')}{lang('colon')}{reported_link}\n"
+                        f"{lang('reporter')}{lang('colon')}{reporter_text}\n"
+                        f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_canceled'))}\n")
+                markup = None
+
+            if markup:
+                secs = 180
+            else:
+                secs = 15
+
+            thread(edit_message_text, (client, gid, mid, text, markup))
+            delay(secs, delete_message, [client, gid, mid])
+        finally:
+            glovar.user_ids[uid]["lock"].discard(gid)
+            glovar.user_ids[rid]["lock"].discard(gid)
+            glovar.user_ids[uid]["waiting"].discard(gid)
+            glovar.user_ids[rid]["waiting"].discard(gid)
+            save("user_ids")
     except Exception as e:
         logger.warning(f"Report answer error: {e}", exc_info=True)
 
-    return result
+    return ""
 
 
 def report_user(gid: int, user: User, rid: int, mid: int, reason: str = None) -> (str, InlineKeyboardMarkup, str):
