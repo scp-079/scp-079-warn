@@ -29,33 +29,58 @@ from .ids import init_group_id
 logger = logging.getLogger(__name__)
 
 
-def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
-    # Check if the message is Class C object
+def is_authorized_group(_, update: Union[CallbackQuery, Message]) -> bool:
+    # Check if the message is send from the authorized group
     try:
-        gid, uid = get_id(update)
-        if gid and uid:
-            if init_group_id(gid):
-                if uid in glovar.admin_ids[gid] or uid in glovar.bot_ids or update.from_user.is_self:
-                    if glovar.counts[gid].get(uid) is None:
-                        glovar.counts[gid][uid] = 0
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
 
-                    return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if init_group_id(cid):
+            return True
     except Exception as e:
-        logger.warning(f"Is class c error: {e}")
+        logger.warning(f"Is authorized group error: {e}", exc_info=True)
+
+    return False
+
+
+def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
+    # Check if the update is send from Class C personnel
+    try:
+        # Basic data
+        gid, uid = get_id(update)
+
+        if not gid or not uid:
+            return False
+
+        # Check permission
+        if uid in glovar.admin_ids[gid] or uid in glovar.bot_ids or update.from_user.is_self:
+            if glovar.counts[gid].get(uid) is None:
+                glovar.counts[gid][uid] = 0
+
+            return True
+    except Exception as e:
+        logger.warning(f"Is class c error: {e}", exc_info=True)
 
     return False
 
 
 def is_exchange_channel(_, message: Message) -> bool:
-    # Check if the message is Class D object
+    # Check if the message is sent from the exchange channel
     try:
-        if message.chat:
-            cid = message.chat.id
-            if glovar.should_hide:
-                if cid == glovar.hide_channel_id:
-                    return True
-            elif cid == glovar.exchange_channel_id:
-                return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if glovar.should_hide:
+            return cid == glovar.hide_channel_id
+        else:
+            return cid == glovar.exchange_channel_id
     except Exception as e:
         logger.warning(f"Is exchange channel error: {e}", exc_info=True)
 
@@ -65,7 +90,7 @@ def is_exchange_channel(_, message: Message) -> bool:
 def is_from_user(_, message: Message) -> bool:
     # Check if the message is sent from a user
     try:
-        if message.from_user:
+        if message.from_user and message.from_user.id != 777000:
             return True
     except Exception as e:
         logger.warning(f"Is from user error: {e}", exc_info=True)
@@ -76,10 +101,12 @@ def is_from_user(_, message: Message) -> bool:
 def is_hide_channel(_, message: Message) -> bool:
     # Check if the message is sent from the hide channel
     try:
-        if message.chat:
-            cid = message.chat.id
-            if cid == glovar.hide_channel_id:
-                return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if cid == glovar.hide_channel_id:
+            return True
     except Exception as e:
         logger.warning(f"Is hide channel error: {e}", exc_info=True)
 
@@ -89,12 +116,9 @@ def is_hide_channel(_, message: Message) -> bool:
 def is_new_group(_, message: Message) -> bool:
     # Check if the bot joined a new group
     try:
-        if message.new_chat_members:
-            new_users = message.new_chat_members
-            if new_users:
-                for user in new_users:
-                    if user.is_self:
-                        return True
+        new_users = message.new_chat_members
+        if new_users:
+            return any(user.is_self for user in new_users)
         elif message.group_chat_created or message.supergroup_chat_created:
             return True
     except Exception as e:
@@ -103,13 +127,20 @@ def is_new_group(_, message: Message) -> bool:
     return False
 
 
-def is_test_group(_, message: Message) -> bool:
+def is_test_group(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is sent from the test group
     try:
-        if message.chat:
-            cid = message.chat.id
-            if cid == glovar.test_group_id:
-                return True
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
+
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if cid == glovar.test_group_id:
+            return True
     except Exception as e:
         logger.warning(f"Is test group error: {e}", exc_info=True)
 
@@ -156,7 +187,7 @@ def is_limited_admin(gid: int, uid: int) -> bool:
         if not glovar.counts[gid].get(uid):
             return False
 
-        if glovar.counts[gid][uid] > 2000:
+        if glovar.counts[gid][uid] > glovar.limit_ban:
             return True
     except Exception as e:
         logger.warning(f"Is limited admin error: {e}", exc_info=True)
