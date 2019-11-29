@@ -261,7 +261,7 @@ lang: Dict[str, str] = {
     "auto_triggered": (zh_cn and "自动触发") or "Auto Triggered",
     "ban": (zh_cn and "封禁") or "Ban",
     "ban_reason": (zh_cn and "封禁原因") or "Ban Reason",
-    "by_report": (zh_cn and "由群管处理的举报") or "Report Handled by Group Admin",
+    "by_button": (zh_cn and "举报或呼叫") or "Report or Mention",
     "cancel": (zh_cn and "取消") or "Cancel",
     "description_by_admin": (zh_cn and "此操作由本群管理员执行") or "This Operation is Performed by the Group Admin",
     "description_wait_admin": (zh_cn and "此举报需本群管理员处置") or "This Report Needs to be Viewed by the Group Admin",

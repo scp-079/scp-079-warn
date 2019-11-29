@@ -247,7 +247,7 @@ def send_debug(client: Client, message: Message, action: str, uid: int, aid: int
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
         elif message.from_user.is_self and action not in {lang("action_unban"), lang("action_unwarns")}:
-            text += f"{lang('reason')}{lang('colon')}{code(lang('by_report'))}\n"
+            text += f"{lang('reason')}{lang('colon')}{code(lang('by_button'))}\n"
         else:
             reason = get_command_type(message)
             if reason:
