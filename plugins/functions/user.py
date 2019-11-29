@@ -718,14 +718,14 @@ def unwarn_user(client: Client, message: Message, uid: int, aid: int) -> str:
         # Check ban status
         if gid in glovar.user_ids[uid]["ban"]:
             text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                    f"{lang('action')}{lang('colon')}{lang('action_unwarn')}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_unwarn'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n"
                     f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
             return text
 
         # Check warnings count
-        if glovar.user_ids[uid]["warn"].get(gid, 0):
+        if not glovar.user_ids[uid]["warn"].get(gid, 0):
             text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                     f"{lang('action')}{lang('colon')}{lang('action_unwarn')}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
