@@ -254,7 +254,7 @@ lang: Dict[str, str] = {
     "action_unwarn": (zh_cn and "撤销警告") or "Undo Warn",
     "action_unwarns": (zh_cn and "清空警告") or "Clear Warns",
     "action_warn": (zh_cn and "警告用户") or "Warn User",
-    "answer_processed": (zh_cn and "已被其他管理员处理") or "",
+    "answer_proceeded": (zh_cn and "已被其他管理员处理") or "",
     "auto_triggered": (zh_cn and "自动触发") or "Auto Triggered",
     "ban": (zh_cn and "封禁") or "Ban",
     "ban_reason": (zh_cn and "封禁原因") or "Ban Reason",
