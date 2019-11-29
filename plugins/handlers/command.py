@@ -20,14 +20,14 @@ import logging
 import re
 from copy import deepcopy
 
-from pyrogram import Client, Filters, Message
+from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
-from ..functions.etc import bold, code, delay, get_callback_data, get_command_context, get_command_type
-from ..functions.etc import get_int, get_now, mention_id, thread
+from ..functions.etc import bold, button_data, code, delay, get_callback_data, get_command_context, get_command_type
+from ..functions.etc import get_int, get_now, lang, mention_id, thread
 from ..functions.file import save
-from ..functions.filters import authorized_group, from_user, is_class_c, test_group
+from ..functions.filters import authorized_group, class_d, from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_message
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, remove_user
@@ -40,55 +40,88 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["admin", "admins"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user)
+                   & from_user & ~class_d)
 def admin(client: Client, message: Message) -> bool:
     # Mention admins
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
     try:
-        gid = message.chat.id
-        mid = message.message_id
-        if not is_class_c(None, message):
-            if glovar.configs[gid]["mention"]:
-                # Admin can not mention admins
-                if not is_class_c(None, message):
-                    uid = message.from_user.id
-                    init_user_id(uid)
-                    # Warned user and the user having report status can't mention admins
-                    if (gid not in glovar.user_ids[uid]["waiting"]
-                            and gid not in glovar.user_ids[uid]["ban"]
-                            and glovar.user_ids[uid]["warn"].get(gid) is None):
-                        text = (f"来自用户：{mention_id(uid)}\n"
-                                f"呼叫管理：{get_admin_text(gid)}\n")
-                        reason = get_command_type(message)
-                        if reason:
-                            text += f"原因：{code(reason)}\n"
+        # Check permission
+        if is_class_c(None, message):
+            return True
 
-                        if message.reply_to_message:
-                            rid = message.reply_to_message.message_id
-                        else:
-                            rid = None
+        # Check config
+        if not glovar.configs[gid].get("mention"):
+            return True
 
-                        result = send_message(client, gid, text, rid)
-                        if result:
-                            old_mid, _ = glovar.message_ids.get(gid, (0, 0))
-                            if old_mid:
-                                thread(delete_message, (client, gid, old_mid))
+        uid = message.from_user.id
 
-                            sent_mid = result.message_id
-                            glovar.message_ids[gid] = (sent_mid, get_now())
-                            save("message_ids")
+        # Init user data
+        if not init_user_id(uid):
+            return True
 
-        thread(delete_message, (client, gid, mid))
+        # Warned user and the user having report status can't mention admins
+        if (gid in glovar.user_ids[uid]["waiting"]
+                or gid in glovar.user_ids[uid]["ban"]
+                or glovar.user_ids[uid]["warn"].get(gid)):
+            return True
+
+        # Generate report text
+        text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                f"{lang('mention_admins')}{lang('colon')}{get_admin_text(gid)}\n")
+        reason = get_command_type(message)
+
+        if reason:
+            text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
+        # Generate report markup
+        data = button_data("mention", "abuse", uid)
+        markup = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text=lang("abuse"),
+                        callback_data=data
+                    )
+                ]
+            ]
+        )
+
+        # Send the report message
+        if message.reply_to_message:
+            rid = message.reply_to_message.message_id
+        else:
+            rid = None
+
+        result = send_message(client, gid, text, rid, markup)
+
+        if not result:
+            return True
+
+        old_mid, _ = glovar.message_ids.get(gid, (0, 0))
+        old_mid and thread(delete_message, (client, gid, old_mid))
+        sent_mid = result.message_id
+        glovar.message_ids[gid] = (sent_mid, get_now())
+        save("message_ids")
 
         return True
     except Exception as e:
         logger.warning(f"Admin error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group
                    & ~test_group & authorized_group
-                   & from_user
+                   & from_user & ~class_d
                    & Filters.command(["ban"], glovar.prefix))
 def ban(client: Client, message: Message) -> bool:
     # Ban users
