@@ -533,81 +533,117 @@ def report(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["unban"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user
-                   & Filters.command(["unban"], glovar.prefix))
+                   & from_user)
 def unban(client: Client, message: Message) -> bool:
     # Unban a user
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
     try:
-        gid = message.chat.id
-        mid = message.message_id
-        if is_class_c(None, message):
-            aid = message.from_user.id
-            text = f"管理员：{code(aid)}\n"
-            command_type, command_context = get_command_context(message)
-            if command_type:
-                uid = get_int(command_context)
-                if not uid:
-                    peer_type, peer_id = resolve_username(client, command_type)
-                    if peer_type == "user" and peer_id:
-                        uid = peer_id
+        # Check permission
+        if not is_class_c(None, message):
+            return True
 
-                if uid:
-                    text = unban_user(client, gid, uid, aid)
-                else:
-                    text += (f"状态：{code('未操作')}\n"
-                             f"原因：{code('命令参数有误')}\n")
-            else:
-                text += (f"状态：{code('未操作')}\n"
-                         f"原因：{code('用法有误')}\n")
+        aid = message.from_user.id
+        command_type, command_context = get_command_context(message)
 
+        # Text prefix
+        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('action_undo')}\n")
+
+        # Check command format
+        if not command_type:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_report_message, (15, client, gid, text))
+            return True
 
-        thread(delete_message, (client, gid, mid))
+        # Get user id
+        uid = get_int(command_context)
+        if not uid:
+            peer_type, peer_id = resolve_username(client, command_type)
+            if peer_type == "user" and peer_id:
+                uid = peer_id
+
+        # Proceed
+        if not uid:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_para'))}\n")
+            thread(send_report_message, (15, client, gid, text))
+            return True
+
+        # Proceed
+        text = unban_user(client, gid, uid, aid)
+        thread(send_report_message, (30, client, gid, text))
 
         return True
     except Exception as e:
         logger.warning(f"Unban error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["undo"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user
-                   & Filters.command(["undo"], glovar.prefix))
+                   & from_user)
 def undo(client: Client, message: Message) -> bool:
     # Undo operations
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
     try:
-        gid = message.chat.id
-        mid = message.message_id
-        if is_class_c(None, message):
-            aid = message.from_user.id
-            text = f"管理员：{code(aid)}\n"
-            if message.reply_to_message:
-                r_message = message.reply_to_message
-                callback_data_list = get_callback_data(r_message)
-                if r_message.from_user.is_self and callback_data_list and callback_data_list[0]["a"] == "undo":
-                    action_type = callback_data_list[0]["t"]
-                    uid = callback_data_list[0]["d"]
-                    undo_user(client, r_message, aid, uid, action_type)
-                    thread(delete_message, (client, gid, mid))
-                    return True
-                else:
-                    text += (f"状态：{code('未操作')}\n"
-                             f"原因：{code('来源有误')}\n")
-            else:
-                text += (f"状态：{code('未操作')}\n"
-                         f"原因：{code('用法有误')}\n")
+        # Check permission
+        if not is_class_c(None, message):
+            return True
 
+        aid = message.from_user.id
+        r_message = message.reply_to_message
+
+        # Text prefix
+        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('action_undo')}\n")
+
+        # Check usage
+        if not r_message:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_report_message, (15, client, gid, text))
+            return True
 
-        thread(delete_message, (client, gid, mid))
+        # Check message
+        callback_data_list = get_callback_data(r_message)
+        if not (r_message.from_user.is_self
+                and callback_data_list
+                and callback_data_list[0]["a"] == "undo"):
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
+            thread(send_report_message, (15, client, gid, text))
+            return True
+
+        # Proceed
+        action_type = callback_data_list[0]["t"]
+        uid = callback_data_list[0]["d"]
+        undo_user(client, r_message, aid, uid, action_type)
 
         return True
     except Exception as e:
         logger.warning(f"Undo error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
 

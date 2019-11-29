@@ -253,6 +253,7 @@ lang: Dict[str, str] = {
     "action_forgive": (zh_cn and "重置用户状态") or "Forgive User",
     "action_kick": (zh_cn and "移除用户") or "Kick User",
     "action_unban": (zh_cn and "解禁用户") or "Undo Ban",
+    "action_undo": (zh_cn and "撤销操作") or "Undo Operation",
     "action_unwait": (zh_cn and "重置举报状态") or "Reset Report Status",
     "action_unwarn": (zh_cn and "撤销警告") or "Undo Warn",
     "action_unwarns": (zh_cn and "清空警告") or "Clear Warns",
