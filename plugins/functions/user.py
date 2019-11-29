@@ -494,70 +494,77 @@ def warn_user(client: Client, message: Message, uid: int, aid: int,
         # Proceed
         glovar.user_ids[uid]["lock"].add(gid)
         try:
-            if gid not in glovar.user_ids[uid]["ban"]:
-                result = forward_evidence(
-                    client=client,
-                    message=message.reply_to_message,
-                    level=lang("action_warn")
-                )
-                if result:
-                    # Add warn count
-                    if not glovar.user_ids[uid]["warn"].get(gid, 0):
-                        glovar.user_ids[uid]["warn"][gid] = 1
-                        update_score(client, uid)
-                    else:
-                        glovar.user_ids[uid]["warn"][gid] += 1
-
-                    # Read count and group config
-                    warn_count = glovar.user_ids[uid]["warn"][gid]
-                    limit = glovar.configs[gid]["limit"]
-
-                    # Warn or ban
-                    if warn_count >= limit:
-                        glovar.user_ids[uid]["lock"].discard(gid)
-                        text = (f"{lang('user_banned')}{lang('colon')}{mention_id(uid)}\n"
-                                f"{lang('ban_reason')}{lang('colon')}{code(lang('reason_limit'))}\n")
-                        _, markup = ban_user(client, message, uid, aid, result, reason)
-                    else:
-                        text = (f"{lang('user_warned')}{lang('colon')}{mention_id(uid)}\n"
-                                f"{lang('user_warns')}{lang('colon')}{code(f'{warn_count}/{limit}')}\n")
-
-                        data = button_data("undo", "warn", uid)
-                        markup = InlineKeyboardMarkup(
-                            [
-                                [
-                                    InlineKeyboardButton(
-                                        text=lang("undo"),
-                                        callback_data=data
-                                    )
-                                ]
-                            ]
-                        )
-
-                        send_debug(
-                            client=client,
-                            message=message,
-                            action=lang("action_warn"),
-                            uid=uid,
-                            aid=aid,
-                            em=result,
-                            reason=reason
-                        )
-
-                    stored_link = general_link(result.message_id, message_link(result))
-                    text += f"{lang('stored_message')}{lang('colon')}{stored_link}\n"
-                else:
-                    text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                             f"{lang('action')}{lang('colon')}{lang('action_warn')}\n"
-                             f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                             f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n")
-            else:
+            # Check ban status
+            if gid in glovar.user_ids[uid]["ban"]:
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                          f"{lang('action')}{lang('colon')}{lang('action_warn')}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                         f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n")
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+                return text, None
 
-            text += f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
+            # Forward evidence
+            result = forward_evidence(
+                client=client,
+                message=message.reply_to_message,
+                level=lang("action_warn")
+            )
+
+            # Check message
+            if not result:
+                text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                         f"{lang('action')}{lang('colon')}{lang('action_warn')}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+                return text, None
+
+            # Add warn count
+            if not glovar.user_ids[uid]["warn"].get(gid, 0):
+                glovar.user_ids[uid]["warn"][gid] = 1
+                update_score(client, uid)
+            else:
+                glovar.user_ids[uid]["warn"][gid] += 1
+
+            # Read count and group config
+            warn_count = glovar.user_ids[uid]["warn"][gid]
+            limit = glovar.configs[gid]["limit"]
+
+            # Warn or ban
+            if warn_count >= limit:
+                glovar.user_ids[uid]["lock"].discard(gid)
+                text = (f"{lang('user_banned')}{lang('colon')}{mention_id(uid)}\n"
+                        f"{lang('ban_reason')}{lang('colon')}{code(lang('reason_limit'))}\n")
+                _, markup = ban_user(client, message, uid, aid, result, reason)
+            else:
+                text = (f"{lang('user_warned')}{lang('colon')}{mention_id(uid)}\n"
+                        f"{lang('user_warns')}{lang('colon')}{code(f'{warn_count}/{limit}')}\n")
+
+                data = button_data("undo", "warn", uid)
+                markup = InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton(
+                                text=lang("undo"),
+                                callback_data=data
+                            )
+                        ]
+                    ]
+                )
+
+                send_debug(
+                    client=client,
+                    message=message,
+                    action=lang("action_warn"),
+                    uid=uid,
+                    aid=aid,
+                    em=result,
+                    reason=reason
+                )
+
+            stored_link = general_link(result.message_id, message_link(result))
+            text += (f"{lang('stored_message')}{lang('colon')}{stored_link}\n"
+                     f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
 
             if markup and reason:
                 text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
