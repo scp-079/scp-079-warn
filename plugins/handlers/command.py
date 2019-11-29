@@ -120,34 +120,51 @@ def admin(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group
+                   & Filters.command(["ban"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user & ~class_d
-                   & Filters.command(["ban"], glovar.prefix))
+                   & from_user & ~class_d)
 def ban(client: Client, message: Message) -> bool:
     # Ban users
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
     try:
-        gid = message.chat.id
-        mid = message.message_id
-        if is_class_c(None, message):
-            uid, re_mid = get_class_d_id(message)
-            if uid and uid not in glovar.admin_ids[gid]:
-                aid = message.from_user.id
-                reason = get_command_type(message)
-                text, markup = ban_user(client, message, uid, aid, 0, reason)
-                if markup:
-                    secs = 180
-                else:
-                    secs = 15
+        # Check permission
+        if not is_class_c(None, message):
+            return True
 
-                thread(send_report_message, (secs, client, gid, text, None, markup))
-                if re_mid:
-                    thread(delete_message, (client, gid, re_mid))
+        # Check user id
+        uid, r_mid = get_class_d_id(message)
 
-        thread(delete_message, (client, gid, mid))
+        # Check user status
+        if not uid or uid in glovar.admin_ids[gid]:
+            return True
+
+        aid = message.from_user.id
+        reason = get_command_type(message)
+
+        # Ban the user
+        text, markup = ban_user(client, message, uid, aid, 0, reason)
+
+        if markup:
+            secs = 180
+        else:
+            secs = 15
+
+        # Send the report message
+        r_mid and delete_message(client, gid, r_mid)
+        thread(send_report_message, (secs, client, gid, text, None, markup))
 
         return True
     except Exception as e:
         logger.warning(f"Ban error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
 
