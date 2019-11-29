@@ -28,7 +28,7 @@ from ..functions.etc import bold, button_data, code, delay, get_callback_data, g
 from ..functions.etc import get_int, get_now, lang, mention_id, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, class_d, from_user, is_class_c, test_group
-from ..functions.group import delete_message, get_message
+from ..functions.group import delete_message, get_config_text, get_message
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, remove_user
 from ..functions.user import report_answer, report_user, unban_user, undo_user, warn_user
@@ -240,107 +240,116 @@ def config(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group
+                   & Filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user
-                   & Filters.command(["config_warn"], glovar.prefix))
+                   & from_user)
 def config_directly(client: Client, message: Message) -> bool:
     # Config the bot directly
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
     try:
-        gid = message.chat.id
-        mid = message.message_id
-        if is_class_c(None, message):
-            aid = message.from_user.id
-            success = True
-            reason = "已更新"
-            new_config = deepcopy(glovar.configs[gid])
-            text = f"管理员：{code(aid)}\n"
-            # Check command format
-            command_type, command_context = get_command_context(message)
-            if command_type:
-                if command_type == "show":
-                    report_auto = new_config.get("report") and new_config["report"].get("auto")
-                    report_manual = new_config.get("report") and new_config["report"].get("manual")
-                    text += (f"操作：{code('查看设置')}\n"
-                             f"设置：{code((lambda x: '默认' if x else '自定义')(new_config.get('default')))}\n"
-                             f"警告上限：{code(new_config['limit'])}\n"
-                             f"协助删除：{code((lambda x: '启用' if x else '禁用')(new_config.get('delete')))}\n"
-                             f"呼叫管理：{code((lambda x: '启用' if x else '禁用')(new_config.get('mention')))}\n"
-                             f"自动举报：{code((lambda x: '启用' if x else '禁用')(report_auto))}\n"
-                             f"手动举报：{code((lambda x: '启用' if x else '禁用')(report_manual))}\n")
-                    thread(send_report_message, (30, client, gid, text))
-                    thread(delete_message, (client, gid, mid))
-                    return True
+        # Check permission
+        if not is_class_c(None, message):
+            return True
 
-                now = get_now()
-                if now - new_config["lock"] > 310:
-                    if command_type == "default":
-                        if not new_config.get("default"):
-                            new_config = deepcopy(glovar.default_config)
-                    else:
-                        if command_context:
-                            if command_type == "limit":
-                                limit = get_int(command_context)
-                                if 2 <= limit <= 5:
-                                    new_config["limit"] = limit
-                                else:
-                                    success = False
-                                    reason = "命令参数有误"
-                            elif command_type in {"delete", "mention"}:
-                                if command_context == "off":
-                                    new_config[command_type] = False
-                                elif command_context == "on":
-                                    new_config[command_type] = True
-                                else:
-                                    success = False
-                                    reason = "命令参数有误"
-                            elif command_type == "report":
-                                if not new_config.get("report"):
-                                    new_config["report"] = {}
+        aid = message.from_user.id
+        success = True
+        reason = lang("config_updated")
+        new_config = deepcopy(glovar.configs[gid])
+        text = f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
 
-                                if command_context == "off":
-                                    new_config["report"]["auto"] = False
-                                    new_config["report"]["manual"] = False
-                                elif command_context == "auto":
-                                    new_config["report"]["auto"] = True
-                                    new_config["report"]["manual"] = False
-                                elif command_context == "manual":
-                                    new_config["report"]["auto"] = False
-                                    new_config["report"]["manual"] = True
-                                elif command_context == "both":
-                                    new_config["report"]["auto"] = True
-                                    new_config["report"]["manual"] = True
-                                else:
-                                    success = False
-                                    reason = "命令参数有误"
+        # Check command format
+        command_type, command_context = get_command_context(message)
+        if command_type:
+            if command_type == "show":
+                text += f"{lang('action')}{lang('colon')}{code(lang('config_show'))}\n"
+                text += get_config_text(new_config)
+                thread(send_report_message, (30, client, gid, text))
+                return True
+
+            now = get_now()
+            if now - new_config["lock"] > 310:
+                if command_type == "default":
+                    new_config = deepcopy(glovar.default_config)
+                else:
+                    if command_context:
+                        if command_type in {"delete", "mention"}:
+                            if command_context == "off":
+                                new_config[command_type] = False
+                            elif command_context == "on":
+                                new_config[command_type] = True
                             else:
                                 success = False
-                                reason = "命令类别有误"
+                                reason = lang("command_para")
+                        elif command_type == "limit":
+                            limit = get_int(command_context)
+                            if 2 <= limit <= 5:
+                                new_config["limit"] = limit
+                            else:
+                                success = False
+                                reason = lang("command_para")
+                        elif command_type == "report":
+                            if not new_config.get("report"):
+                                new_config["report"] = {}
+
+                            if command_context == "off":
+                                new_config["report"]["auto"] = False
+                                new_config["report"]["manual"] = False
+                            elif command_context == "auto":
+                                new_config["report"]["auto"] = True
+                                new_config["report"]["manual"] = False
+                            elif command_context == "manual":
+                                new_config["report"]["auto"] = False
+                                new_config["report"]["manual"] = True
+                            elif command_context == "both":
+                                new_config["report"]["auto"] = True
+                                new_config["report"]["manual"] = True
+                            else:
+                                success = False
+                                reason = lang("command_para")
                         else:
                             success = False
-                            reason = "命令参数缺失"
+                            reason = lang("command_type")
+                    else:
+                        success = False
+                        reason = lang("command_lack")
 
-                        if success:
-                            new_config["default"] = False
-                else:
-                    success = False
-                    reason = "设置当前被锁定"
+                    if success:
+                        new_config["default"] = False
             else:
                 success = False
-                reason = "格式有误"
+                reason = lang("config_locked")
+        else:
+            success = False
+            reason = lang("command_usage")
 
-            if success and new_config != glovar.configs[gid]:
-                glovar.configs[gid] = new_config
-                save("configs")
+        if success and new_config != glovar.configs[gid]:
+            # Save new config
+            glovar.configs[gid] = new_config
+            save("configs")
 
-            text += (f"操作：{code('更改设置')}\n"
-                     f"状态：{code(reason)}\n")
-            thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
+            # Send debug message
+            debug_text = get_debug_text(client, message.chat)
+            debug_text += (f"{lang('admin_group')}{lang('colon')}{code(message.from_user.id)}\n"
+                           f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
+                           f"{lang('more')}{lang('colon')}{code(f'{command_type} {command_context}')}\n")
+            thread(send_message, (client, glovar.debug_channel_id, debug_text))
 
-        thread(delete_message, (client, gid, mid))
+        text += (f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
+                 f"{lang('status')}{lang('colon')}{code(reason)}\n")
+        thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
 
         return True
     except Exception as e:
         logger.warning(f"Config directly error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
 
