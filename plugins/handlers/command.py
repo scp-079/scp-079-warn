@@ -82,13 +82,18 @@ def admin(client: Client, message: Message) -> bool:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
 
         # Generate report markup
-        data = button_data("mention", "abuse", uid)
+        button_abuse = button_data("mention", "abuse", uid)
+        button_delete = button_data("mention", "delete", uid)
         markup = InlineKeyboardMarkup(
             [
                 [
                     InlineKeyboardButton(
                         text=lang("abuse"),
-                        callback_data=data
+                        callback_data=button_abuse
+                    ),
+                    InlineKeyboardButton(
+                        text=lang("del"),
+                        callback_data=button_delete
                     )
                 ]
             ]

@@ -74,7 +74,7 @@ def interval_hour_01(client: Client) -> bool:
                 continue
 
             glovar.message_ids[gid] = (0, 0)
-            thread(delete_message, (client, gid, mid))
+            delete_message(client, gid, mid)
 
         save("message_ids")
 

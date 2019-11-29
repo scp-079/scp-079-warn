@@ -265,6 +265,7 @@ lang: Dict[str, str] = {
     "ban_reason": (zh_cn and "封禁原因") or "Ban Reason",
     "by_button": (zh_cn and "举报或呼叫") or "Report or Mention",
     "cancel": (zh_cn and "取消") or "Cancel",
+    "del": (zh_cn and "删除") or "Delete",
     "description_by_admin": (zh_cn and "此操作由本群管理员执行") or "This Operation is Performed by the Group Admin",
     "description_wait_admin": (zh_cn and "此举报需本群管理员处置") or "This Report Needs to be Viewed by the Group Admin",
     "expired": (zh_cn and "会话已失效") or "Session Expired",
@@ -399,7 +400,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.3.6"
+version: str = "0.3.7"
 
 # Load data from pickle
 

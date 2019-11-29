@@ -279,25 +279,32 @@ def kick_user_thread(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
-def mention_abuse(client: Client, message: Message, aid: int, uid: int) -> str:
+def mention_answer(client: Client, message: Message, aid: int, uid: int, action_type: str) -> str:
     # Mention abuse
     try:
         # Basic data
         gid = message.chat.id
         mid = message.message_id
 
-        # Proceed
-        message.reply_to_message = message
-        message.reply_to_message.from_user.id = uid
-        message.reply_to_message.from_user.is_self = lang("abuse_mention")
-        text, markup = warn_user(client, message, uid, aid)
-        text += f"{lang('reason')}{lang('colon')}{code(lang('reason_abuse'))}\n"
+        # Abuse
+        if action_type == "abuse":
+            message.reply_to_message = message
+            message.reply_to_message.from_user.id = uid
+            message.reply_to_message.from_user.is_self = lang("abuse_mention")
+            text, markup = warn_user(client, message, uid, aid)
+            text += f"{lang('reason')}{lang('colon')}{code(lang('reason_abuse'))}\n"
 
-        # Edit the report message
-        thread(edit_message_text, (client, gid, mid, text, markup))
-        delay(180, delete_message, [client, gid, mid])
+            # Edit the report message
+            thread(edit_message_text, (client, gid, mid, text, markup))
+            delay(180, delete_message, [client, gid, mid])
+
+        # Delete
+        elif action_type == "delete":
+            glovar.message_ids[gid] = (0, 0)
+            save("message_ids")
+            delete_message(client, gid, mid)
     except Exception as e:
-        logger.warning(f"Mention abuse error: {e}", exc_info=True)
+        logger.warning(f"Mention answer error: {e}", exc_info=True)
 
     return ""
 

@@ -24,7 +24,7 @@ from pyrogram import CallbackQuery, Client
 from ..functions.etc import thread
 from ..functions.filters import authorized_group, class_c
 from ..functions.telegram import answer_callback
-from ..functions.user import mention_abuse, report_answer, undo_user
+from ..functions.user import mention_answer, report_answer, undo_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         # Mention abuse
         elif action == "mention":
             uid = data
-            text = mention_abuse(client, callback_query.message, aid, uid)
+            text = mention_answer(client, callback_query.message, aid, uid, action_type)
 
         # Answer report
         elif action == "report":
