@@ -612,18 +612,17 @@ def undo(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
                    & test_group
-                   & from_user
-                   & Filters.command(["version"], glovar.prefix))
+                   & from_user)
 def version(client: Client, message: Message) -> bool:
     # Check the program's version
     try:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        text = (f"管理员：{mention_id(aid)}\n\n"
-                f"版本：{bold(glovar.version)}\n")
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
+                f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
 
         return True
@@ -633,34 +632,50 @@ def version(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["warn"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user
-                   & Filters.command(["warn"], glovar.prefix))
+                   & from_user)
 def warn(client: Client, message: Message) -> bool:
     # Warn users
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
     try:
-        gid = message.chat.id
-        mid = message.message_id
-        if is_class_c(None, message):
-            aid = message.from_user.id
-            uid, re_mid = get_class_d_id(message)
-            if uid and uid not in glovar.admin_ids[gid]:
-                reason = get_command_type(message)
-                text, markup = warn_user(client, message, uid, aid, reason)
-                if markup:
-                    secs = 180
-                else:
-                    secs = 15
+        # Check permission
+        if not is_class_c(None, message):
+            return True
 
-                thread(send_report_message, (secs, client, gid, text, None, markup))
-                if re_mid:
-                    thread(delete_message, (client, gid, re_mid))
+        aid = message.from_user.id
 
-        thread(delete_message, (client, gid, mid))
+        # Get user id
+        uid, r_mid = get_class_d_id(message)
+
+        # Check user status
+        if not uid or uid in glovar.admin_ids[gid]:
+            return True
+
+        # Warn the user
+        reason = get_command_type(message)
+        text, markup = warn_user(client, message, uid, aid, reason)
+
+        if markup:
+            secs = 180
+        else:
+            secs = 15
+
+        # Send the report message
+        r_mid and delete_message(client, gid, r_mid)
+        thread(send_report_message, (secs, client, gid, text, None, markup))
 
         return True
     except Exception as e:
         logger.warning(f"Warn error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
