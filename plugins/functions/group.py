@@ -65,7 +65,7 @@ def get_config_text(config: dict) -> str:
         for the_type in ["auto", "manual"]:
             the_bool = config.get("report") and config["report"].get(the_type)
             the_text = (lambda x: lang("enabled") if x else lang("disabled"))(the_bool)
-            result += f"{lang(f'report_{the_type}')}{'colon'}{code(the_text)}\n"
+            result += f"{lang(f'report_{the_type}')}{lang('colon')}{code(the_text)}\n"
     except Exception as e:
         logger.warning(f"Get config text error: {e}", exc_info=True)
 
