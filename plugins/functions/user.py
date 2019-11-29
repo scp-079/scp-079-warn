@@ -371,7 +371,8 @@ def report_user(gid: int, user: User, rid: int, mid: int, reason: str = None) ->
         text = (f"{lang('reported_user')}{lang('colon')}{mention_id(uid)}\n"
                 f"{lang('reported_message')}{lang('colon')}{general_link(mid, f'{get_channel_link(gid)}/{mid}')}\n"
                 f"{lang('reporter')}{lang('colon')}{reporter_text}\n"
-                f"{lang('mention_admins')}{lang('colon')}{get_admin_text(gid)}\n")
+                f"{lang('mention_admins')}{lang('colon')}{get_admin_text(gid)}\n"
+                f"{lang('description')}{lang('colon')}{lang('description_wait_admin')}\n")
 
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"

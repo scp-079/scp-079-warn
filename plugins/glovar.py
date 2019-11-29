@@ -258,6 +258,7 @@ lang: Dict[str, str] = {
     "by_report": (zh_cn and "由群管处理的举报") or "Report Handled by Group Admin",
     "cancel": (zh_cn and "取消") or "Cancel",
     "description_by_admin": (zh_cn and "此操作由本群管理员执行") or "This Operation is Performed by the Group Admin",
+    "description_wait_admin": (zh_cn and "此举报需本群管理员处置") or "This Report Needs to be Viewed by the Group Admin",
     "expired": (zh_cn and "会话已失效") or "Session Expired",
     "from_self": (zh_cn and "群管直接回复汇报消息") or "The Group Admin Directly Replied to the Report Message",
     "mention_admins": (zh_cn and "呼叫管理") or "Mention Admins",
