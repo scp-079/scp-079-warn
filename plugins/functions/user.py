@@ -576,26 +576,28 @@ def unban_user(client: Client, message: Message, uid: int, aid: int) -> str:
         # Basic data
         gid = message.chat.id
 
-        # Proceed
-        if gid in glovar.user_ids[uid]["ban"]:
-            unban_chat_member(client, gid, uid)
-            glovar.user_ids[uid]["ban"].discard(gid)
-            update_score(client, uid)
-            text = f"{lang('user_unwarned')}{lang('colon')}{mention_id(uid)}\n"
-            send_debug(
-                client=client,
-                message=message,
-                action=lang("action_unban"),
-                uid=uid,
-                aid=aid
-            )
-        else:
+        # Check ban status
+        if gid not in glovar.user_ids[uid]["ban"]:
             text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                     f"{lang('action')}{lang('colon')}{lang('action_unban')}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+                    f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n"
+                    f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+            return text
 
-        text += f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
+        # Proceed
+        unban_chat_member(client, gid, uid)
+        glovar.user_ids[uid]["ban"].discard(gid)
+        update_score(client, uid)
+        text = (f"{lang('user_unwarned')}{lang('colon')}{mention_id(uid)}\n"
+                f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+        send_debug(
+            client=client,
+            message=message,
+            action=lang("action_unban"),
+            uid=uid,
+            aid=aid
+        )
     except Exception as e:
         logger.warning(f"Unban user error: {e}", exc_info=True)
 
