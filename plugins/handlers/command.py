@@ -30,7 +30,7 @@ from ..functions.file import save
 from ..functions.filters import authorized_group, from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_message
 from ..functions.ids import init_user_id
-from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, kick_user
+from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, remove_user
 from ..functions.user import report_answer, report_user, unban_user, undo_user, warn_user
 from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
 
@@ -326,7 +326,7 @@ def kick(client: Client, message: Message) -> bool:
             if uid and uid not in glovar.admin_ids[gid]:
                 aid = message.from_user.id
                 reason = get_command_type(message)
-                text, success = kick_user(client, message, uid, aid, reason)
+                text, success = remove_user(client, message, uid, aid, reason)
                 if success:
                     secs = 180
                 else:

@@ -19,6 +19,7 @@
 import logging
 from random import sample
 from time import sleep
+from typing import Union
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
@@ -60,65 +61,71 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
         # Proceed
         glovar.user_ids[uid]["lock"].add(gid)
         try:
-            if gid not in glovar.user_ids[uid]["ban"]:
-                if not result:
-                    result = forward_evidence(
-                        client=client,
-                        message=message.reply_to_message,
-                        level=lang("action_ban")
-                    )
-
-                if result:
-                    thread(kick_chat_member, (client, gid, uid))
-                    glovar.user_ids[uid]["ban"].add(gid)
-                    glovar.user_ids[uid]["warn"].pop(gid, 0)
-                    update_score(client, uid)
-
-                    glovar.counts[gid][aid] += 1
-
-                    stored_link = general_link(result.message_id, message_link(result))
-                    text += (f"{lang('user_banned')}{lang('colon')}{mention_id(uid)}\n"
-                             f"{lang('stored_message')}{lang('colon')}{stored_link}\n")
-
-                    data = button_data("undo", "ban", uid)
-                    markup = InlineKeyboardMarkup(
-                        [
-                            [
-                                InlineKeyboardButton(
-                                    text=lang("unban"),
-                                    callback_data=data
-                                )
-                            ]
-                        ]
-                    )
-
-                    if glovar.configs[gid]["delete"]:
-                        ask_for_help(client, "delete", gid, uid)
-
-                    send_debug(
-                        client=client,
-                        message=message,
-                        action=lang("action_ban"),
-                        uid=uid,
-                        aid=aid,
-                        em=result,
-                        reason=reason
-                    )
-                else:
-                    text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                             f"{lang('action')}{lang('colon')}{code(lang('ban_user'))}\n"
-                             f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                             f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n")
-            else:
+            if gid in glovar.user_ids[uid]["ban"]:
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                          f"{lang('action')}{lang('colon')}{code(lang('ban_user'))}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                         f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n")
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+                return text, None
 
-            text += f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
+            if not result:
+                result = forward_evidence(
+                    client=client,
+                    message=message.reply_to_message,
+                    level=lang("action_ban")
+                )
 
-            if markup and reason:
+            if not result:
+                text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('ban_user'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+                return text, None
+
+            # Count admin operation
+            glovar.counts[gid][aid] += 1
+
+            # Ban the user
+            thread(kick_chat_member, (client, gid, uid))
+            glovar.user_ids[uid]["ban"].add(gid)
+            glovar.user_ids[uid]["warn"].pop(gid, 0)
+            update_score(client, uid)
+
+            # Generate report text
+            stored_link = general_link(result.message_id, message_link(result))
+            text += (f"{lang('user_banned')}{lang('colon')}{mention_id(uid)}\n"
+                     f"{lang('stored_message')}{lang('colon')}{stored_link}\n"
+                     f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+
+            if reason:
                 text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
+            # Generate report markup
+            data = button_data("undo", "ban", uid)
+            markup = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text=lang("unban"),
+                            callback_data=data
+                        )
+                    ]
+                ]
+            )
+
+            # Share
+            ask_for_help(client, "delete", gid, uid)
+            send_debug(
+                client=client,
+                message=message,
+                action=lang("action_ban"),
+                uid=uid,
+                aid=aid,
+                em=result,
+                reason=reason
+            )
         finally:
             glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
@@ -246,60 +253,116 @@ def get_class_d_id(message: Message) -> (int, int):
     return uid, mid
 
 
-def kick_user(client: Client, message: Message, uid: int, aid: int,
-              reason: str = None) -> (str, bool):
+def kick_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
+    # Kick a user
+    try:
+        thread(kick_user_thread, (client, gid, uid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Kick user error: {e}", exc_info=True)
+
+    return False
+
+
+def kick_user_thread(client: Client, gid: int, uid: Union[int, str]) -> bool:
+    # Kick a user thread
+    try:
+        kick_chat_member(client, gid, uid)
+        sleep(3)
+        unban_chat_member(client, gid, uid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Kick user thread error: {e}", exc_info=True)
+
+    return False
+
+
+def remove_user(client: Client, message: Message, uid: int, aid: int,
+                reason: str = None) -> (str, bool):
     # Kick a user
     text = ""
     success = False
     try:
+        # Basic data
         gid = message.chat.id
 
+        # Check admin
         if is_limited_admin(gid, aid):
             return "", False
 
-        init_user_id(uid)
+        # Init user data
+        if not init_user_id(uid):
+            return "", False
+
         # Check users' locks
-        if gid not in glovar.user_ids[uid]["lock"]:
-            glovar.user_ids[uid]["lock"].add(gid)
-            try:
-                if gid not in glovar.user_ids[uid]["ban"]:
-                    result = forward_evidence(client, message.reply_to_message, "移除用户", "群管自行操作")
-                    if result:
-                        glovar.counts[gid][aid] += 1
+        if gid in glovar.user_ids[uid]["lock"]:
+            return "", False
 
-                        # Kick the user
-                        kick_chat_member(client, gid, uid)
-                        sleep(3)
-                        unban_chat_member(client, gid, uid)
-                        # Update score
-                        glovar.user_ids[uid]["kick"].add(gid)
-                        update_score(client, uid)
-                        # Add text
-                        text += (f"已移除用户：{mention_id(uid)}\n"
-                                 f"消息存放：{general_link(result.message_id, message_link(result))}\n")
-                        success = True
-                        # Ask for Help
-                        if glovar.configs[gid]["delete"]:
-                            ask_for_help(client, "delete", gid, uid)
+        # Proceed
+        glovar.user_ids[uid]["lock"].add(gid)
+        try:
+            # Check ban status
+            if gid in glovar.user_ids[uid]["ban"]:
+                text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                         f"{lang('action')}{lang('colon')}{lang('action_kick')}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+                return text, False
 
-                        # Send debug message
-                        send_debug(client, message, "移除用户", uid, aid, result, reason)
-                    else:
-                        text += (f"用户：{mention_id(uid)}\n"
-                                 f"结果：{code('未操作')}\n"
-                                 f"原因：{code('消息已被删除')}\n")
-                else:
-                    text += (f"用户：{mention_id(uid)}\n"
-                             f"结果：{code('未操作')}\n"
-                             f"原因：{code('已在封禁列表中')}\n")
+            # Forward evidence
+            result = forward_evidence(
+                client=client,
+                message=message.reply_to_message,
+                level=lang("action_kick")
+            )
 
-                text += f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
-                if success and reason:
-                    text += f"原因：{code(reason)}\n"
-            finally:
-                glovar.user_ids[uid]["lock"].discard(gid)
+            # Check message
+            if not result:
+                text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                         f"{lang('action')}{lang('colon')}{lang('action_kick')}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+                return text, False
+
+            # Count admin operation
+            glovar.counts[gid][aid] += 1
+
+            # Kick the user
+            kick_user(client, gid, uid)
+            glovar.user_ids[uid]["kick"].add(gid)
+            update_score(client, uid)
+
+            # Generate report text
+            stored_link = general_link(result.message_id, message_link(result))
+            text += (f"{lang('user_kicked')}{lang('colon')}{mention_id(uid)}\n"
+                     f"{lang('stored+message')}{lang('colon')}{stored_link}\n"
+                     f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
+
+            if reason:
+                text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
+            # Update success status
+            success = True
+
+            # Share
+            ask_for_help(client, "delete", gid, uid)
+            send_debug(
+                client=client,
+                message=message,
+                action=lang("action_kick"),
+                uid=uid,
+                aid=aid,
+                em=result,
+                reason=reason
+            )
+        finally:
+            glovar.user_ids[uid]["lock"].discard(gid)
     except Exception as e:
-        logger.warning(f"Kick user error: {e}", exc_info=True)
+        logger.warning(f"Remove user error: {e}", exc_info=True)
 
     return text, success
 
