@@ -169,57 +169,72 @@ def ban(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user
-                   & Filters.command(["config"], glovar.prefix))
+                   & from_user)
 def config(client: Client, message: Message) -> bool:
     # Request CONFIG session
-    try:
-        gid = message.chat.id
-        mid = message.message_id
-        # Check permission
-        if is_class_c(None, message):
-            # Check command format
-            command_type = get_command_type(message)
-            if command_type and re.search(f"^{glovar.sender}$", command_type, re.I):
-                now = get_now()
-                # Check the config lock
-                if now - glovar.configs[gid]["lock"] > 310:
-                    # Set lock
-                    glovar.configs[gid]["lock"] = now
-                    save("configs")
-                    # Ask CONFIG generate a config session
-                    group_name, group_link = get_group_info(client, message.chat)
-                    share_data(
-                        client=client,
-                        receivers=["CONFIG"],
-                        action="config",
-                        action_type="ask",
-                        data={
-                            "project_name": glovar.project_name,
-                            "project_link": glovar.project_link,
-                            "group_id": gid,
-                            "group_name": group_name,
-                            "group_link": group_link,
-                            "user_id": message.from_user.id,
-                            "config": glovar.configs[gid],
-                            "default": glovar.default_config
-                        }
-                    )
-                    # Send a report message to debug channel
-                    text = get_debug_text(client, message.chat)
-                    text += (f"群管理：{code(message.from_user.id)}\n"
-                             f"操作：{code('创建设置会话')}\n")
-                    thread(send_message, (client, glovar.debug_channel_id, text))
 
-            delay(3, delete_message, [client, gid, mid])
-        else:
-            thread(delete_message, (client, gid, mid))
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
+    try:
+        # Check permission
+        if not is_class_c(None, message):
+            return True
+
+        # Check command format
+        command_type = get_command_type(message)
+        if not command_type or not re.search(f"^{glovar.sender}$", command_type, re.I):
+            return True
+
+        now = get_now()
+
+        # Check the config lock
+        if now - glovar.configs[gid]["lock"] < 310:
+            return True
+
+        # Set lock
+        glovar.configs[gid]["lock"] = now
+        save("configs")
+
+        # Ask CONFIG generate a config session
+        group_name, group_link = get_group_info(client, message.chat)
+        share_data(
+            client=client,
+            receivers=["CONFIG"],
+            action="config",
+            action_type="ask",
+            data={
+                "project_name": glovar.project_name,
+                "project_link": glovar.project_link,
+                "group_id": gid,
+                "group_name": group_name,
+                "group_link": group_link,
+                "user_id": message.from_user.id,
+                "config": glovar.configs[gid],
+                "default": glovar.default_config
+            }
+        )
+
+        # Send debug message
+        text = get_debug_text(client, message.chat)
+        text += (f"{lang('admin_group')}{lang('colon')}{code(message.from_user.id)}\n"
+                 f"{lang('action')}{lang('colon')}{code(lang('config_create'))}\n")
+        thread(send_message, (client, glovar.debug_channel_id, text))
 
         return True
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
+    finally:
+        if is_class_c(None, message):
+            delay(3, delete_message, [client, gid, mid])
+        else:
+            delete_message(client, gid, mid)
 
     return False
 
