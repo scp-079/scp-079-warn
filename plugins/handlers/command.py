@@ -73,7 +73,7 @@ def admin(client: Client, message: Message) -> bool:
             return True
 
         # Generate report text
-        text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+        text = (f"{lang('from_user')}{lang('colon')}{mention_id(uid)}\n"
                 f"{lang('mention_admins')}{lang('colon')}{get_admin_text(gid)}\n")
         reason = get_command_type(message)
 

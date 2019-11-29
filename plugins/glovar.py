@@ -265,6 +265,7 @@ lang: Dict[str, str] = {
     "description_wait_admin": (zh_cn and "此举报需本群管理员处置") or "This Report Needs to be Viewed by the Group Admin",
     "expired": (zh_cn and "会话已失效") or "Session Expired",
     "from_self": (zh_cn and "群管直接回复汇报消息") or "The Group Admin Directly Replied to the Report Message",
+    "from_user": (zh_cn and "来自用户") or "From User",
     "mention_admins": (zh_cn and "呼叫管理") or "Mention Admins",
     "more_abuse": (zh_cn and "群管认定滥用举报功能") or "Abuse Reporting Function",
     "reason_abuse": (zh_cn and "滥用举报功能") or "Abuse",
