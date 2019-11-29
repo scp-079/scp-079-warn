@@ -27,7 +27,8 @@ from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, button_data, code, delay, get_callback_data, get_command_context, get_command_type
 from ..functions.etc import get_int, get_now, lang, mention_id, thread
 from ..functions.file import save
-from ..functions.filters import authorized_group, class_d, from_user, is_class_c, test_group
+from ..functions.filters import authorized_group, class_d, from_user, is_class_c, is_watch_user, is_high_score_user
+from ..functions.filters import is_class_e_user, test_group
 from ..functions.group import delete_message, get_config_text, get_message
 from ..functions.ids import init_user_id
 from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, remove_user
@@ -450,85 +451,123 @@ def kick(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["report"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user
-                   & Filters.command(["report"], glovar.prefix))
+                   & from_user & ~class_d)
 def report(client: Client, message: Message) -> bool:
     # Report spam messages
-    try:
-        gid = message.chat.id
-        mid = message.message_id
-        if not is_class_c(None, message):
-            if glovar.configs[gid]["report"]["manual"]:
-                rid = message.from_user.id
-                init_user_id(rid)
-                uid, re_mid = get_class_d_id(message)
-                init_user_id(uid)
-                # Reporter should not be admin or user in waiting list
-                if (uid
-                        and uid != rid
-                        and uid not in glovar.admin_ids[gid]
-                        and gid not in glovar.user_ids[rid]["lock"]
-                        and gid not in glovar.user_ids[uid]["lock"]
-                        and gid not in glovar.user_ids[rid]["waiting"]
-                        and gid not in glovar.user_ids[uid]["waiting"]
-                        and gid not in glovar.user_ids[uid]["ban"]):
-                    # Reporter cannot report someone by replying WARN's report
-                    r_message = message.reply_to_message
-                    if not r_message.from_user.is_self:
-                        reason = get_command_type(message)
-                        text, markup, key = report_user(gid, r_message.from_user, rid, re_mid, reason)
-                        result = send_message(client, gid, text, re_mid, markup)
-                        if result:
-                            glovar.reports[key]["report_id"] = result.message_id
-                        else:
-                            glovar.reports.pop(key, {})
 
-                        save("reports")
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
+    try:
+        # Normal user
+        if not is_class_c(None, message):
+            # Check config
+            if not glovar.configs[gid]["report"]["manual"]:
+                return True
+
+            rid = message.from_user.id
+            now = message.date or get_now()
+
+            # Init user data
+            if not init_user_id(rid):
+                return True
+
+            # Get user id
+            uid, r_mid = get_class_d_id(message)
+
+            # Init user data
+            if not uid or not init_user_id(uid):
+                return True
+
+            # Check user status
+            bad_user = (gid in glovar.user_ids[rid]["lock"]
+                        or gid in glovar.user_ids[uid]["lock"]
+                        or gid in glovar.user_ids[rid]["waiting"]
+                        or gid in glovar.user_ids[uid]["waiting"]
+                        or gid in glovar.user_ids[uid]["ban"]
+                        or is_watch_user(message.from_user, "ban", now)
+                        or is_watch_user(message.from_user, "delete", now)
+                        or is_high_score_user(message.from_user))
+            good_user = (is_class_e_user(message.from_user)
+                         and uid not in glovar.admin_ids[gid])
+
+            # Users can not self-report
+            if uid == rid or (bad_user and not good_user):
+                return True
+
+            # Reporter cannot report someone by replying WARN's report
+            r_message = message.reply_to_message
+            if r_message.from_user.is_self:
+                return True
+
+            # Proceed
+            reason = get_command_type(message)
+            text, markup, key = report_user(gid, r_message.from_user, rid, r_mid, reason)
+            result = send_message(client, gid, text, r_mid, markup)
+
+            if result:
+                glovar.reports[key]["report_id"] = result.message_id
+            else:
+                glovar.reports.pop(key, {})
+
+            save("reports")
+
+        # Admin
         else:
             aid = message.from_user.id
-            text = f"管理员：{code(aid)}\n"
             action_type, reason = get_command_context(message)
-            if action_type in {"warn", "ban", "cancel", "abuse"}:
-                if message.reply_to_message:
-                    r_message = get_message(client, gid, message.reply_to_message.message_id)
-                    if r_message and r_message.reply_to_message:
-                        callback_data_list = get_callback_data(r_message)
-                        if callback_data_list and callback_data_list[0]["a"] == "report":
-                            key = callback_data_list[0]["d"]
-                            report_answer(
-                                client=client,
-                                message=r_message,
-                                gid=gid,
-                                aid=aid,
-                                mid=r_message.message_id,
-                                action_type=action_type,
-                                key=key,
-                                reason=reason
-                            )
-                            thread(delete_message, (client, gid, mid))
-                            return True
-                        else:
-                            text += (f"状态：{code('未操作')}\n"
-                                     f"原因：{code('来源有误')}\n")
-                    else:
-                        text += (f"结果：{code('未操作')}\n"
-                                 f"原因：{code('消息已被删除')}\n")
-                else:
-                    text += (f"状态：{code('未操作')}\n"
-                             f"原因：{code('用法有误')}\n")
-            else:
-                text += (f"状态：{code('未操作')}\n"
-                         f"原因：{code('格式有误')}\n")
 
-            thread(send_report_message, (15, client, gid, text))
+            # Text prefix
+            text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_answer'))}\n")
 
-        thread(delete_message, (client, gid, mid))
+            # Check command format
+            if action_type not in {"warn", "ban", "cancel", "abuse"} or not message.reply_to_message:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+                thread(send_report_message, (15, client, gid, text))
+                return True
+
+            # Check the evidence message
+            r_message = get_message(client, gid, message.reply_to_message.message_id)
+            if not r_message or not r_message.reply_to_message:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n")
+                thread(send_report_message, (15, client, gid, text))
+                return True
+
+            # Check the report message
+            callback_data_list = get_callback_data(r_message)
+            if not callback_data_list or callback_data_list[0]["a"] != "report":
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
+                thread(send_report_message, (15, client, gid, text))
+                return True
+
+            # Proceed
+            key = callback_data_list[0]["d"]
+            report_answer(
+                client=client,
+                message=r_message,
+                gid=gid,
+                aid=aid,
+                mid=r_message.message_id,
+                action_type=action_type,
+                key=key,
+                reason=reason
+            )
 
         return True
     except Exception as e:
         logger.warning(f"Report error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
 
@@ -556,7 +595,7 @@ def unban(client: Client, message: Message) -> bool:
 
         # Text prefix
         text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('action_undo')}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_undo'))}\n")
 
         # Check command format
         if not command_type:
@@ -615,7 +654,7 @@ def undo(client: Client, message: Message) -> bool:
 
         # Text prefix
         text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('action_undo')}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_undo'))}\n")
 
         # Check usage
         if not r_message:

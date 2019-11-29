@@ -248,6 +248,7 @@ lang: Dict[str, str] = {
     "abuse": (zh_cn and "滥用") or "Abuse",
     "abuse_mention": (zh_cn and "群管认定滥用呼叫功能") or "Abuse Mention Function",
     "abuse_report": (zh_cn and "群管认定滥用举报功能") or "Abuse Report Function",
+    "action_answer": (zh_cn and "处理举报") or "Answer Report",
     "action_ban": (zh_cn and "封禁用户") or "Ban User",
     "action_cancel": (zh_cn and "取消举报") or "Cancel Report",
     "action_forgive": (zh_cn and "重置用户状态") or "Forgive User",
