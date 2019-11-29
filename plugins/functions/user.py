@@ -310,8 +310,9 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                 text = (f"{lang('reported_user')}{lang('colon')}{mention_id(uid)}\n"
                         f"{lang('reported_message')}{lang('colon')}{reported_link}\n"
                         f"{lang('reporter')}{lang('colon')}{reporter_text}\n"
-                        f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
-                        f"{lang('status')}{lang('colon')}{code(lang('status_canceled'))}\n")
+                        f"{lang('action')}{lang('colon')}{lang('action_cancel')}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
+                        f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
                 markup = None
 
             if markup:

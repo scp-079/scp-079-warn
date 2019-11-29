@@ -247,6 +247,7 @@ lang: Dict[str, str] = {
     # Special
     "abuse": (zh_cn and "滥用") or "Abuse",
     "action_ban": (zh_cn and "封禁用户") or "Ban User",
+    "action_cancel": (zh_cn and "取消举报") or "Cancel Report",
     "action_forgive": (zh_cn and "重置用户状态") or "Forgive User",
     "action_unban": (zh_cn and "解禁用户") or "Undo Ban",
     "action_unwait": (zh_cn and "重置举报状态") or "Reset Report Status",
@@ -270,7 +271,6 @@ lang: Dict[str, str] = {
     "reported_user": (zh_cn and "被举报用户") or "Reported User",
     "reporter": (zh_cn and "举报人") or "Reporter",
     "rule_admin": (zh_cn and "群管自行操作") or "Group Admin's Command",
-    "status_canceled": (zh_cn and "已取消") or "Canceled",
     "stored_message": (zh_cn and "消息存放") or "Stored Message",
     "warn": (zh_cn and "警告") or "Warn",
     "warn_undo": (zh_cn and "撤销警告") or "Undo Warn",
