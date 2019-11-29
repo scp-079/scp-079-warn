@@ -63,7 +63,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
         try:
             if gid in glovar.user_ids[uid]["ban"]:
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('action')}{lang('colon')}{code(lang('ban_user'))}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_ban'))}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n"
                          f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
@@ -78,7 +78,7 @@ def ban_user(client: Client, message: Message, uid: int, aid: int, result: int =
 
             if not result:
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('action')}{lang('colon')}{code(lang('ban_user'))}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_ban'))}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n"
                          f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
