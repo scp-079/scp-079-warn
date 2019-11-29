@@ -595,7 +595,7 @@ def unban(client: Client, message: Message) -> bool:
 
         # Text prefix
         text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_undo'))}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_unban'))}\n")
 
         # Check command format
         if not command_type:
