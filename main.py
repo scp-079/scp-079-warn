@@ -47,7 +47,7 @@ scheduler.add_job(interval_hour_01, "interval", [app], hours=1)
 scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
 scheduler.add_job(backup_files, "cron", [app], hour=20)
 scheduler.add_job(update_report_ids, "cron", [app], hour=21, minute=30)
-scheduler.add_job(reset_data, "cron", day=glovar.date_reset, hour=22)
+scheduler.add_job(reset_data, "cron", [app], day=glovar.date_reset, hour=22)
 scheduler.add_job(update_admins, "cron", [app], hour=22, minute=30)
 scheduler.start()
 
