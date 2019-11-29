@@ -306,7 +306,7 @@ def remove_user(client: Client, message: Message, uid: int, aid: int,
             # Check ban status
             if gid in glovar.user_ids[uid]["ban"]:
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('action')}{lang('colon')}{lang('action_kick')}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_kick'))}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n"
                          f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
@@ -322,7 +322,7 @@ def remove_user(client: Client, message: Message, uid: int, aid: int,
             # Check message
             if not result:
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('action')}{lang('colon')}{lang('action_kick')}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_kick'))}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n"
                          f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
@@ -431,7 +431,7 @@ def report_answer(client: Client, message: Message, gid: int, aid: int, mid: int
                 text = (f"{lang('reported_user')}{lang('colon')}{mention_id(uid)}\n"
                         f"{lang('reported_message')}{lang('colon')}{reported_link}\n"
                         f"{lang('reporter')}{lang('colon')}{reporter_text}\n"
-                        f"{lang('action')}{lang('colon')}{lang('action_cancel')}\n"
+                        f"{lang('action')}{lang('colon')}{code(lang('action_cancel'))}\n"
                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
                         f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
                 markup = None
@@ -560,7 +560,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int,
             # Check ban status
             if gid in glovar.user_ids[uid]["ban"]:
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('action')}{lang('colon')}{lang('action_warn')}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_warn'))}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n"
                          f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
@@ -576,7 +576,7 @@ def warn_user(client: Client, message: Message, uid: int, aid: int,
             # Check message
             if not result:
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('action')}{lang('colon')}{lang('action_warn')}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_warn'))}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_deleted'))}\n"
                          f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
@@ -649,7 +649,7 @@ def unban_user(client: Client, message: Message, uid: int, aid: int) -> str:
         # Check ban status
         if gid not in glovar.user_ids[uid]["ban"]:
             text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                    f"{lang('action')}{lang('colon')}{lang('action_unban')}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_unban'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n"
                     f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
