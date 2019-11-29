@@ -250,7 +250,8 @@ lang: Dict[str, str] = {
     "action_forgive": (zh_cn and "重置用户状态") or "Forgive User",
     "action_unban": (zh_cn and "解禁用户") or "Undo Ban",
     "action_unwait": (zh_cn and "重置举报状态") or "Reset Report Status",
-    "action_unwarn": (zh_cn and "清空警告") or "Clear Warns",
+    "action_unwarn": (zh_cn and "撤销警告") or "Undo Warn",
+    "action_unwarns": (zh_cn and "清空警告") or "Clear Warns",
     "answer_processed": (zh_cn and "已被其他管理员处理") or "",
     "auto_triggered": (zh_cn and "自动触发") or "Auto Triggered",
     "ban": (zh_cn and "封禁") or "Ban",
@@ -274,6 +275,8 @@ lang: Dict[str, str] = {
     "warn_undo": (zh_cn and "撤销警告") or "Undo Warn",
     "unban": (zh_cn and "解禁") or "Unban",
     "user_banned": (zh_cn and "已封禁用户") or "Banned User",
+    "user_unwarned": (zh_cn and "已撤销警告") or "Unwarned User",
+    "user_warns": (zh_cn and "该用户警告统计") or "User Warns",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
     "auto_delete": (zh_cn and "自动删除") or "Auto Delete",

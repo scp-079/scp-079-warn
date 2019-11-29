@@ -159,7 +159,7 @@ def forgive_user(client: Client, message: Message, uid: int, reason: str = None)
                 success = True
             elif glovar.user_ids[uid]["warn"].get(gid, 0):
                 glovar.user_ids[uid]["warn"].pop(gid, 0)
-                text += (f"{lang('action')}{lang('colon')}{code(lang('action_unwarn'))}\n"
+                text += (f"{lang('action')}{lang('colon')}{code(lang('action_unwarns'))}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
                 success = True
             elif gid in glovar.user_ids[uid]["waiting"]:
@@ -600,28 +600,37 @@ def unwarn_user(client: Client, message: Message, uid: int, aid: int) -> str:
     try:
         # Basic data
         gid = message.chat.id
+
         if gid not in glovar.user_ids[uid]["ban"]:
             if not glovar.user_ids[uid]["warn"].get(gid, 0):
-                text = (f"用户：{mention_id(uid)}\n"
-                        f"结果：{code('未操作')}\n"
-                        f"原因：{code('无警告记录')}\n")
+                text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                        f"{lang('action')}{lang('colon')}{lang('action_unwarn')}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                        f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
             else:
                 glovar.user_ids[uid]["warn"][gid] -= 1
                 warn_count = glovar.user_ids[uid]["warn"][gid]
                 if warn_count == 0:
                     glovar.user_ids[uid]["warn"].pop(gid, 0)
                     update_score(client, uid)
-                    text = (f"已撤销警告：{mention_id(uid)}\n"
-                            f"该用户警告统计：{code('无警告')}\n")
-                    send_debug(client, message, "清空警告", uid, aid)
+                    text = (f"{lang('user_unwarned')}{lang('colon')}{mention_id(uid)}\n"
+                            f"{lang('user_warns')}{lang('colon')}{code(lang('reason_none'))}\n")
+                    send_debug(
+                        client=client,
+                        message=message,
+                        action=lang("action_unwarns"),
+                        uid=uid,
+                        aid=aid
+                    )
                 else:
                     limit = glovar.configs[gid]["limit"]
-                    text = (f"已撤销警告：{mention_id(uid)}\n"
-                            f"该用户警告统计：{code(f'{warn_count}/{limit}')}\n")
+                    text = (f"{lang('user_unwarned')}{lang('colon')}{mention_id(uid)}\n"
+                            f"{lang('user_warns')}{lang('colon')}{code(f'{warn_count}/{limit}')}\n")
         else:
-            text = (f"用户：{mention_id(uid)}\n"
-                    f"结果：{code('未操作')}\n"
-                    f"原因：{code('已在封禁列表中')}\n")
+            text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                    f"{lang('action')}{lang('colon')}{lang('action_unwarn')}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('reason_banned'))}\n")
 
         text += f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n"
     except Exception as e:
