@@ -682,7 +682,7 @@ def unban_user(client: Client, message: Message, uid: int, aid: int) -> str:
         unban_chat_member(client, gid, uid)
         glovar.user_ids[uid]["ban"].discard(gid)
         update_score(client, uid)
-        text = (f"{lang('user_unwarned')}{lang('colon')}{mention_id(uid)}\n"
+        text = (f"{lang('user_unbanned')}{lang('colon')}{code(uid)}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
         send_debug(
             client=client,

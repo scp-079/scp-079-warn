@@ -284,6 +284,7 @@ lang: Dict[str, str] = {
     "undo": (zh_cn and "撤销") or "Undo",
     "user_banned": (zh_cn and "已封禁用户") or "Banned User",
     "user_kicked": (zh_cn and "已移除用户") or "Kicked User",
+    "user_unbanned": (zh_cn and "已解禁用户") or "Unbanned User",
     "user_unwarned": (zh_cn and "已撤销警告") or "Unwarned User",
     "user_warned": (zh_cn and "已警告用户") or "Warned User",
     "user_warns": (zh_cn and "该用户警告统计") or "User Warns",
