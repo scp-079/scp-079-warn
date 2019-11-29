@@ -122,7 +122,7 @@ def admin(client: Client, message: Message) -> bool:
 @Client.on_message(Filters.incoming & Filters.group
                    & Filters.command(["ban"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user & ~class_d)
+                   & from_user)
 def ban(client: Client, message: Message) -> bool:
     # Ban users
 
@@ -354,67 +354,98 @@ def config_directly(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["forgive"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user
-                   & Filters.command(["forgive"], glovar.prefix))
+                   & from_user)
 def forgive(client: Client, message: Message) -> bool:
     # Forgive users
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
     try:
-        gid = message.chat.id
-        mid = message.message_id
-        if is_class_c(None, message):
-            uid, _ = get_class_d_id(message)
-            if uid and uid not in glovar.admin_ids[gid]:
-                reason = get_command_type(message)
-                text, success = forgive_user(client, message, uid, reason)
-                glovar.user_ids[uid]["lock"].discard(gid)
-                save("user_ids")
-                if success:
-                    secs = 180
-                else:
-                    secs = 15
+        # Check permission
+        if not is_class_c(None, message):
+            return True
 
-                thread(send_report_message, (secs, client, gid, text, None))
+        # Get user id
+        uid, _ = get_class_d_id(message)
 
-        thread(delete_message, (client, gid, mid))
+        # Check user status
+        if not uid or uid in glovar.admin_ids[gid]:
+            return True
+
+        # Forgive the user
+        reason = get_command_type(message)
+        text, success = forgive_user(client, message, uid, reason)
+        glovar.user_ids[uid]["lock"].discard(gid)
+        save("user_ids")
+
+        if success:
+            secs = 180
+        else:
+            secs = 15
+
+        # Send the report message
+        thread(send_report_message, (secs, client, gid, text, None))
 
         return True
     except Exception as e:
         logger.warning(f"Forgive error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["kick"], glovar.prefix)
                    & ~test_group & authorized_group
-                   & from_user
-                   & Filters.command(["kick"], glovar.prefix))
+                   & from_user)
 def kick(client: Client, message: Message) -> bool:
     # Kick users
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
     try:
-        gid = message.chat.id
-        mid = message.message_id
-        if is_class_c(None, message):
-            uid, re_mid = get_class_d_id(message)
-            if uid and uid not in glovar.admin_ids[gid]:
-                aid = message.from_user.id
-                reason = get_command_type(message)
-                text, success = remove_user(client, message, uid, aid, reason)
-                if success:
-                    secs = 180
-                else:
-                    secs = 15
+        # Check permission
+        if not is_class_c(None, message):
+            return True
 
-                thread(send_report_message, (secs, client, gid, text))
-                if re_mid:
-                    thread(delete_message, (client, gid, re_mid))
+        # Get user id
+        uid, r_mid = get_class_d_id(message)
 
-        thread(delete_message, (client, gid, mid))
+        # Check user status
+        if not uid or uid in glovar.admin_ids[gid]:
+            return True
+
+        # Kick the user
+        aid = message.from_user.id
+        reason = get_command_type(message)
+        text, success = remove_user(client, message, uid, aid, reason)
+
+        if success:
+            secs = 180
+        else:
+            secs = 15
+
+        # Send the report message
+        r_mid and delete_message(client, gid, r_mid)
+        thread(send_report_message, (secs, client, gid, text))
 
         return True
     except Exception as e:
         logger.warning(f"Kick error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
 
     return False
 
