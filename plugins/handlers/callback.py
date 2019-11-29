@@ -24,7 +24,7 @@ from pyrogram import CallbackQuery, Client
 from ..functions.etc import thread
 from ..functions.filters import authorized_group, class_c
 from ..functions.telegram import answer_callback
-from ..functions.user import report_answer, undo_user
+from ..functions.user import mention_abuse, report_answer, undo_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -47,11 +47,11 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         if action == "undo":
             uid = data
             text = undo_user(client, callback_query.message, aid, uid, action_type)
-            thread(answer_callback, (client, callback_query.id, text))
 
         # Mention abuse
         elif action == "mention":
-            text = ""
+            uid = data
+            text = mention_abuse(client, callback_query.message, aid, uid)
 
         # Answer report
         elif action == "report":

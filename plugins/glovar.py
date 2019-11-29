@@ -246,6 +246,8 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "abuse": (zh_cn and "滥用") or "Abuse",
+    "abuse_mention": (zh_cn and "群管认定滥用呼叫功能") or "Abuse Mention Function",
+    "abuse_report": (zh_cn and "群管认定滥用举报功能") or "Abuse Report Function",
     "action_ban": (zh_cn and "封禁用户") or "Ban User",
     "action_cancel": (zh_cn and "取消举报") or "Cancel Report",
     "action_forgive": (zh_cn and "重置用户状态") or "Forgive User",
@@ -267,8 +269,7 @@ lang: Dict[str, str] = {
     "from_self": (zh_cn and "群管直接回复汇报消息") or "The Group Admin Directly Replied to the Report Message",
     "from_user": (zh_cn and "来自用户") or "From User",
     "mention_admins": (zh_cn and "呼叫管理") or "Mention Admins",
-    "more_abuse": (zh_cn and "群管认定滥用举报功能") or "Abuse Reporting Function",
-    "reason_abuse": (zh_cn and "滥用举报功能") or "Abuse",
+    "reason_abuse": (zh_cn and "滥用机器人功能") or "Abuse",
     "reason_deleted": (zh_cn and "消息已被删除") or "Message Has Been Deleted",
     "reason_banned": (zh_cn and "已在封禁列表中") or "Already in the Banned List",
     "reason_limit": (zh_cn and "警告次数达到上限") or "Reach the Limit of Warnings",
@@ -395,7 +396,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.3.5"
+version: str = "0.3.6"
 
 # Load data from pickle
 
