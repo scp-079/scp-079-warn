@@ -343,7 +343,7 @@ def t2t(text: str, normal: bool, printable: bool = True) -> str:
             return ""
 
         if normal:
-            return ""
+            return text
 
         if printable:
             text = "".join(t for t in text if t.isprintable() or t in {"\n", "\r", "\t"})
