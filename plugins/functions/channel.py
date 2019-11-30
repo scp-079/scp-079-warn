@@ -27,7 +27,7 @@ from .. import glovar
 from .etc import code, code_block, general_link, get_full_name, get_command_type, lang
 from .etc import message_link, thread, wait_flood
 from .file import crypt_file, delete_file, get_new_path, save
-from .telegram import get_group_info, send_document, send_message
+from .telegram import get_group_info, get_user_bio, send_document, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -156,6 +156,11 @@ def forward_evidence(client: Client, message: Message, level: str,
         name = get_full_name(message.from_user)
         if name:
             text += f"{lang('user_name')}{lang('colon')}{code(name)}\n"
+
+        if message.service:
+            bio = get_user_bio(client, uid)
+            if bio:
+                text += f"{lang('user_bio')}{lang('colon')}{code(bio)}\n"
 
         # Extra information
         if message.contact or message.location or message.venue or message.video_note or message.voice:

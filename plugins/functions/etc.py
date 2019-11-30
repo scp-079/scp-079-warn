@@ -336,6 +336,23 @@ def random_str(i: int) -> str:
     return text
 
 
+def t2t(text: str, normal: bool, printable: bool = True) -> str:
+    # Convert the string, text to text
+    try:
+        if not text:
+            return ""
+
+        if normal:
+            return ""
+
+        if printable:
+            text = "".join(t for t in text if t.isprintable() or t in {"\n", "\r", "\t"})
+    except Exception as e:
+        logger.warning(f"T2T error: {e}", exc_info=True)
+
+    return text
+
+
 def thread(target: Callable, args: tuple) -> bool:
     # Call a function using thread
     try:

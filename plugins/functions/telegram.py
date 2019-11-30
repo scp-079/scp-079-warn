@@ -20,12 +20,13 @@ import logging
 from typing import Iterable, List, Optional, Union
 
 from pyrogram import Chat, ChatMember, Client, InlineKeyboardMarkup, Message
-from pyrogram.api.types import InputPeerUser, InputPeerChannel
+from pyrogram.api.functions.users import GetFullUser
+from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
 from pyrogram.errors import ButtonDataInvalid, ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid, QueryIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
 from .. import glovar
-from .etc import delay, get_int, wait_flood
+from .etc import delay, get_int, t2t, wait_flood
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -211,6 +212,30 @@ def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List
                 wait_flood(e)
     except Exception as e:
         logger.warning(f"Get messages {mids} in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+def get_user_bio(client: Client, uid: int, normal: bool = False) -> Optional[str]:
+    # Get user's bio
+    result = None
+    try:
+        user_id = resolve_peer(client, uid)
+        if not user_id:
+            return None
+
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                user: UserFull = client.send(GetFullUser(id=user_id))
+                if user and user.about:
+                    result = t2t(user.about, normal)
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Get user {uid} bio error: {e}", exc_info=True)
 
     return result
 
