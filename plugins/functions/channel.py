@@ -157,7 +157,7 @@ def forward_evidence(client: Client, message: Message, level: str,
         if name:
             text += f"{lang('user_name')}{lang('colon')}{code(name)}\n"
 
-        if message.service:
+        if message.service and level == lang("action_ban"):
             bio = get_user_bio(client, uid)
             if bio:
                 text += f"{lang('user_bio')}{lang('colon')}{code(bio)}\n"
