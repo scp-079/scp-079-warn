@@ -315,8 +315,6 @@ def process_data(client: Client, message: Message) -> bool:
                 if action == "add":
                     if action_type == "bad":
                         receive_add_bad(data)
-                    elif action_type == "watch":
-                        receive_watch_user(data)
 
                 elif action == "help":
                     if action_type == "report":
