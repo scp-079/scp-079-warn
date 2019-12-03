@@ -58,7 +58,7 @@ def get_config_text(config: dict) -> str:
 
         # Limit
         limit_text = config.get("limit")
-        result += f"{lang('mention')}{lang('colon')}{code(limit_text)}\n"
+        result += f"{lang('limit')}{lang('colon')}{code(limit_text)}\n"
 
         # Mention
         mention_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("mention"))
