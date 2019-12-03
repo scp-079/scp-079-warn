@@ -56,10 +56,13 @@ def get_config_text(config: dict) -> str:
         result += (f"{lang('config')}{lang('colon')}{code(default_text)}\n"
                    f"{lang('delete')}{lang('colon')}{code(delete_text)}\n")
 
-        # Limit and mention
-        for the_type in ["limit", "mention"]:
-            the_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get(the_type))
-            result += f"{lang(the_type)}{lang('colon')}{code(the_text)}\n"
+        # Limit
+        limit_text = config.get("limit")
+        result += f"{lang('mention')}{lang('colon')}{code(limit_text)}\n"
+
+        # Mention
+        mention_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("mention"))
+        result += f"{lang('mention')}{lang('colon')}{code(mention_text)}\n"
 
         # Report
         for the_type in ["auto", "manual"]:
