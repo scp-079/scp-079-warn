@@ -369,7 +369,7 @@ def remove_user(client: Client, message: Message, uid: int, aid: int,
             # Generate report text
             stored_link = general_link(result.message_id, message_link(result))
             text += (f"{lang('user_kicked')}{lang('colon')}{mention_id(uid)}\n"
-                     f"{lang('stored+message')}{lang('colon')}{stored_link}\n"
+                     f"{lang('stored_message')}{lang('colon')}{stored_link}\n"
                      f"{lang('description')}{lang('colon')}{code(lang('description_by_admin'))}\n")
 
             if reason:
