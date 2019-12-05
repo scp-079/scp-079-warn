@@ -41,6 +41,7 @@ logging_channel_id = [DATA EXPUNGED]
 test_group_id = [DATA EXPUNGED]
 
 [custom]
+aio = [DATA EXPUNGED]
 backup = [DATA EXPUNGED]
 date_reset = [DATA EXPUNGED]
 default_group_link = [DATA EXPUNGED]
