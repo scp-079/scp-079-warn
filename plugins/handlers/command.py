@@ -513,7 +513,7 @@ def report(client: Client, message: Message) -> bool:
 
             # Proceed
             if r_message.service:
-                name = get_full_name(message.from_user)
+                name = get_full_name(r_message.from_user)
             else:
                 name = None
 
