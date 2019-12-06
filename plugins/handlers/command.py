@@ -25,7 +25,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, button_data, code, delay, get_callback_data, get_command_context, get_command_type
-from ..functions.etc import get_int, get_now, lang, mention_id, thread
+from ..functions.etc import get_full_name, get_int, get_now, lang, mention_id, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, class_d, from_user, is_class_c, is_watch_user, is_high_score_user
 from ..functions.filters import is_class_e_user, test_group
@@ -512,8 +512,14 @@ def report(client: Client, message: Message) -> bool:
                 return True
 
             # Proceed
+            if message.service:
+                name = get_full_name(message.from_user)
+            else:
+                name = None
+
             reason = get_command_type(message)
-            text, markup, key = report_user(gid, r_message.from_user, rid, r_mid, reason)
+
+            text, markup, key = report_user(gid, r_message.from_user, rid, r_mid, name, reason)
             result = send_message(client, gid, text, r_mid, markup)
 
             if result:

@@ -281,6 +281,7 @@ lang: Dict[str, str] = {
     "reason_banned": (zh_cn and "已在封禁列表中") or "Already in the Banned List",
     "reason_limit": (zh_cn and "警告次数达到上限") or "Reach the Limit of Warnings",
     "reported_message": (zh_cn and "被举报消息") or "Reported Message",
+    "reported_name": (zh_cn and "被举报昵称") or "Reported Name",
     "reported_user": (zh_cn and "被举报用户") or "Reported User",
     "reporter": (zh_cn and "举报人") or "Reporter",
     "rule_admin": (zh_cn and "群管自行操作") or "Group Admin's Command",
@@ -404,7 +405,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.3.7"
+version: str = "0.3.8"
 
 # Load data from pickle
 
