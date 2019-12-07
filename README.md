@@ -4,7 +4,7 @@ This bot is used to warn or ban someone in group by admin commands.
 
 ## How to use
 
-- See [manual](https://telegra.ph/SCP-079-WARN-12-04)
+- See the [manual](https://telegra.ph/SCP-079-WARN-12-04)
 - See [this article](https://scp-079.org/warn/) to build a bot by yourself
 - Discuss [group](https://t.me/SCP_079_CHAT)
 
