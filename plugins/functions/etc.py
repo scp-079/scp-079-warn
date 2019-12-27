@@ -336,7 +336,7 @@ def random_str(i: int) -> str:
     return text
 
 
-def t2t(text: str, normal: bool, printable: bool = True) -> str:
+def t2t(text: str, normal: bool, printable: bool) -> str:
     # Convert the string, text to text
     try:
         if not text:
