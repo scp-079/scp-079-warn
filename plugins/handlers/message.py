@@ -28,9 +28,10 @@ from ..functions.filters import authorized_group, exchange_channel, from_user, h
 from ..functions.group import leave_group
 from ..functions.ids import init_group_id
 from ..functions.receive import receive_add_bad, receive_clear_data, receive_config_commit, receive_config_reply
-from ..functions.receive import receive_declared_message, receive_help_report, receive_leave_approve, receive_refresh
-from ..functions.receive import receive_remove_bad, receive_remove_score, receive_remove_watch, receive_rollback
-from ..functions.receive import receive_text_data, receive_user_score, receive_watch_user
+from ..functions.receive import receive_config_show, receive_declared_message, receive_help_report
+from ..functions.receive import receive_leave_approve, receive_refresh, receive_remove_bad, receive_remove_score
+from ..functions.receive import receive_remove_watch, receive_rollback, receive_text_data
+from ..functions.receive import receive_user_score, receive_watch_user
 from ..functions.telegram import get_admins, send_message
 from ..functions.timers import backup_files
 
@@ -275,6 +276,10 @@ def process_data(client: Client, message: Message) -> bool:
 
                 elif action == "clear":
                     receive_clear_data(client, action_type, data)
+
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, data)
 
                 elif action == "leave":
                     if action_type == "approve":
