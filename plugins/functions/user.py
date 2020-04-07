@@ -234,6 +234,7 @@ def get_class_d_id(message: Message) -> (int, int):
     # Get Class D personnel's id
     uid = 0
     mid = 0
+
     try:
         r_message = message.reply_to_message
 
@@ -245,6 +246,7 @@ def get_class_d_id(message: Message) -> (int, int):
             mid = r_message.message_id
         elif r_message.from_user.is_self:
             uid = get_int(r_message.text.split("\n")[0].split(lang("colon"))[1])
+            
             if uid in glovar.admin_ids[message.chat.id]:
                 uid = 0
     except Exception as e:

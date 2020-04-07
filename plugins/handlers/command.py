@@ -39,7 +39,7 @@ from ..functions.telegram import get_group_info, resolve_username, send_message,
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["admin", "admins"], glovar.prefix)
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["admin", "admins"], glovar.prefix + ["@"])
                    & ~test_group & authorized_group
                    & from_user & ~class_d)
 def admin(client: Client, message: Message) -> bool:
