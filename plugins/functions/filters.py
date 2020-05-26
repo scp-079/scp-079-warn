@@ -29,6 +29,18 @@ from .ids import init_group_id
 logger = logging.getLogger(__name__)
 
 
+def is_aio(_, __) -> bool:
+    # Check if the program is under all-in-one mode
+    result = False
+
+    try:
+        result = glovar.aio
+    except Exception as e:
+        logger.warning(f"Is aio error: {e}", exc_info=True)
+
+    return result
+
+
 def is_authorized_group(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is send from the authorized group
     try:
@@ -170,6 +182,11 @@ def is_test_group(_, update: Union[CallbackQuery, Message]) -> bool:
 
     return False
 
+
+aio = Filters.create(
+    func=is_aio,
+    name="AIO"
+)
 
 authorized_group = Filters.create(
     func=is_authorized_group,
