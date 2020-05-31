@@ -508,6 +508,7 @@ def report(client: Client, message: Message) -> bool:
 
             # Reporter cannot report someone by replying WARN's report
             r_message = message.reply_to_message
+
             if r_message.from_user.is_self:
                 return True
 
@@ -630,7 +631,7 @@ def unban(client: Client, message: Message) -> bool:
             return True
 
         # Proceed
-        text = unban_user(client, gid, uid, aid)
+        text = unban_user(client, message, uid, aid)
         thread(send_report_message, (30, client, gid, text))
 
         return True

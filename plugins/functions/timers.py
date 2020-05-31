@@ -60,10 +60,14 @@ def backup_files(client: Client) -> bool:
 
 def interval_hour_01(client: Client) -> bool:
     # Execute every hour
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Clear old calling messages
         now = get_now()
+
         for gid in list(glovar.message_ids):
             mid, time = glovar.message_ids[gid]
 
@@ -80,6 +84,7 @@ def interval_hour_01(client: Client) -> bool:
 
         # Clear old reports
         now = get_now()
+
         for key in list(glovar.reports):
             report_record = glovar.reports[key]
             time = report_record["time"]
@@ -99,18 +104,20 @@ def interval_hour_01(client: Client) -> bool:
         save("reports")
 
         # Clear user's waiting status
-        for uid in list(glovar.user_ids):
+        reported_users = {glovar.reports[key]["user_id"] for key in glovar.reports}
+
+        for uid in set(glovar.user_ids) - reported_users:
             glovar.user_ids[uid]["waiting"] = set()
 
         save("user_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Interval hour 01 error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def reset_data(client: Client) -> bool:

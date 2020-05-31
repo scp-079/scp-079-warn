@@ -493,6 +493,7 @@ def report_user(gid: int, user: User, rid: int, mid: int,
     text = ""
     markup = None
     key = ""
+
     try:
         if user:
             uid = user.id
