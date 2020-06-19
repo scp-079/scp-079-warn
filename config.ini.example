@@ -27,7 +27,7 @@ long_id = [DATA EXPUNGED]
 noflood_id = [DATA EXPUNGED]
 noporn_id = [DATA EXPUNGED]
 nospam_id = [DATA EXPUNGED]
-recheck_id = [DATA EXPUNGED]
+recheck_id = 1
 tip_id = [DATA EXPUNGED]
 user_id = [DATA EXPUNGED]
 warn_id = [DATA EXPUNGED]
@@ -41,14 +41,14 @@ logging_channel_id = [DATA EXPUNGED]
 test_group_id = [DATA EXPUNGED]
 
 [custom]
-aio = [DATA EXPUNGED]
-backup = [DATA EXPUNGED]
-date_reset = [DATA EXPUNGED]
-default_group_link = [DATA EXPUNGED]
-limit_ban = [DATA EXPUNGED]
+aio = False
+backup = False
+date_reset = 1st mon
+default_group_link = https://t.me/SCP_079_DEBUG
+limit_ban = 3
 project_link = https://scp-079.org/warn/
 project_name = SCP-079-WARN
-zh_cn = [DATA EXPUNGED]
+zh_cn = True
 
 [encrypt]
 key = [DATA EXPUNGED]
