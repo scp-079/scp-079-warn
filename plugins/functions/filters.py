@@ -22,7 +22,6 @@ from typing import Union
 from pyrogram import CallbackQuery, Filters, Message, User
 
 from .. import glovar
-from .etc import get_id
 from .ids import init_group_id
 
 # Enable logging
@@ -315,6 +314,7 @@ def is_limited_admin(gid: int, uid: int) -> bool:
             return False
 
         if not glovar.counts[gid].get(uid):
+            glovar.counts[gid][uid] = 0
             return False
 
         if glovar.counts[gid][uid] > glovar.limit_ban:
