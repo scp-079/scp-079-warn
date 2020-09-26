@@ -311,6 +311,8 @@ def is_limited_admin(gid: int, uid: int) -> bool:
     # Check if the user is a limited admin
     try:
         if not glovar.counts.get(gid):
+            glovar.counts[gid] = {}
+            glovar.counts[gid][uid] = 0
             return False
 
         if not glovar.counts[gid].get(uid):
