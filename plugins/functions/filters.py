@@ -62,24 +62,29 @@ def is_authorized_group(_, update: Union[CallbackQuery, Message]) -> bool:
 
 
 def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
-    # Check if the update is send from Class C personnel
-    try:
-        # Basic data
-        gid, uid = get_id(update)
+    # Check if the message is sent from Class C personnel
+    result = False
 
-        if not gid or not uid:
+    try:
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
+
+        if not message.from_user:
             return False
 
-        # Check permission
-        if uid in glovar.admin_ids[gid] or uid in glovar.bot_ids or update.from_user.is_self:
-            if glovar.counts[gid].get(uid) is None:
-                glovar.counts[gid][uid] = 0
+        # Basic data
+        uid = message.from_user.id
+        gid = message.chat.id
 
+        # Check permission
+        if uid in glovar.admin_ids[gid] or uid in glovar.bot_ids or message.from_user.is_self:
             return True
     except Exception as e:
         logger.warning(f"Is class c error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def is_class_d(_, message: Message) -> bool:

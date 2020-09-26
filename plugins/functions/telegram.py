@@ -26,6 +26,7 @@ from pyrogram.errors import ChatAdminRequired, ButtonDataInvalid, ChannelInvalid
 from pyrogram.errors import MessageDeleteForbidden, PeerIdInvalid, QueryIdInvalid, UsernameInvalid, UsernameNotOccupied
 
 from .. import glovar
+from .decorators import retry
 from .etc import delay, get_int, t2t, wait_flood
 
 # Enable logging
@@ -133,20 +134,22 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
     return result
 
 
+@retry
 def get_admins(client: Client, cid: int) -> Union[bool, List[ChatMember], None]:
     # Get a group's admins
     result = None
+
     try:
-        flood_wait = True
-        while flood_wait:
-            flood_wait = False
-            try:
-                result = client.get_chat_members(chat_id=cid, filter="administrators")
-            except FloodWait as e:
-                flood_wait = True
-                wait_flood(e)
-            except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
-                return False
+        chat = get_chat(client, cid)
+
+        if isinstance(chat, Chat) and not chat.members_count:
+            return False
+
+        result = client.get_chat_members(chat_id=cid, filter="administrators")
+    except FloodWait as e:
+        raise e
+    except (AttributeError, ChannelInvalid, ChannelPrivate, PeerIdInvalid):
+        return False
     except Exception as e:
         logger.warning(f"Get admins in {cid} error: {e}", exc_info=True)
 

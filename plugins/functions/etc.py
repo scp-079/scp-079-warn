@@ -370,18 +370,18 @@ def t2t(text: str, normal: bool, printable: bool) -> str:
     return text
 
 
-def thread(target: Callable, args: tuple) -> bool:
+def thread(target: Callable, args: tuple, kwargs: dict = None, daemon: bool = True) -> bool:
     # Call a function using thread
-    try:
-        t = Thread(target=target, args=args)
-        t.daemon = True
-        t.start()
+    result = False
 
-        return True
+    try:
+        t = Thread(target=target, args=args, kwargs=kwargs, daemon=daemon)
+        t.daemon = daemon
+        result = t.start() or True
     except Exception as e:
         logger.warning(f"Thread error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def wait_flood(e: FloodWait) -> bool:

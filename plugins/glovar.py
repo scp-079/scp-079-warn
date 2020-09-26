@@ -44,7 +44,6 @@ prefix: List[str] = []
 prefix_str: str = "/!"
 
 # [bots]
-avatar_id: int = 0
 captcha_id: int = 0
 clean_id: int = 0
 lang_id: int = 0
@@ -87,7 +86,6 @@ try:
     prefix = list(config["basic"].get("prefix", prefix_str))
 
     # [bots]
-    avatar_id = int(config["bots"].get("avatar_id", str(avatar_id)))
     captcha_id = int(config["bots"].get("captcha_id", str(captcha_id)))
     clean_id = int(config["bots"].get("clean_id", str(clean_id)))
     lang_id = int(config["bots"].get("lang_id", str(lang_id)))
@@ -130,7 +128,6 @@ except Exception as e:
 # Check
 if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
-        or avatar_id == 0
         or captcha_id == 0
         or clean_id == 0
         or lang_id == 0
@@ -334,7 +331,7 @@ all_commands: List[str] = [
     "warn"
 ]
 
-bot_ids: Set[int] = {avatar_id, captcha_id, clean_id, lang_id, long_id, noflood_id,
+bot_ids: Set[int] = {captcha_id, clean_id, lang_id, long_id, noflood_id,
                      noporn_id, nospam_id, recheck_id, tip_id, user_id, warn_id}
 
 chats: Dict[int, Chat] = {}
@@ -436,12 +433,20 @@ bad_ids: Dict[str, Set[int]] = {
 #     "users": {12345678}
 # }
 
+lack_group_ids: Set[int] = set()
+# lack_group_ids = {-10012345678}
+
 left_group_ids: Set[int] = set()
 # left_group_ids = {-10012345678}
 
 message_ids: Dict[int, Tuple[int, int]] = {}
 # message_ids = {
 #     -10012345678: (123, 1512345678)
+# }
+
+trust_ids: Dict[int, Set[int]] = {}
+# trust_ids = {
+#     -10012345678: {12345678}
 # }
 
 user_ids: Dict[int, Dict[str, Union[float, Dict[Union[int, str], Union[float, int]], Set[int]]]] = {}
@@ -511,7 +516,8 @@ reports: Dict[str, Dict[str, Union[int, str]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "left_group_ids", "message_ids", "user_ids", "watch_ids",
+file_list: List[str] = ["admin_ids", "bad_ids", "lack_group_ids", "left_group_ids", "message_ids",
+                        "trust_ids", "user_ids", "watch_ids",
                         "configs", "reports"]
 for file in file_list:
     try:
