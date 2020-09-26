@@ -306,16 +306,19 @@ def receive_help_report(client: Client, data: dict) -> bool:
 
 def receive_leave_approve(client: Client, data: dict) -> bool:
     # Receive leave approve
+    result = False
+
     try:
         # Basic data
         admin_id = data["admin_id"]
         the_id = data["group_id"]
+        force = data["force"]
         reason = data["reason"]
 
         if reason in {"permissions", "user"}:
             reason = lang(f"reason_{reason}")
 
-        if not glovar.admin_ids.get(the_id):
+        if not glovar.admin_ids.get(the_id) and not force:
             return True
 
         text = get_debug_text(client, the_id)
@@ -328,11 +331,11 @@ def receive_leave_approve(client: Client, data: dict) -> bool:
         leave_group(client, the_id)
         thread(send_message, (client, glovar.debug_channel_id, text))
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive leave approve error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_refresh(client: Client, data: int) -> bool:
