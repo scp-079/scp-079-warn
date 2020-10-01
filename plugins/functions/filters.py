@@ -74,7 +74,7 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
             return False
 
         # Basic data
-        uid = message.from_user.id
+        uid = update.from_user.id
         gid = message.chat.id
 
         # Check permission
@@ -277,13 +277,14 @@ def is_class_e_user(user: Union[int, User]) -> bool:
 
 def is_declared_message_id(gid: int, mid: int) -> bool:
     # Check if the message's ID is declared by other bots
+    result = False
+
     try:
-        if mid in glovar.declared_message_ids.get(gid, set()):
-            return True
+        result = mid in glovar.declared_message_ids.get(gid, set())
     except Exception as e:
         logger.warning(f"Is declared message id error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def is_high_score_user(user: User) -> float:
