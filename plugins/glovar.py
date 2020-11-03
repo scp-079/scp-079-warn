@@ -108,6 +108,9 @@ try:
     test_group_id = int(config["channels"].get("test_group_id", str(test_group_id)))
     warn_channel_id = int(config["channels"].get("warn_channel_id", str(warn_channel_id)))
 
+    if not warn_channel_id:
+        warn_channel_id = logging_channel_id
+
     # [custom]
     aio = config["custom"].get("aio", aio)
     aio = eval(aio)
