@@ -63,6 +63,7 @@ exchange_channel_id: int = 0
 hide_channel_id: int = 0
 logging_channel_id: int = 0
 test_group_id: int = 0
+warn_channel_id: int = 0
 
 # [custom]
 aio: Union[bool, str] = ""
@@ -105,6 +106,7 @@ try:
     hide_channel_id = int(config["channels"].get("hide_channel_id", str(hide_channel_id)))
     logging_channel_id = int(config["channels"].get("logging_channel_id", str(logging_channel_id)))
     test_group_id = int(config["channels"].get("test_group_id", str(test_group_id)))
+    warn_channel_id = int(config["channels"].get("warn_channel_id", str(warn_channel_id)))
 
     # [custom]
     aio = config["custom"].get("aio", aio)

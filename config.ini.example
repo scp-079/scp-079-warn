@@ -39,6 +39,7 @@ exchange_channel_id = [DATA EXPUNGED]
 hide_channel_id = [DATA EXPUNGED]
 logging_channel_id = [DATA EXPUNGED]
 test_group_id = [DATA EXPUNGED]
+warn_channel_id = 0
 
 [custom]
 aio = False

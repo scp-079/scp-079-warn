@@ -150,7 +150,7 @@ def forward_evidence(client: Client, message: Message, level: str,
             else:
                 text += f"{lang('more')}{lang('colon')}{code(message.from_user.is_self)}"
 
-            result = send_message(client, glovar.logging_channel_id, text)
+            result = send_message(client, glovar.warn_channel_id, text)
             return result
 
         name = get_full_name(message.from_user)
@@ -178,7 +178,7 @@ def forward_evidence(client: Client, message: Message, level: str,
                 or message.voice
                 or message.game
                 or message.service):
-            result = send_message(client, glovar.logging_channel_id, text)
+            result = send_message(client, glovar.warn_channel_id, text)
             return result
 
         flood_wait = True
@@ -186,7 +186,7 @@ def forward_evidence(client: Client, message: Message, level: str,
             flood_wait = False
             try:
                 result = message.forward(
-                    chat_id=glovar.logging_channel_id,
+                    chat_id=glovar.warn_channel_id,
                     disable_notification=True
                 )
             except FloodWait as e:
@@ -197,7 +197,7 @@ def forward_evidence(client: Client, message: Message, level: str,
                 return False
 
         result = result.message_id
-        result = send_message(client, glovar.logging_channel_id, text, result)
+        result = send_message(client, glovar.warn_channel_id, text, result)
     except Exception as e:
         logger.warning(f"Forward evidence error: {e}", exc_info=True)
 
