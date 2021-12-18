@@ -19,8 +19,8 @@
 import logging
 from copy import deepcopy
 
-from .. import glovar
-from .file import save
+from plugins import glovar
+from plugins.functions.file import save
 
 # Enable logging
 logger = logging.getLogger(__name__)

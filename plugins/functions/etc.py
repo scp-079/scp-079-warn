@@ -27,10 +27,10 @@ from time import localtime, sleep, strftime, time
 from typing import Any, Callable, List, Optional, Union
 
 from cryptography.fernet import Fernet
-from pyrogram import CallbackQuery, InlineKeyboardMarkup, Message, User
 from pyrogram.errors import FloodWait
+from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message, User
 
-from .. import glovar
+from plugins import glovar
 
 # Enable logging
 logger = logging.getLogger(__name__)

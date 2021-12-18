@@ -20,14 +20,15 @@ import logging
 from json import dumps
 from typing import List, Optional, Union
 
-from pyrogram import Chat, Client, Message
+from pyrogram import Client
 from pyrogram.errors import FloodWait
+from pyrogram.types import Chat, Message
 
-from .. import glovar
-from .etc import code, code_block, general_link, get_full_name, get_command_type, lang
-from .etc import message_link, thread, wait_flood
-from .file import crypt_file, delete_file, get_new_path, save
-from .telegram import get_group_info, get_user_bio, send_document, send_message
+from plugins import glovar
+from plugins.functions.etc import (code, code_block, general_link, get_full_name, get_command_type, lang, message_link,
+                                   thread, wait_flood)
+from plugins.functions.file import crypt_file, delete_file, get_new_path, save
+from plugins.functions.telegram import get_group_info, get_user_bio, send_document, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -313,7 +314,7 @@ def share_data_thread(client: Client, receivers: List[str], action: str, action_
                 # Send directly
                 file_path = file
 
-            result = send_document(client, channel_id, file_path, None, text)
+            result = send_document(client, channel_id, file_path, text)
 
             # Delete the tmp file
             if result:

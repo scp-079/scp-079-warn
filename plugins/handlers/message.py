@@ -18,28 +18,30 @@
 
 import logging
 
-from pyrogram import Client, Filters, Message
+from pyrogram import Client, filters
+from pyrogram.types import Message
 
-from .. import glovar
-from ..functions.channel import get_debug_text, update_score
-from ..functions.etc import code, delay, general_link, lang, mention_id, thread
-from ..functions.file import save
-from ..functions.filters import aio, authorized_group, exchange_channel, from_user, hide_channel, new_group, test_group
-from ..functions.group import leave_group
-from ..functions.ids import init_group_id
-from ..functions.receive import receive_add_bad, receive_clear_data, receive_config_commit, receive_config_reply
-from ..functions.receive import receive_config_show, receive_declared_message, receive_help_report
-from ..functions.receive import receive_leave_approve, receive_refresh, receive_remove_bad, receive_remove_score
-from ..functions.receive import receive_remove_watch, receive_rollback, receive_text_data
-from ..functions.receive import receive_user_score, receive_watch_user
-from ..functions.telegram import get_admins, send_message
-from ..functions.timers import backup_files
+from plugins import glovar
+from plugins.functions.channel import get_debug_text, update_score
+from plugins.functions.etc import code, delay, general_link, lang, mention_id, thread
+from plugins.functions.file import save
+from plugins.functions.filters import (aio, authorized_group, exchange_channel, from_user, hide_channel, new_group,
+                                       test_group)
+from plugins.functions.group import leave_group
+from plugins.functions.ids import init_group_id
+from plugins.functions.receive import receive_add_bad, receive_clear_data, receive_config_commit, receive_config_reply
+from plugins.functions.receive import receive_config_show, receive_declared_message, receive_help_report
+from plugins.functions.receive import receive_leave_approve, receive_refresh, receive_remove_bad, receive_remove_score
+from plugins.functions.receive import receive_remove_watch, receive_rollback, receive_text_data
+from plugins.functions.receive import receive_user_score, receive_watch_user
+from plugins.functions.telegram import get_admins, send_message
+from plugins.functions.timers import backup_files
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
+@Client.on_message(filters.incoming & filters.group & filters.new_chat_members
                    & ~test_group & ~new_group & authorized_group
                    & from_user)
 def check_join(client: Client, message: Message) -> bool:
@@ -73,7 +75,7 @@ def check_join(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & ~Filters.command(glovar.all_commands, glovar.prefix)
+@Client.on_message(filters.incoming & filters.channel & ~filters.command(glovar.all_commands, glovar.prefix)
                    & hide_channel, group=-1)
 def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
@@ -118,8 +120,8 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
-                   & (Filters.new_chat_members | Filters.group_chat_created | Filters.supergroup_chat_created)
+@Client.on_message(filters.incoming & filters.group
+                   & (filters.new_chat_members | filters.group_chat_created | filters.supergroup_chat_created)
                    & ~test_group & new_group
                    & from_user)
 def init_group(client: Client, message: Message) -> bool:
@@ -180,8 +182,8 @@ def init_group(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message((Filters.incoming | aio) & Filters.channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix)
+@Client.on_message((filters.incoming | aio) & filters.channel
+                   & ~filters.command(glovar.all_commands, glovar.prefix)
                    & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel

@@ -21,7 +21,7 @@ from functools import wraps
 
 from pyrogram.errors import FloodWait
 
-from .etc import thread, wait_flood
+from plugins.functions.etc import thread, wait_flood
 
 # Enable logging
 logger = logging.getLogger(__name__)

@@ -25,7 +25,7 @@ from shutil import rmtree
 from threading import Lock
 from typing import Dict, List, Set, Tuple, Union
 
-from pyrogram import Chat
+from pyrogram.types import Chat
 
 # Enable logging
 logging.basicConfig(

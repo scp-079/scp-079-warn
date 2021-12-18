@@ -21,17 +21,18 @@ from random import sample
 from time import sleep
 from typing import Union
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
+from pyrogram import Client
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
-from .. import glovar
-from .channel import ask_for_help, forward_evidence, send_debug, update_score
-from .etc import button_data, code, delay, general_link, get_channel_link, get_int, get_now, get_text, lang
-from .etc import mention_id, message_link, random_str, thread
-from .file import save
-from .filters import is_class_c, is_from_user, is_limited_admin
-from .group import delete_message
-from .ids import init_user_id
-from .telegram import edit_message_text, kick_chat_member, unban_chat_member
+from plugins import glovar
+from plugins.functions.channel import ask_for_help, forward_evidence, send_debug, update_score
+from plugins.functions.etc import button_data, code, delay, general_link, get_channel_link, get_int, get_now, get_text, lang
+from plugins.functions.etc import mention_id, message_link, random_str, thread
+from plugins.functions.file import save
+from plugins.functions.filters import is_class_c, is_from_user, is_limited_admin
+from plugins.functions.group import delete_message
+from plugins.functions.ids import init_user_id
+from plugins.functions.telegram import edit_message_text, kick_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -238,10 +239,10 @@ def get_class_d_id(message: Message) -> (int, int):
     try:
         r_message = message.reply_to_message
 
-        if not r_message or not is_from_user(None, r_message):
+        if not r_message or not is_from_user(None, None, r_message):
             return 0, 0
 
-        if not is_class_c(None, r_message):
+        if not is_class_c(None, None, r_message):
             uid = r_message.from_user.id
             mid = r_message.message_id
         elif r_message.from_user.is_self:

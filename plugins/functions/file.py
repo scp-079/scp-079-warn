@@ -26,9 +26,9 @@ from typing import Any
 from pyAesCrypt import decryptFile, encryptFile
 from pyrogram import Client
 
-from .. import glovar
-from .etc import random_str, thread
-from .telegram import download_media
+from plugins import glovar
+from plugins.functions.etc import random_str, thread
+from plugins.functions.telegram import download_media
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -81,19 +81,20 @@ def delete_file(path: str) -> bool:
     return False
 
 
-def get_downloaded_path(client: Client, file_id: str, file_ref: str) -> str:
+def get_downloaded_path(client: Client, file_id: str) -> str:
     # Download file, get it's path on local machine
-    final_path = ""
+    result = ""
+
     try:
         if not file_id:
             return ""
 
         file_path = get_new_path()
-        final_path = download_media(client, file_id, file_ref, file_path)
+        result = download_media(client, file_id, file_path)
     except Exception as e:
         logger.warning(f"Get downloaded path error: {e}", exc_info=True)
 
-    return final_path
+    return result
 
 
 def get_new_path(extension: str = "") -> str:

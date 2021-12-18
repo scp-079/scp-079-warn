@@ -19,12 +19,13 @@
 import logging
 from json import loads
 
-from pyrogram import CallbackQuery, Client
+from pyrogram import Client
+from pyrogram.types import CallbackQuery
 
-from ..functions.etc import thread
-from ..functions.filters import authorized_group, class_c
-from ..functions.telegram import answer_callback
-from ..functions.user import mention_answer, report_answer, undo_user
+from plugins.functions.etc import thread
+from plugins.functions.filters import authorized_group, class_c
+from plugins.functions.telegram import answer_callback
+from plugins.functions.user import mention_answer, report_answer, undo_user
 
 # Enable logging
 logger = logging.getLogger(__name__)

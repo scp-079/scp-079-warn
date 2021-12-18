@@ -21,27 +21,28 @@ import re
 from copy import deepcopy
 from subprocess import run, PIPE
 
-from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from .. import glovar
-from ..functions.channel import get_debug_text, share_data
-from ..functions.etc import button_data, code, delay, general_link, get_callback_data, get_command_context
-from ..functions.etc import get_command_type, get_full_name, get_int, get_now, get_readable_time, lang, mention_id
-from ..functions.etc import thread
-from ..functions.file import save
-from ..functions.filters import authorized_group, class_d, from_user, is_class_c, is_watch_user, is_high_score_user
-from ..functions.filters import is_class_e_user, test_group
-from ..functions.group import delete_message, get_config_text, get_message
-from ..functions.ids import init_user_id
-from ..functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, remove_user
-from ..functions.user import report_answer, report_user, unban_user, undo_user, warn_user
-from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
+from plugins import glovar
+from plugins.functions.channel import get_debug_text, share_data
+from plugins.functions.etc import button_data, code, delay, general_link, get_callback_data, get_command_context
+from plugins.functions.etc import get_command_type, get_full_name, get_int, get_now, get_readable_time, lang, mention_id
+from plugins.functions.etc import thread
+from plugins.functions.file import save
+from plugins.functions.filters import (authorized_group, class_d, from_user, is_class_c, is_watch_user, 
+                                       is_high_score_user, is_class_e_user, test_group)
+from plugins.functions.group import delete_message, get_config_text, get_message
+from plugins.functions.ids import init_user_id
+from plugins.functions.user import ban_user, forgive_user, get_admin_text, get_class_d_id, remove_user
+from plugins.functions.user import report_answer, report_user, unban_user, undo_user, warn_user
+from plugins.functions.telegram import get_group_info, resolve_username, send_message, send_report_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["admin", "admins"], glovar.prefix + ["@"])
+@Client.on_message(filters.incoming & filters.group & filters.command(["admin", "admins"], glovar.prefix + ["@"])
                    & ~test_group & authorized_group
                    & from_user & ~class_d)
 def admin(client: Client, message: Message) -> bool:
@@ -56,7 +57,7 @@ def admin(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if is_class_c(None, message):
+        if is_class_c(None, None, message):
             return True
 
         # Check config
@@ -127,8 +128,8 @@ def admin(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
-                   & Filters.command(["ban"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group
+                   & filters.command(["ban"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user)
 def ban(client: Client, message: Message) -> bool:
@@ -143,7 +144,7 @@ def ban(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         # Check user id
@@ -177,7 +178,7 @@ def ban(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["config"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user)
 def config(client: Client, message: Message) -> bool:
@@ -192,7 +193,7 @@ def config(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         # Check command format
@@ -239,7 +240,7 @@ def config(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
     finally:
-        if is_class_c(None, message):
+        if is_class_c(None, None, message):
             delay(3, delete_message, [client, gid, mid])
         else:
             delete_message(client, gid, mid)
@@ -247,8 +248,8 @@ def config(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group
-                   & Filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group
+                   & filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user)
 def config_directly(client: Client, message: Message) -> bool:
@@ -263,7 +264,7 @@ def config_directly(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         aid = message.from_user.id
@@ -362,7 +363,7 @@ def config_directly(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["forgive"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["forgive"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user)
 def forgive(client: Client, message: Message) -> bool:
@@ -377,7 +378,7 @@ def forgive(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         # Get user id
@@ -410,7 +411,7 @@ def forgive(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["kick"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["kick"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user)
 def kick(client: Client, message: Message) -> bool:
@@ -425,7 +426,7 @@ def kick(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         # Get user id
@@ -458,7 +459,7 @@ def kick(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["report"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["report"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user & ~class_d)
 def report(client: Client, message: Message) -> bool:
@@ -473,7 +474,7 @@ def report(client: Client, message: Message) -> bool:
 
     try:
         # Normal user
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             # Check config
             if not glovar.configs[gid]["report"]["manual"]:
                 return True
@@ -586,7 +587,7 @@ def report(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["unban"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["unban"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user)
 def unban(client: Client, message: Message) -> bool:
@@ -601,7 +602,7 @@ def unban(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         aid = message.from_user.id
@@ -645,7 +646,7 @@ def unban(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["undo"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["undo"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user)
 def undo(client: Client, message: Message) -> bool:
@@ -660,7 +661,7 @@ def undo(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         aid = message.from_user.id
@@ -701,7 +702,7 @@ def undo(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["version"], glovar.prefix)
                    & test_group
                    & from_user)
 def version(client: Client, message: Message) -> bool:
@@ -746,7 +747,7 @@ def version(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["warn"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["warn"], glovar.prefix)
                    & ~test_group & authorized_group
                    & from_user)
 def warn(client: Client, message: Message) -> bool:
@@ -761,7 +762,7 @@ def warn(client: Client, message: Message) -> bool:
 
     try:
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         aid = message.from_user.id

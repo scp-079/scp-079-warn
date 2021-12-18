@@ -22,18 +22,19 @@ from copy import deepcopy
 from json import loads
 from typing import Any
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram import Client
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from .. import glovar
-from .channel import get_debug_text, share_data
-from .etc import code, crypt_str, general_link, get_int, get_text, lang, mention_id, thread
-from .file import crypt_file, data_to_file, delete_file, get_downloaded_path, get_new_path, save
-from .filters import is_declared_message_id
-from .group import get_config_text, get_message, leave_group
-from .ids import init_group_id, init_user_id
-from .telegram import send_message, send_report_message
-from .timers import update_admins
-from .user import report_user
+from plugins import glovar
+from plugins.functions.channel import get_debug_text, share_data
+from plugins.functions.etc import code, crypt_str, general_link, get_int, get_text, lang, mention_id, thread
+from plugins.functions.file import crypt_file, data_to_file, delete_file, get_downloaded_path, get_new_path, save
+from plugins.functions.filters import is_declared_message_id
+from plugins.functions.group import get_config_text, get_message, leave_group
+from plugins.functions.ids import init_group_id, init_user_id
+from plugins.functions.telegram import send_message, send_report_message
+from plugins.functions.timers import update_admins
+from plugins.functions.user import report_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -227,8 +228,7 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
             return None
 
         file_id = message.document.file_id
-        file_ref = message.document.file_ref
-        path = get_downloaded_path(client, file_id, file_ref)
+        path = get_downloaded_path(client, file_id)
 
         if not path:
             return None

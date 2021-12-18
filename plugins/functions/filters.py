@@ -19,16 +19,17 @@
 import logging
 from typing import Union
 
-from pyrogram import CallbackQuery, Filters, Message, User
+from pyrogram import filters
+from pyrogram.types import CallbackQuery, Message, User
 
-from .. import glovar
-from .ids import init_group_id
+from plugins import glovar
+from plugins.functions.ids import init_group_id
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-def is_aio(_, __) -> bool:
+def is_aio(_, __, ___) -> bool:
     # Check if the program is under all-in-one mode
     result = False
 
@@ -40,7 +41,7 @@ def is_aio(_, __) -> bool:
     return result
 
 
-def is_authorized_group(_, update: Union[CallbackQuery, Message]) -> bool:
+def is_authorized_group(_, __, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is send from the authorized group
     try:
         if isinstance(update, CallbackQuery):
@@ -60,7 +61,7 @@ def is_authorized_group(_, update: Union[CallbackQuery, Message]) -> bool:
     return False
 
 
-def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
+def is_class_c(_, __, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is sent from Class C personnel
     result = False
 
@@ -86,7 +87,7 @@ def is_class_c(_, update: Union[CallbackQuery, Message]) -> bool:
     return result
 
 
-def is_class_d(_, message: Message) -> bool:
+def is_class_d(_, __, message: Message) -> bool:
     # Check if the message is Class D object
     try:
         if message.from_user:
@@ -98,7 +99,7 @@ def is_class_d(_, message: Message) -> bool:
     return False
 
 
-def is_class_e(_, message: Message, test: bool = False) -> bool:
+def is_class_e(_, __, message: Message, test: bool = False) -> bool:
     # Check if the message is Class E object
     try:
         if message.from_user and not test:
@@ -110,7 +111,7 @@ def is_class_e(_, message: Message, test: bool = False) -> bool:
     return False
 
 
-def is_exchange_channel(_, message: Message) -> bool:
+def is_exchange_channel(_, __, message: Message) -> bool:
     # Check if the message is sent from the exchange channel
     try:
         if not message.chat:
@@ -127,7 +128,7 @@ def is_exchange_channel(_, message: Message) -> bool:
     return False
 
 
-def is_from_user(_, message: Message) -> bool:
+def is_from_user(_, __, message: Message) -> bool:
     # Check if the message is sent from a user
     try:
         if message.from_user and message.from_user.id != 777000:
@@ -138,7 +139,7 @@ def is_from_user(_, message: Message) -> bool:
     return False
 
 
-def is_hide_channel(_, message: Message) -> bool:
+def is_hide_channel(_, __, message: Message) -> bool:
     # Check if the message is sent from the hide channel
     try:
         if not message.chat:
@@ -153,7 +154,7 @@ def is_hide_channel(_, message: Message) -> bool:
     return False
 
 
-def is_new_group(_, message: Message) -> bool:
+def is_new_group(_, __, message: Message) -> bool:
     # Check if the bot joined a new group
     try:
         new_users = message.new_chat_members
@@ -167,7 +168,7 @@ def is_new_group(_, message: Message) -> bool:
     return False
 
 
-def is_test_group(_, update: Union[CallbackQuery, Message]) -> bool:
+def is_test_group(_, __, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is sent from the test group
     try:
         if isinstance(update, CallbackQuery):
@@ -187,52 +188,52 @@ def is_test_group(_, update: Union[CallbackQuery, Message]) -> bool:
     return False
 
 
-aio = Filters.create(
+aio = filters.create(
     func=is_aio,
     name="AIO"
 )
 
-authorized_group = Filters.create(
+authorized_group = filters.create(
     func=is_authorized_group,
     name="Authorized Group"
 )
 
-class_c = Filters.create(
+class_c = filters.create(
     func=is_class_c,
     name="Class C"
 )
 
-class_d = Filters.create(
+class_d = filters.create(
     func=is_class_d,
     name="Class D"
 )
 
-class_e = Filters.create(
+class_e = filters.create(
     func=is_class_e,
     name="Class E"
 )
 
-exchange_channel = Filters.create(
+exchange_channel = filters.create(
     func=is_exchange_channel,
     name="Exchange Channel"
 )
 
-from_user = Filters.create(
+from_user = filters.create(
     func=is_from_user,
     name="From User"
 )
 
-hide_channel = Filters.create(
+hide_channel = filters.create(
     func=is_hide_channel,
     name="Hide Channel"
 )
 
-new_group = Filters.create(
+new_group = filters.create(
     func=is_new_group,
     name="New Group"
 )
 
-test_group = Filters.create(
+test_group = filters.create(
     func=is_test_group,
     name="Test Group"
 )

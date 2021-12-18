@@ -19,12 +19,13 @@
 import logging
 from typing import List, Optional
 
-from pyrogram import ChatMember, Client, Message
+from pyrogram import Client
+from pyrogram.types import ChatMember, Message
 
-from .. import glovar
-from .etc import code, lang, thread
-from .file import save
-from .telegram import delete_messages, get_messages, leave_chat
+from plugins import glovar
+from plugins.functions.etc import code, lang, thread
+from plugins.functions.file import save
+from plugins.functions.telegram import delete_messages, get_messages, leave_chat
 
 # Enable logging
 logger = logging.getLogger(__name__)

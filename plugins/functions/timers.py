@@ -21,12 +21,12 @@ from time import sleep
 
 from pyrogram import Client
 
-from .. import glovar
-from .channel import share_data
-from .etc import code, general_link, get_now, lang, thread
-from .file import data_to_file, save
-from .group import delete_message, leave_group, save_admins
-from .telegram import get_admins, get_group_info, send_message
+from plugins import glovar
+from plugins.functions.channel import share_data
+from plugins.functions.etc import code, general_link, get_now, lang, thread
+from plugins.functions.file import data_to_file, save
+from plugins.functions.group import delete_message, leave_group, save_admins
+from plugins.functions.telegram import get_admins, get_group_info, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)

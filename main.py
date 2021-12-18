@@ -23,11 +23,12 @@ import logging
 from random import randint
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from pyrogram import Client
+from pyrogram import Client, idle
 
 from plugins import glovar
-from plugins.functions.timers import backup_files, interval_hour_01, reset_data
-from plugins.functions.timers import update_admins, update_report_ids, update_status
+from plugins.functions.etc import delay
+from plugins.functions.timers import (backup_files, interval_hour_01, reset_data, update_admins, update_report_ids,
+                                      update_status)
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ app = Client(
 app.start()
 
 # Send online status
-update_status(app, "online")
+delay(3, update_status, [app, "online"])
 
 # Timer
 scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 60})
@@ -53,7 +54,7 @@ scheduler.add_job(update_admins, "cron", [app], hour=22, minute=30)
 scheduler.start()
 
 # Hold
-app.idle()
+idle()
 
 # Stop
 app.stop()
